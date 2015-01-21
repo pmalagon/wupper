@@ -31,11 +31,9 @@ set_property PACKAGE_PIN G18 [get_ports clk_200_in_n]
 set_property IOSTANDARD LVCMOS18 [get_ports emcclk]
 set_property PACKAGE_PIN AP37 [get_ports emcclk]
 
-
 #XADC GPIO
 set_property PACKAGE_PIN AR38 [get_ports emcclk_out]
 set_property IOSTANDARD LVCMOS18 [get_ports emcclk_out] 
-
 
 
 set_property BITSTREAM.CONFIG.BPI_SYNC_MODE Type1 [current_design]
@@ -51,7 +49,7 @@ set_property PACKAGE_PIN AR35 [get_ports {leds[4]}]
 set_property PACKAGE_PIN AP41 [get_ports {leds[5]}]
 set_property PACKAGE_PIN AP42 [get_ports {leds[6]}]
 set_property PACKAGE_PIN AU39 [get_ports {leds[7]}]
-##
+#
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[2]}]
@@ -100,34 +98,50 @@ set_property PULLUP true [get_ports sys_reset_n]
 # Please refer to the Virtex-7 GT Transceiver User Guide
 # (UG) for guidelines regarding clock resource selection.
 #
-set_property LOC IBUFDS_GTE2_X1Y11 [get_cells pcie0/u1/refclk_buff]
+set_property LOC IBUFDS_GTE2_X1Y11 [get_cells u1/u1/refclk_buff]
 
 ###############################################################################
 # Timing Constraints
 ###############################################################################
-create_clock -period 10.000 -name sys_clk -waveform {0.000 5.000} [get_ports sys_clk_p]
+create_clock -period 10.000 -name sys_clk [get_pins u1/u1/refclk_buff/O]
 
+create_generated_clock -name clk_125mhz_x0y1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT0]
+create_generated_clock -name clk_250mhz_x0y1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT1]
+create_generated_clock -name userclk1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT2]
+create_generated_clock -name userclk2 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT3]
 
-
-create_generated_clock -name clk_125mhz_x0y1 [get_pins pcie0/u1/pipe_clock0/mmcm0/CLKOUT0]
-create_generated_clock -name clk_250mhz_x0y1 [get_pins pcie0/u1/pipe_clock0/mmcm0/CLKOUT1]
-
-
-create_generated_clock -name clk_125mhz_mux_x0y1 -source [get_pins pcie0/u1/pipe_clock0/g0.pclk_i1/I0] -divide_by 1 [get_pins pcie0/u1/pipe_clock0/g0.pclk_i1/O]
-create_generated_clock -name clk_250mhz_mux_x0y1 -source [get_pins pcie0/u1/pipe_clock0/g0.pclk_i1/I1] -divide_by 1 -add -master_clock clk_250mhz_x0y1 [get_pins pcie0/u1/pipe_clock0/g0.pclk_i1/O]
+create_generated_clock -name clk_125mhz_mux_x0y1 -source [get_pins u1/u1/pipe_clock0/g0.pclk_i1/I0] -divide_by 1 [get_pins u1/u1/pipe_clock0/g0.pclk_i1/O]
+create_generated_clock -name clk_250mhz_mux_x0y1 -source [get_pins u1/u1/pipe_clock0/g0.pclk_i1/I1] -divide_by 1 -add -master_clock clk_250mhz_x0y1 [get_pins u1/u1/pipe_clock0/g0.pclk_i1/O]
 set_clock_groups -name pcieclkmux -physically_exclusive -group clk_125mhz_mux_x0y1 -group clk_250mhz_mux_x0y1
-set_false_path -to [get_pins pcie0/u1/pipe_clock0/g0.pclk_i1/S0]
-set_false_path -to [get_pins pcie0/u1/pipe_clock0/g0.pclk_i1/S1]
 
-set_false_path -from [get_clocks CLKOUT3] -to [get_clocks clk40_clk_wiz_0]
-set_false_path -from [get_clocks clk40_clk_wiz_0] -to [get_clocks CLKOUT3]
-set_false_path -from [get_clocks CLKOUT2] -to [get_clocks clk40_clk_wiz_0]
-set_false_path -from [get_clocks clk40_clk_wiz_0] -to [get_clocks CLKOUT2]
+set_false_path -to [get_pins u1/u1/pipe_clock0/g0.pclk_i1/S0]
+set_false_path -to [get_pins u1/u1/pipe_clock0/g0.pclk_i1/S1]
+
+set_false_path -from [get_clocks clk_125mhz_x0y1] -to [get_clocks clk40_clk_wiz_0]
+set_false_path -from [get_clocks clk_250mhz_x0y1] -to [get_clocks clk40_clk_wiz_0]
+set_false_path -from [get_clocks userclk1] -to [get_clocks clk40_clk_wiz_0]
+set_false_path -from [get_clocks userclk2] -to [get_clocks clk40_clk_wiz_0]
+
+set_false_path -from [get_clocks clk40_clk_wiz_0] -to [get_clocks clk_125mhz_x0y1]    
+set_false_path -from [get_clocks clk40_clk_wiz_0] -to [get_clocks clk_250mhz_x0y1]    
+set_false_path -from [get_clocks clk40_clk_wiz_0] -to [get_clocks userclk1]
+set_false_path -from [get_clocks clk40_clk_wiz_0] -to [get_clocks userclk2]
+
+
 ###############################################################################
 # Physical Constraints
 ###############################################################################
 
 set_false_path -from [get_ports sys_reset_n]
+set_false_path -reset_path -from [get_pins u1/u1/u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C] 
 ###############################################################################
 # End
 ###############################################################################
+
+
+
+
+
+
+
+

@@ -20,6 +20,7 @@ sudo rmmod driver_name
 
 The DMA Core has a register map with 128 bit address space per register, however registers can be read and written in words of 32, 64, 96 or 128 bits at a time. The addresses of the register have an offset with respect to a Base Address Register (BAR) that can be readout running: The PCIe DMA core has 3 different BAR spaces all with their own memory map. 
 \newpage
+
 \subsubsection{The register map}
 
 Starting from the offset address of BAR0, BAR1 and BAR2, the register map for BAR0 expands from 0x0000 to 0x0420 for the PCIe control registers. BAR0 only contains registers associated with DMA. The offset for BAR0 is usually 0xFBB00000.
@@ -117,8 +118,16 @@ BAR2 currently holds some registers for testing and debugging the core, it will 
 	\hline
 	0x0010  & REG\_STATUS\_LEDS & [7:0] & R/W & Board GPIO Leds\\
 	\hline
+	0x0020  & GENERIC\_CONSTANTS& [7:0] & R & NUMBER\_OF\_DESCRIPTORS\\
+	        & &[15:8] & R & NUMBER\_OF\_INTERRUPTS \\
+	\hline
 	0x0300  & REG\_PLL\_LOCK & [0] & R & PLL Locked status\\
 	\hline
+	0x1060  & REG\_INT\_TEST\_2 & any & W & Fire a test MSIx interrupt \#2 \\
+	\hline
+	0x1070  & REG\_INT\_TEST\_3 & any & W & Fire a test MSIx interrupt \#3 \\
+	\hline
+
 	\end{tabularx}
 	\caption{DMA Core register map BAR2}\label{tab:dma_register_map_bar2}
 \end{table}

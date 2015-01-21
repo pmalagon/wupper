@@ -104,8 +104,12 @@ package pcie_package is
   -- Control Registers
   constant REG_BOARD_ID            : std_logic_vector(19 downto 0) := x"00000";  
   constant REG_STATUS_LEDS         : std_logic_vector(19 downto 0) := x"00010";  
+  constant REG_GENERIC_CONSTANTS   : std_logic_vector(19 downto 0) := x"00020";
   -- Monitor Registers
   constant REG_PLL_LOCK            : std_logic_vector(19 downto 0) := x"00300";
+  -- Test interrupt registers.
+  constant REG_INT_TEST_2          : std_logic_vector(19 downto 0) := x"01060";
+  constant REG_INT_TEST_3          : std_logic_vector(19 downto 0) := x"01070";  
   ------------------------------------------------
   ---- Application specific registers END 🂱 ----
   ------------------------------------------------
@@ -117,17 +121,15 @@ package pcie_package is
   type register_map_control_type is record
     BOARD_ID         : std_logic_vector(63 downto 0);    
     STATUS_LEDS      : std_logic_vector(7 downto 0);
+    INT_TEST_2       : std_logic_vector(0 downto 0);
+    INT_TEST_3       : std_logic_vector(0 downto 0); 
   end record;
   
-  type register_map_read_type is record
-    TEMP: std_logic;
-  end record;
-  ------------------------------------------------
+    ------------------------------------------------
   ---- Application specific registers END   🂱 ----
   ------------------------------------------------
 
   -- Read/Write User Application Registers Default values (Written by PCIe)
-
   ------------------------------------------------
   ---- Application specific registers BEGIN 🂱 ----
   ------------------------------------------------
@@ -136,6 +138,7 @@ package pcie_package is
   ------------------------------------------------
   ---- Application specific registers END   🂱 ----
   ------------------------------------------------
+
   -- Monitor: Read Only User Application Registers (Read by PCIe)
   ------------------------------------------------
   ---- Application specific registers BEGIN 🂱 ----

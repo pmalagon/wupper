@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -43,8 +44,10 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
+
+
 
 library ieee, UNISIM, work;
 use ieee.numeric_std.all;
@@ -68,6 +71,8 @@ entity pcie_init is
     clk                      : in     std_logic;
     reset                    : in     std_logic);
 end entity pcie_init;
+
+
 
 architecture rtl of pcie_init is
 

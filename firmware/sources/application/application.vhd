@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -47,8 +48,9 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
+-- 
+--! @brief ieee 
 
---! @brief ieee
 
 
 library ieee, UNISIM, work;
@@ -59,8 +61,10 @@ use ieee.std_logic_1164.all;
 use work.pcie_package.all;
 
 entity application is
+  generic(
+    NUMBER_OF_INTERRUPTS : integer := 8);
   port (
-    clk40                : in     std_logic; --40 MHz clock. Reset and register_map are synchronous to this clock.
+    clk40                : in     std_logic; --! 40 MHz clock. Reset and register_map are synchronous to this clock.
     fifo_din             : in     std_logic_vector(255 downto 0);
     fifo_dout            : out    std_logic_vector(255 downto 0);
     fifo_empty           : out    std_logic;
@@ -70,7 +74,9 @@ entity application is
     fifo_we              : in     std_logic;
     fifo_wr_clk          : in     std_logic;
     flush_fifo           : in     std_logic;
+    interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
     leds                 : out    std_logic_vector(7 downto 0);
+    pll_locked           : in     std_logic;
     register_map_control : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
     register_map_monitor : out    register_map_monitor_type; --! contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
     reset_hard           : in     std_logic;
@@ -116,6 +122,7 @@ begin
   reset <= reset_hard or reset_soft;
 
   register_map_monitor   <= register_map_monitor_s;
+  register_map_monitor_s.PLL_LOCK(0) <= pll_locked;
   register_map_control_s <= register_map_control;
 
   leds <= register_map_control_s.STATUS_LEDS(7 downto 0);
@@ -159,6 +166,17 @@ begin
       end if;
     end if;
   end process;
+  
+  g0: if(NUMBER_OF_INTERRUPTS>2) generate
+    interrupt_call(2 downto 2) <= register_map_control_s.INT_TEST_2;
+    g1: if(NUMBER_OF_INTERRUPTS>3) generate
+      interrupt_call(3 downto 3) <= register_map_control_s.INT_TEST_3;
+      interrupt_call(NUMBER_OF_INTERRUPTS-1 downto 4) <= (others => '0');
+    end generate;
+  end generate;
+  
+  
+  
   
   
 end architecture rtl ; -- of application

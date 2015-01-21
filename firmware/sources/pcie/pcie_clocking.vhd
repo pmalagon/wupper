@@ -62,8 +62,8 @@ generic
     PCIE_LANE          : integer := 8;                       -- PCIe number of lanes
     PCIE_LINK_SPEED    : integer := 3;                       -- PCIe link speed 
     PCIE_REFCLK_FREQ   : integer := 0;                       -- PCIe reference clock frequency
-    PCIE_USERCLK1_FREQ : integer := 2;                       -- PCIe user clock 1 frequency
-    PCIE_USERCLK2_FREQ : integer := 2;                       -- PCIe user clock 2 frequency
+    PCIE_USERCLK1_FREQ : integer := 5;                       -- PCIe user clock 1 frequency
+    PCIE_USERCLK2_FREQ : integer := 4;                       -- PCIe user clock 2 frequency
     PCIE_OOBCLK_MODE   : integer := 1;                       -- PCIe oob clock mode
     PCIE_DEBUG_MODE    : integer := 0                        -- PCIe Debug mode
 );

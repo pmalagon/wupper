@@ -232,11 +232,8 @@ architecture rtl of dma_control is
   constant REG_INT_TAB_EN          : std_logic_vector(19 downto 0) := x"00100";
   -- BAR1 registers: end
   -- ### BAR2 registers: start
-  -- NOTE: the address values for BAR2 are defined in the FELIX_pcie_package.vhd
+  -- NOTE: the address values for BAR2 are defined in the pcie_package.vhd
   --       because the are machine generated with Jinja
-  -- test crap far away in BAR 2
-  --constant REG_INT_TEST            : std_logic_vector(19 downto 0) := x"01060";
-  --constant REG_INT_TEST_1          : std_logic_vector(19 downto 0) := x"01070";  
   -- BAR2 registers: end
   
 begin
@@ -743,6 +740,8 @@ begin
       ------------------------------------------------    
       register_map_control_s.BOARD_ID       <= BOARD_ID_C;
       register_map_control_s.STATUS_LEDS    <= STATUS_LEDS_C;
+      register_map_control_s.INT_TEST_2     <= "0";
+      register_map_control_s.INT_TEST_3     <= "0";
       ------------------------------------------------
       ---- Application specific registers END 🂱 ----
       ------------------------------------------------
@@ -754,8 +753,8 @@ begin
       flush_fifo_40_s        <= '0';
       dma_soft_reset_40_s    <= '0';
       reset_global_soft_40_s <= '0';
-      --write_interrupt_40_s   <= '0';
-      --read_interrupt_40_s    <= '0';  
+      register_map_control_s.INT_TEST_2     <= "0";
+      register_map_control_s.INT_TEST_3     <= "0";
       
       
       if(register_read_enable_40_s = '1') then
@@ -879,10 +878,12 @@ begin
             ---- Application specific registers BEGIN 🂱 ----
             ------------------------------------------------
             -- Control Registers
-            when REG_BOARD_ID        => register_read_data_40_s(63 downto 0)  <= register_map_control_s.BOARD_ID;
-            when REG_STATUS_LEDS     => register_read_data_40_s(7 downto 0)   <= register_map_control_s.STATUS_LEDS;
+            when REG_BOARD_ID          => register_read_data_40_s  <= x"0000000000000000"&register_map_control_s.BOARD_ID;
+            when REG_STATUS_LEDS       => register_read_data_40_s  <= x"000000000000000000000000000000"&register_map_control_s.STATUS_LEDS;
+            when REG_GENERIC_CONSTANTS => register_read_data_40_s  <= x"0000000000000000000000000000"&std_logic_vector(to_unsigned(NUMBER_OF_INTERRUPTS, 8))&
+                                                                                                      std_logic_vector(to_unsigned(NUMBER_OF_DESCRIPTORS, 8));
             -- Monitor Registers
-            when REG_PLL_LOCK        => register_read_data_40_s(0 downto 0)   <= register_map_monitor_s.PLL_LOCK;
+            when REG_PLL_LOCK          => register_read_data_40_s  <= x"0000000000000000000000000000000"&"000"&register_map_monitor_s.PLL_LOCK;
             ------------------------------------------------
             ---- Application specific registers END   🂱 ----
             ------------------------------------------------
@@ -988,12 +989,12 @@ begin
             ------------------------------------------------
             when REG_BOARD_ID        => register_map_control_s.BOARD_ID       <= register_write_data_40_s(63 downto 0);
             when REG_STATUS_LEDS     => register_map_control_s.STATUS_LEDS    <= register_write_data_40_s(7 downto 0);
+            when REG_INT_TEST_2      => register_map_control_s.INT_TEST_2     <= "1";
+            when REG_INT_TEST_3      => register_map_control_s.INT_TEST_3     <= "1";
             ------------------------------------------------
             ---- Application specific registers END   🂱 ----
             ------------------------------------------------
             -- test crap far away in BAR 2
-            --when REG_INT_TEST        => write_interrupt_40_s <= '1';
-            --when REG_INT_TEST_1      => read_interrupt_40_s  <= '1';
             when others => 
           end case;
         end if;

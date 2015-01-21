@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -43,8 +44,9 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
+
 
 
 library ieee, UNISIM, work;
@@ -88,6 +90,7 @@ entity DMA_Core is
     s_axis_rc            : in     axis_type;
     user_lnk_up          : in     std_logic);
 end entity DMA_Core;
+
 
 architecture structure of DMA_Core is
 

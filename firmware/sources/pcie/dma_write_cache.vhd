@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -43,8 +44,9 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
+
 
 
 library ieee, UNISIM, work;
@@ -67,6 +69,7 @@ entity dma_write_cache is
     s_axis_r_rq    : out    axis_r_type;
     s_axis_rq      : in     axis_type);
 end entity dma_write_cache;
+
 
 
 architecture rtl of dma_write_cache is

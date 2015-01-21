@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -43,8 +44,10 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
+
+
 
 library ieee, UNISIM, work;
 use ieee.numeric_std.all;
@@ -55,8 +58,8 @@ use work.pcie_package.all;
 
 entity pcie_dma_wrap is
   generic(
-    NUMBER_OF_INTERRUPTS  : integer := 2;
-    NUMBER_OF_DESCRIPTORS : integer := 2);
+    NUMBER_OF_INTERRUPTS  : integer := 8;
+    NUMBER_OF_DESCRIPTORS : integer := 8);
   port (
     clk40                : in     std_logic;
     fifo_din             : out    std_logic_vector(255 downto 0);
@@ -80,6 +83,7 @@ entity pcie_dma_wrap is
     sys_clk_p            : in     std_logic;
     sys_reset_n          : in     std_logic);
 end entity pcie_dma_wrap;
+
 
 architecture structure of pcie_dma_wrap is
 

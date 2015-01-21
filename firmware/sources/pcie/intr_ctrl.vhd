@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -41,9 +42,8 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
-
 
 
 
@@ -72,6 +72,7 @@ entity intr_ctrl is
     interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
     reset                      : in     std_logic);
 end entity intr_ctrl;
+
 
 
 architecture rtl of intr_ctrl is

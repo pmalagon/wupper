@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -41,8 +42,10 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
+
+
 
 library ieee, UNISIM, work;
 use ieee.numeric_std.all;
@@ -85,6 +88,8 @@ entity pcie_ep_wrap is
     sys_rst_n                  : in     std_logic;
     user_lnk_up                : out    std_logic);
 end entity pcie_ep_wrap;
+
+
 
 architecture structure of pcie_ep_wrap is
   

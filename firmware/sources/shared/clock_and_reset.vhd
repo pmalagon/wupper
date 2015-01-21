@@ -1,3 +1,4 @@
+
 --!------------------------------------------------------------------------------
 --!                                                             
 --!           NIKHEF - National Institute for Subatomic Physics 
@@ -43,8 +44,9 @@
 --! You should have received a copy of the GNU Lesser General Public
 --! License along with this library.
 --! 
-
+-- 
 --! @brief ieee
+
 
 
 library ieee, UNISIM, work;
@@ -56,15 +58,15 @@ use work.pcie_package.all;
 
 entity clock_and_reset is
   port (
-    clk160               : out    std_logic;
-    clk320               : out    std_logic;
-    clk40                : out    std_logic;
-    clk80                : out    std_logic;
-    clk_200_in_n         : in     std_logic;
-    clk_200_in_p         : in     std_logic;
-    register_map_monitor : out    register_map_monitor_type; --! MMCM_LOCKED is inserted from here, see pcie_package.vhd.
-    reset_out            : out    std_logic; --! Active high reset out (synchronous to clk40)
-    sys_reset_n          : in     std_logic); --! Active low reset input.
+    clk160       : out    std_logic;
+    clk320       : out    std_logic;
+    clk40        : out    std_logic;
+    clk80        : out    std_logic;
+    clk_200_in_n : in     std_logic;
+    clk_200_in_p : in     std_logic;
+    pll_locked   : out    std_logic;
+    reset_out    : out    std_logic; --! Active high reset out (synchronous to clk40)
+    sys_reset_n  : in     std_logic); --! Active low reset input.
 end entity clock_and_reset;
 
 
@@ -117,9 +119,10 @@ clk0 : clk_wiz_0
    locked => locked_s            
  );
 
+ pll_locked <= locked_s;
  reset_in <= not sys_reset_n;
  clk40 <= clk40_s;
- register_map_monitor.PLL_LOCK(0) <= locked_s;
+
  
  process(reset_in,locked_s, clk40_s)
  begin
