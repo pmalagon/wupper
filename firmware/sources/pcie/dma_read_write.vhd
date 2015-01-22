@@ -136,7 +136,7 @@ begin
 
 
 
-  re: process(rw_state, m_axis_r_rq, dma_descriptors, active_descriptor_s, fifo_empty, current_descriptor)
+  re: process(rw_state, m_axis_r_rq, dma_descriptors, active_descriptor_s, fifo_empty, current_descriptor, cache_tready)
   begin
     fifo_re <= '0';
     case(rw_state) is
@@ -162,7 +162,7 @@ begin
     end case;
   end process;
   
-  add_header: process(clk, reset)
+  add_header: process(clk, reset, dma_soft_reset)
     variable next_active_descriptor_v: integer range 0 to (NUMBER_OF_DESCRIPTORS-1);
   begin
     if(reset = '1') or (dma_soft_reset = '1') then
@@ -358,7 +358,7 @@ begin
 
   s_axis_r_rc.tready <= not fifo_full;
 
-  strip_hdr: process(clk, reset)
+  strip_hdr: process(clk, reset, dma_soft_reset)
     variable receive_word_count_v: std_logic_vector(10 downto 0);
     variable receive_tags_done_v: std_logic_vector(10 downto 0);
   begin

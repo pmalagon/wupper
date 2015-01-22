@@ -56,7 +56,6 @@ use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 use work.pcie_package.all;
 
-
 entity virtex7_dma_top is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;

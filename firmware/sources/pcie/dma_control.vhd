@@ -136,6 +136,7 @@ architecture rtl of dma_control is
   signal register_read_address_250_s: std_logic_vector(31 downto 0);
   signal register_read_address_40_s: std_logic_vector(31 downto 0);
   signal register_read_enable_250_s: std_logic;
+  signal register_read_enable1_250_s: std_logic;
   signal register_read_enable_40_s: std_logic;
   signal register_read_done_250_s: std_logic;
   signal register_read_done_40_s: std_logic;
@@ -144,6 +145,7 @@ architecture rtl of dma_control is
   signal register_write_address_250_s: std_logic_vector(31 downto 0);
   signal register_write_address_40_s: std_logic_vector(31 downto 0);
   signal register_write_enable_250_s: std_logic;
+  signal register_write_enable1_250_s: std_logic;
   signal register_write_enable_40_s: std_logic;
   signal register_write_done_250_s: std_logic;
   signal register_write_done_40_s: std_logic;
@@ -292,6 +294,8 @@ begin
         register_read_enable_250_s <= '0';
         register_write_enable_250_s <= '0';
         
+        register_write_enable1_250_s <= register_write_enable_250_s;        
+        register_read_enable1_250_s <= register_read_enable_250_s;
 
         poisoned_completion_v := '0';
         dword_count_v         := (others => '0');
@@ -656,9 +660,9 @@ begin
       interrupt_table_en              <= int_table_en_v(0);
       
       register_read_address_v      := register_read_address_250_s;
-      register_read_enable_v       := register_read_enable_250_s;
+      register_read_enable_v       := register_read_enable1_250_s;
       register_write_address_v     := register_write_address_250_s;
-      register_write_enable_v      := register_write_enable_250_s;
+      register_write_enable_v      := register_write_enable1_250_s;
       register_write_data_v        := register_write_data_250_s;
       bar0_v                       := bar0;
       bar1_v                       := bar1;
