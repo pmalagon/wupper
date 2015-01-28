@@ -28,8 +28,8 @@ set_property IOSTANDARD LVCMOS18 [get_ports emcclk]
 set_property PACKAGE_PIN AP37 [get_ports emcclk]
 
 #XADC GPIO
-set_property PACKAGE_PIN AR38 [get_ports emcclk_out]
-set_property IOSTANDARD LVCMOS18 [get_ports emcclk_out] 
+set_property IOSTANDARD LVCMOS18 [get_ports emcclk_out]
+set_property PACKAGE_PIN J42 [get_ports emcclk_out]
 
 
 set_property BITSTREAM.CONFIG.BPI_SYNC_MODE Type1 [current_design]
@@ -37,14 +37,14 @@ set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN div-1 [current_design]
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 
 #System Reset, User Reset, User Link Up, User Clk Heartbeat
-set_property PACKAGE_PIN AM39 [get_ports {leds[0]}]
-set_property PACKAGE_PIN AN39 [get_ports {leds[1]}]
-set_property PACKAGE_PIN AR37 [get_ports {leds[2]}]
-set_property PACKAGE_PIN AT37 [get_ports {leds[3]}]
-set_property PACKAGE_PIN AR35 [get_ports {leds[4]}]
-set_property PACKAGE_PIN AP41 [get_ports {leds[5]}]
-set_property PACKAGE_PIN AP42 [get_ports {leds[6]}]
-set_property PACKAGE_PIN AU39 [get_ports {leds[7]}]
+set_property PACKAGE_PIN F42 [get_ports {leds[0]}]
+set_property PACKAGE_PIN E42 [get_ports {leds[1]}]
+set_property PACKAGE_PIN D42 [get_ports {leds[2]}]
+set_property PACKAGE_PIN D41 [get_ports {leds[3]}]
+set_property PACKAGE_PIN B42 [get_ports {leds[4]}]
+set_property PACKAGE_PIN B41 [get_ports {leds[5]}]
+set_property PACKAGE_PIN A41 [get_ports {leds[6]}]
+set_property PACKAGE_PIN A40 [get_ports {leds[7]}]
 #
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[1]}]
@@ -79,7 +79,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {leds[7]}]
 # with these devices that contain only 1.8 V banks.
 #
 
-set_property PACKAGE_PIN AV35 [get_ports sys_reset_n]
+set_property LOC AN39 [get_ports sys_reset_n]
 set_property IOSTANDARD LVCMOS18 [get_ports sys_reset_n]
 set_property PULLUP true [get_ports sys_reset_n]
 
@@ -94,7 +94,7 @@ set_property PULLUP true [get_ports sys_reset_n]
 # Please refer to the Virtex-7 GT Transceiver User Guide
 # (UG) for guidelines regarding clock resource selection.
 #
-set_property LOC IBUFDS_GTE2_X1Y11 [get_cells u1/u1/refclk_buff]
+set_property LOC IBUFDS_GTE2_X1Y10 [get_cells u1/u1/refclk_buff]
 
 ###############################################################################
 # Timing Constraints

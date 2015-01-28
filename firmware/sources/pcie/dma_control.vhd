@@ -161,6 +161,8 @@ architecture rtl of dma_control is
   signal read_interrupt_40_s : std_logic;
   signal write_interrupt_250_s: std_logic;
   signal read_interrupt_250_s : std_logic;
+  type slv64_arr is array(0 to (NUMBER_OF_DESCRIPTORS -1)) of std_logic_vector(63 downto 0);
+  signal next_current_address_s : slv64_arr;
   
   --leave 16x8 = 128 bits space per register
 
@@ -323,11 +325,12 @@ begin
           dma_descriptors_s(i).read_not_write  <= dma_descriptors_w_250_s(i).read_not_write;
           dma_descriptors_s(i).dword_count     <= dma_descriptors_w_250_s(i).dword_count;
           
+          next_current_address_s(i) <= (dma_descriptors_s(i).current_address + (dma_descriptors_s(i).dword_count&"00"));
           
           if(dma_descriptors_s(i).enable = '1') then
             if(dma_status_s(i).descriptor_done = '1') then
-              if((dma_descriptors_s(i).current_address + (dma_descriptors_s(i).dword_count&"00"))<dma_descriptors_s(i).end_address) then
-                dma_descriptors_s(i).current_address <= (dma_descriptors_s(i).current_address + (dma_descriptors_s(i).dword_count&"00"));
+              if(next_current_address_s(i)<dma_descriptors_s(i).end_address) then
+                dma_descriptors_s(i).current_address <= next_current_address_s(i);
               else
                 dma_descriptors_s(i).enable <= '0';
                 if(dma_descriptors_s(i).read_not_write='1') then

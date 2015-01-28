@@ -61,7 +61,7 @@ entity pcie_dma_wrap is
     NUMBER_OF_INTERRUPTS  : integer := 8;
     NUMBER_OF_DESCRIPTORS : integer := 8);
   port (
-    clk40                : in     std_logic;
+    appreg_clk           : out    std_logic;
     fifo_din             : out    std_logic_vector(255 downto 0);
     fifo_dout            : in     std_logic_vector(255 downto 0);
     fifo_empty           : in     std_logic;
@@ -76,8 +76,10 @@ entity pcie_dma_wrap is
     pcie_rxp             : in     std_logic_vector(7 downto 0);
     pcie_txn             : out    std_logic_vector(7 downto 0);
     pcie_txp             : out    std_logic_vector(7 downto 0);
+    pll_locked           : out    std_logic;
     register_map_control : out    register_map_control_type;
     register_map_monitor : in     register_map_monitor_type;
+    reset_hard           : out    std_logic;
     reset_soft           : out    std_logic;
     sys_clk_n            : in     std_logic;
     sys_clk_p            : in     std_logic;
@@ -117,6 +119,7 @@ architecture structure of pcie_dma_wrap is
   signal cfg_mgmt_read_data         : std_logic_vector(31 downto 0);
   signal interrupt_table_en         : std_logic;
   signal dma_interrupt_call         : STD_LOGIC_VECTOR(1 downto 0);
+  signal clk40                      : std_logic;
 
   component pcie_ep_wrap
     port (
@@ -223,9 +226,19 @@ architecture structure of pcie_dma_wrap is
       reset                    : in     std_logic);
   end component pcie_init;
 
+  component pcie_slow_clock
+    port (
+      clk        : in     std_logic;
+      clk40      : out    std_logic;
+      pll_locked : out    std_logic;
+      reset_n    : in     std_logic;
+      reset_out  : out    std_logic);
+  end component pcie_slow_clock;
+
 begin
   fifo_rd_clk <= clk;
   fifo_wr_clk <= clk;
+  appreg_clk <= clk40;
 
   u1: pcie_ep_wrap
     port map(
@@ -327,5 +340,13 @@ begin
       cfg_mgmt_write_data      => cfg_mgmt_write_data,
       clk                      => clk,
       reset                    => reset);
+
+  u3: pcie_slow_clock
+    port map(
+      clk        => clk,
+      clk40      => clk40,
+      pll_locked => pll_locked,
+      reset_n    => sys_reset_n,
+      reset_out  => reset_hard);
 end architecture structure ; -- of pcie_dma_wrap
 

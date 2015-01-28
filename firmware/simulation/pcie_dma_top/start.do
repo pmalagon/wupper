@@ -4,25 +4,25 @@
 
 proc write_reg32 { addr val } {
   puts "Write 32 $addr $val"
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tvalid 1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tlast 1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tkeep 8'h1F 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(63 downto 0) $addr 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(74 downto 64) 11'h1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(78 downto 75) 4'h1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(95 downto 79) 16'h0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(102 downto 96) 8'h6 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(127 downto 103) 24'h0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(255 downto 128) $val
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tvalid 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tlast 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tkeep 8'h1F 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(63 downto 0) $addr 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(74 downto 64) 11'h1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(78 downto 75) 4'h1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(95 downto 79) 16'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(102 downto 96) 8'h6 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(127 downto 103) 24'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(255 downto 128) $val
   run 4ns
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tvalid 0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tlast 0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tkeep 8'h00 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(255 downto 0) 256'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tvalid 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tlast 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tkeep 8'h00 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(255 downto 0) 256'h0 0
   run 8ns
-  set tready [examine -value sim:/virtex7_dma_top/pcie0/dma0/s_axis_r_cq.tready]
+  set tready [examine -value sim:/virtex7_dma_top/u1/dma0/s_axis_r_cq.tready]
   while {$tready < 1} {
-    set tready [examine -value sim:/virtex7_dma_top/pcie0/dma0/s_axis_r_cq.tready]
+    set tready [examine -value sim:/virtex7_dma_top/u1/dma0/s_axis_r_cq.tready]
     run 8ns
   }
   
@@ -30,25 +30,25 @@ proc write_reg32 { addr val } {
 proc write_reg128 { addr val } {
   puts "Write 128 $addr $val"
   
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tvalid 1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tlast 1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tkeep 8'hFF 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(63 downto 0) $addr 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(74 downto 64) 11'h4 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(78 downto 75) 4'h1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(95 downto 79) 16'h0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(102 downto 96) 8'h6 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(127 downto 103) 24'h0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(255 downto 128) $val
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tvalid 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tlast 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tkeep 8'hFF 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(63 downto 0) $addr 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(74 downto 64) 11'h4 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(78 downto 75) 4'h1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(95 downto 79) 16'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(102 downto 96) 8'h6 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(127 downto 103) 24'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(255 downto 128) $val
   run 4ns
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tvalid 0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tlast 0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tkeep 8'h00 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_cq.tdata(255 downto 0) 256'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tvalid 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tlast 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tkeep 8'h00 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_cq.tdata(255 downto 0) 256'h0 0
   run 8ns
-  set tready [examine -value sim:/virtex7_dma_top/pcie0/dma0/s_axis_r_cq.tready]
+  set tready [examine -value sim:/virtex7_dma_top/u1/dma0/s_axis_r_cq.tready]
   while {$tready < 1} {
-    set tready [examine -value sim:/virtex7_dma_top/pcie0/dma0/s_axis_r_cq.tready]
+    set tready [examine -value sim:/virtex7_dma_top/u1/dma0/s_axis_r_cq.tready]
     run 8ns
   }
 }
@@ -59,63 +59,63 @@ proc write_dma { addr dataL dataH tag size} {
   
   set wordcount [format "%X" [expr $size * 8]]
   # address                                
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(11 downto 0) $addr 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(11 downto 0) $addr 0
   #Error code, no error                    
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(15 downto 12) 4'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(15 downto 12) 4'h0 0
   #byte count                              
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(28 downto 16) 13'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(28 downto 16) 13'h0 0
   #locked read completion                  
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(29) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(29) 1'h0 0
   #request completed                       
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(30) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(30) 1'h0 0
   #unimplemented                           
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(31) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(31) 1'h0 0
   #Dword count                             
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(42 downto 32) $wordcount 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(42 downto 32) $wordcount 0
   #Completion status                       
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(45 downto 43) 3'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(45 downto 43) 3'h0 0
   #Poinsoned Completion                    
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(46) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(46) 1'h0 0
   #Reserved                                
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(47) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(47) 1'h0 0
   #Req ID                                  
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(63 downto 48) 16'hDEAD 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(63 downto 48) 16'hDEAD 0
   #Tag                                     
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(71 downto 64) $tag 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(71 downto 64) $tag 0
   #Com ID                                  
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(87 downto 72) 16'hBEEF 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(87 downto 72) 16'hBEEF 0
   #Reserved                                
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(88) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(88) 1'h0 0
   #TC                                      
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(91 downto 89) 3'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(91 downto 89) 3'h0 0
   #Attr                                    
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(94 downto 92) 3'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(94 downto 92) 3'h0 0
   #Reserved                                
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(95) 1'h0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(255 downto  96) $dL(0) 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tkeep 8'hFF 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tlast 0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tvalid 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(95) 1'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(255 downto  96) $dL(0) 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tkeep 8'hFF 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tlast 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tvalid 1 0
   run 4ns
   
   for {set i 0} {$i < [expr $size - 1]} {incr i} {
-    force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(95 downto 0) $dH($i) 0
-    force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(255 downto  96) $dL([expr $i + 1]) 0
-    force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tkeep 8'hFF 0
-    force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tlast 0 0
-    force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tvalid 1 0
+    force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(95 downto 0) $dH($i) 0
+    force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(255 downto  96) $dL([expr $i + 1]) 0
+    force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tkeep 8'hFF 0
+    force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tlast 0 0
+    force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tvalid 1 0
     run 4ns
   }
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(95 downto 0) $dH($i) 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata(255 downto  96) 16'h0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tkeep 8'h07 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tlast 1 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tvalid 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(95 downto 0) $dH($i) 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata(255 downto  96) 16'h0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tkeep 8'h07 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tlast 1 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tvalid 1 0
   run 4ns
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tdata 256'h0  0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tkeep 8'h00 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tlast 0 0
-  force -freeze sim:/virtex7_dma_top/pcie0/dma0/s_axis_rc.tvalid 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tdata 256'h0  0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tkeep 8'h00 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tlast 0 0
+  force -freeze sim:/virtex7_dma_top/u1/dma0/s_axis_rc.tvalid 0 0
   run 4ns      
 }
 ## -- end 
@@ -126,29 +126,29 @@ proc write_dma { addr dataL dataH tag size} {
 restart -force
 set StdArithNoWarnings 1
 set NumericStdNoWarnings 1
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/u1/bar0 fbb00000 0
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/u1/bar1 fba00000 0
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/u1/bar2 fb900000 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/u1/bar0 fbb00000 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/u1/bar1 fba00000 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/u1/bar2 fb900000 0
 
 force -freeze sim:/virtex7_dma_top/sys_reset_n 0 0
 force -freeze sim:/virtex7_dma_top/sys_clk_p 1 0, 0 {5 ns} -r 10 ns
 force -freeze sim:/virtex7_dma_top/sys_clk_n 0 0, 1 {5 ns} -r 10 ns
 
-force -freeze sim:/virtex7_dma_top/clk_200_in_n 1 0, 0 {2.5 ns} -r 5 ns
-force -freeze sim:/virtex7_dma_top/clk_200_in_p 0 0, 1 {2.5 ns} -r 5 ns
+#force -freeze sim:/virtex7_dma_top/clk_200_in_n 1 0, 0 {2.5 ns} -r 5 ns
+#force -freeze sim:/virtex7_dma_top/clk_200_in_p 0 0, 1 {2.5 ns} -r 5 ns
 # forced signals 
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/m_axis_r_rq.tready 1 0
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/m_axis_r_cc.tready 1 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/cfg_interrupt_msix_enable 1 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/interrupt_vector_s(0).int_vec_add 16'h00000000000000AA 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/interrupt_vector_s(0).int_vec_data 16'h0000C1A0 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/interrupt_vector_s(0).int_vec_ctrl 16'h00000000 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/interrupt_vector_s(1).int_vec_add 16'h00000000000000BB 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/interrupt_vector_s(1).int_vec_data 16'h0000CA70 0
-force -freeze sim:/virtex7_dma_top/pcie0/u2/interrupt_vector_s(1).int_vec_ctrl 16'h00000000 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/m_axis_r_rq.tready 1 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/m_axis_r_cc.tready 1 0
+force -freeze sim:/virtex7_dma_top/u1/u2/cfg_interrupt_msix_enable 1 0
+force -freeze sim:/virtex7_dma_top/u1/u2/interrupt_vector_s(0).int_vec_add 16'h00000000000000AA 0
+force -freeze sim:/virtex7_dma_top/u1/u2/interrupt_vector_s(0).int_vec_data 16'h0000C1A0 0
+force -freeze sim:/virtex7_dma_top/u1/u2/interrupt_vector_s(0).int_vec_ctrl 16'h00000000 0
+force -freeze sim:/virtex7_dma_top/u1/u2/interrupt_vector_s(1).int_vec_add 16'h00000000000000BB 0
+force -freeze sim:/virtex7_dma_top/u1/u2/interrupt_vector_s(1).int_vec_data 16'h0000CA70 0
+force -freeze sim:/virtex7_dma_top/u1/u2/interrupt_vector_s(1).int_vec_ctrl 16'h00000000 0
 run 100 ns
 force -freeze sim:/virtex7_dma_top/sys_reset_n 1 0
-force -freeze sim:/virtex7_dma_top/pcie0/reset 0 0
+force -freeze sim:/virtex7_dma_top/u1/reset 0 0
 run 102ns                            
 run 800ns
 ## emulated register writes
@@ -216,8 +216,8 @@ run 100ns
 
 write_reg32 64'hfbb00400 128'h1
 run 100ns
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/u2/m_axis_r_rq.tready 0 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/u2/m_axis_r_rq.tready 0 0
 run 80ns
-force -freeze sim:/virtex7_dma_top/pcie0/dma0/u2/m_axis_r_rq.tready 1 0
+force -freeze sim:/virtex7_dma_top/u1/dma0/u2/m_axis_r_rq.tready 1 0
 run 100ns
 

@@ -59,20 +59,18 @@ use work.pcie_package.all;
 entity virtex7_dma_top is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
-    NUMBER_OF_DESCRIPTORS : integer := 2);
+    NUMBER_OF_DESCRIPTORS : integer := 8);
   port (
-    clk_200_in_n : in     std_logic;
-    clk_200_in_p : in     std_logic; --! 200MHz system clock, derived from board crystal
-    emcclk       : in     std_logic; --! emcclk is part of the JTAG high speed programming.
-    emcclk_out   : out    std_logic; --! use emcclk_out in order to not optimize emcclk away
-    leds         : out    std_logic_vector(7 downto 0); --! 8 status leds
-    pcie_rxn     : in     std_logic_vector(7 downto 0);
-    pcie_rxp     : in     std_logic_vector(7 downto 0);
-    pcie_txn     : out    std_logic_vector(7 downto 0);
-    pcie_txp     : out    std_logic_vector(7 downto 0); --! PCIe link lanes
-    sys_clk_n    : in     std_logic;
-    sys_clk_p    : in     std_logic; --! 100MHz PCIe reference clock
-    sys_reset_n  : in     std_logic); --! Active-low system reset from PCIe interface
+    emcclk      : in     std_logic; --! emcclk is part of the JTAG high speed programming.
+    emcclk_out  : out    std_logic; --! use emcclk_out in order to not optimize emcclk away
+    leds        : out    std_logic_vector(7 downto 0); --! 8 status leds
+    pcie_rxn    : in     std_logic_vector(7 downto 0);
+    pcie_rxp    : in     std_logic_vector(7 downto 0);
+    pcie_txn    : out    std_logic_vector(7 downto 0);
+    pcie_txp    : out    std_logic_vector(7 downto 0); --! PCIe link lanes
+    sys_clk_n   : in     std_logic;
+    sys_clk_p   : in     std_logic; --! 100MHz PCIe reference clock
+    sys_reset_n : in     std_logic); --! Active-low system reset from PCIe interface
 end entity virtex7_dma_top;
 
 
@@ -80,9 +78,6 @@ architecture structure of virtex7_dma_top is
 
   signal register_map_monitor : register_map_monitor_type; --! this signal contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
   signal register_map_control : register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
-  signal clk40                : std_logic;
-  signal rst_soft             : std_logic; --! Soft reset can be triggered by a register write to the according address
-  signal rst_hw               : std_logic; --! hard system reset, goes high after MMCM is locked.
   signal fifo_din             : std_logic_vector(255 downto 0);
   signal fifo_we              : std_logic;
   signal fifo_full            : std_logic;
@@ -92,15 +87,18 @@ architecture structure of virtex7_dma_top is
   signal fifo_empty           : std_logic;
   signal fifo_rd_clk          : std_logic; --! High speed DMA fifo for the PCIe => PC transfers
   signal flush_fifo           : std_logic; --! Reset signal for the FIFOs
-  signal pll_locked           : std_logic;
   signal interrupt_call       : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+  signal appreg_clk           : std_logic;
+  signal u1_pll_locked        : std_logic;
+  signal reset_soft           : std_logic;
+  signal reset_hard           : std_logic;
 
   component pcie_dma_wrap
     generic(
       NUMBER_OF_INTERRUPTS  : integer := 8;
       NUMBER_OF_DESCRIPTORS : integer := 8);
     port (
-      clk40                : in     std_logic;
+      appreg_clk           : out    std_logic;
       fifo_din             : out    std_logic_vector(255 downto 0);
       fifo_dout            : in     std_logic_vector(255 downto 0);
       fifo_empty           : in     std_logic;
@@ -115,32 +113,21 @@ architecture structure of virtex7_dma_top is
       pcie_rxp             : in     std_logic_vector(7 downto 0);
       pcie_txn             : out    std_logic_vector(7 downto 0);
       pcie_txp             : out    std_logic_vector(7 downto 0);
+      pll_locked           : out    std_logic;
       register_map_control : out    register_map_control_type;
       register_map_monitor : in     register_map_monitor_type;
+      reset_hard           : out    std_logic;
       reset_soft           : out    std_logic;
       sys_clk_n            : in     std_logic;
       sys_clk_p            : in     std_logic;
       sys_reset_n          : in     std_logic);
   end component pcie_dma_wrap;
 
-  component clock_and_reset
-    port (
-      clk160       : out    std_logic;
-      clk320       : out    std_logic;
-      clk40        : out    std_logic;
-      clk80        : out    std_logic;
-      clk_200_in_n : in     std_logic;
-      clk_200_in_p : in     std_logic;
-      pll_locked   : out    std_logic;
-      reset_out    : out    std_logic; --! Active high reset out (synchronous to clk40)
-      sys_reset_n  : in     std_logic); --! Active low reset input.
-  end component clock_and_reset;
-
   component application
     generic(
       NUMBER_OF_INTERRUPTS : integer := 8);
     port (
-      clk40                : in     std_logic; --! 40 MHz clock. Reset and register_map are synchronous to this clock.
+      appreg_clk           : in     std_logic;
       fifo_din             : in     std_logic_vector(255 downto 0);
       fifo_dout            : out    std_logic_vector(255 downto 0);
       fifo_empty           : out    std_logic;
@@ -171,7 +158,7 @@ begin
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS)
     port map(
-      clk40                => clk40,
+      appreg_clk           => appreg_clk,
       fifo_din             => fifo_din,
       fifo_dout            => fifo_dout,
       fifo_empty           => fifo_empty,
@@ -186,29 +173,14 @@ begin
       pcie_rxp             => pcie_rxp,
       pcie_txn             => pcie_txn,
       pcie_txp             => pcie_txp,
+      pll_locked           => u1_pll_locked,
       register_map_control => register_map_control,
       register_map_monitor => register_map_monitor,
-      reset_soft           => rst_soft,
+      reset_hard           => reset_hard,
+      reset_soft           => reset_soft,
       sys_clk_n            => sys_clk_n,
       sys_clk_p            => sys_clk_p,
       sys_reset_n          => sys_reset_n);
-
-
-  --! The clock and reset module generates a 40MHz clock for the low speed
-  --! register, as well as part of the user applications. Some multiples
-  --! of 40MHz are also available to the user.
-  --! The 250 MHz system clock is generated by the MMCM in the PCIe core
-  clk0: clock_and_reset
-    port map(
-      clk160       => open,
-      clk320       => open,
-      clk40        => clk40,
-      clk80        => open,
-      clk_200_in_n => clk_200_in_n,
-      clk_200_in_p => clk_200_in_p,
-      pll_locked   => pll_locked,
-      reset_out    => rst_hw,
-      sys_reset_n  => sys_reset_n);
 
 
   --! The example application only instantiates one fifo (PC=>PCIe). 
@@ -217,7 +189,7 @@ begin
     generic map(
       NUMBER_OF_INTERRUPTS => NUMBER_OF_INTERRUPTS)
     port map(
-      clk40                => clk40,
+      appreg_clk           => appreg_clk,
       fifo_din             => fifo_din,
       fifo_dout            => fifo_dout,
       fifo_empty           => fifo_empty,
@@ -229,10 +201,10 @@ begin
       flush_fifo           => flush_fifo,
       interrupt_call       => interrupt_call,
       leds                 => leds,
-      pll_locked           => pll_locked,
+      pll_locked           => u1_pll_locked,
       register_map_control => register_map_control,
       register_map_monitor => register_map_monitor,
-      reset_hard           => rst_hw,
-      reset_soft           => rst_soft);
+      reset_hard           => reset_hard,
+      reset_soft           => reset_soft);
 end architecture structure ; -- of virtex7_dma_top
 

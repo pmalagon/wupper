@@ -64,7 +64,7 @@ entity application is
   generic(
     NUMBER_OF_INTERRUPTS : integer := 8);
   port (
-    clk40                : in     std_logic; --! 40 MHz clock. Reset and register_map are synchronous to this clock.
+    appreg_clk           : in     std_logic;
     fifo_din             : in     std_logic_vector(255 downto 0);
     fifo_dout            : out    std_logic_vector(255 downto 0);
     fifo_empty           : out    std_logic;
