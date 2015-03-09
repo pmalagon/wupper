@@ -65,9 +65,9 @@ entity intr_ctrl is
     cfg_interrupt_msix_int     : out    std_logic;
     cfg_interrupt_msix_sent    : in     std_logic;
     clk                        : in     std_logic;
-    clk40                      : in     std_logic;
-    dma_interrupt_call         : in     std_logic_vector(1 downto 0);
-    interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+    clkDiv6                    : in     std_logic;
+    dma_interrupt_call         : in     std_logic_vector(3 downto 0);
+    interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
     interrupt_table_en         : in     std_logic;
     interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
     reset                      : in     std_logic);
@@ -96,9 +96,9 @@ architecture rtl of intr_ctrl is
 begin
 
   -- Interrupt vector assignments
-  interrupt_assign : process (clk40, interrupt_vector)
+  interrupt_assign : process (clkDiv6, interrupt_vector)
   begin
-    if rising_edge (clk40) then
+    if rising_edge (clkDiv6) then
       for i in 0 to (NUMBER_OF_INTERRUPTS-1) loop
         interrupt_vector_s(i).int_vec_add   <= interrupt_vector(i).int_vec_add;
         interrupt_vector_s(i).int_vec_data  <= interrupt_vector(i).int_vec_data;
@@ -122,7 +122,7 @@ begin
   s_interrupt_call <= interrupt_call & dma_interrupt_call;
   --
   -- interrupt controller 
-  intr: process (clk40, reset)
+  intr: process (clkDiv6, reset)
     variable v_cfg_interrupt_msix_int : std_logic := '0';
   begin
     if(reset = '1') then
@@ -130,7 +130,7 @@ begin
         v_cfg_interrupt_msix_int      := '0';
         s_cfg_interrupt_msix_address  <= (others => '0');
         s_cfg_interrupt_msix_data     <= (others => '0');
-    elsif(rising_edge(clk40)) then
+    elsif(rising_edge(clkDiv6)) then
       --default:
       s_cfg_interrupt_msix_int        <= v_cfg_interrupt_msix_int;
       v_cfg_interrupt_msix_int        := '0';

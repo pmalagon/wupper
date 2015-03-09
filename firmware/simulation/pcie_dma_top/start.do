@@ -152,72 +152,82 @@ force -freeze sim:/virtex7_dma_top/u1/reset 0 0
 run 102ns                            
 run 800ns
 ## emulated register writes
-write_reg128 64'hfbb00000 128'h00000004560100000000000456000000
-write_reg128 64'hfbb00010 128'h00000000000000000000000000000040
-write_reg128 64'hfbb00020 128'h00000004560008000000000456000000
-write_reg128 64'hfbb00030 128'h00000000000000000000000000000840
+write_reg128 64'hfbb00000 128'h0000_0004_5600_0400_0000_0004_5600_0000
+write_reg128 64'hfbb00010 128'h0000_0004_5600_0000_0000_0000_0000_1040
+write_reg128 64'hfbb00020 128'h0000_0004_5600_0800_0000_0004_5600_0000
+write_reg128 64'hfbb00030 128'h0000_0004_5600_0700_0000_0000_0000_1840
 #do it another time to see if read works.
-write_reg128 64'hfbb00030 128'h00000000000000000000000000000840
+#write_reg128 64'hfbb00030 128'h00000000000000000000000000000840
 # issue a soft reset
-write_reg32 64'hfbb00430 128'h1
-#enable descriptor 0
-write_reg32 64'hfbb00400 128'h1
+#write_reg32 64'hfbb00430 128'h1
+#enable descriptor 0 and 1
+write_reg32 64'hfbb00400 128'h3
 #enable interrupt table 
 #write_reg32 64'hfba0100 32'h1
 
 run 100ns
 
-### emulated PCIe read to drive the AXI interface from the Core side
+#### emulated PCIe read to drive the AXI interface from the Core side
+##
+#set dmadataL(0) 160'h131211100f0e0d0c0b0a09080706050403020100
+#set dmadataH(0)  96'h1f1e1d1c1b1a191817161514
+#set dmadataL(1) 160'h333231302f2e2d2c2b2a29282726252423222120
+#set dmadataH(1)  96'h3f3e3d3c3b3a393837363534
+#set dmadataL(2) 160'h535251504f4e4d4c4b4a49484746454443424140
+#set dmadataH(2)  96'h5f5e5d5c5b5a595857565554
+#set dmadataL(3) 160'h737271706f6e6d6c6b6a69686766656463626160
+#set dmadataH(3)  96'h7f7e7d7c7b7a797877767574
+#set dmadataL(4) 160'h939291908f8e8d8c8b8a89888786858483828180
+#set dmadataH(4)  96'h9f9e9d9c9b9a999897969594
+#set dmadataL(5) 160'hB3B2B1B0AfAeAdAcAbAaA9A8A7A6A5A4A3A2A1A0
+#set dmadataH(5)  96'hBfBeBdBcBbBaB9B8B7B6B5B4
+#set dmadataL(6) 160'hD3D2D1D0CfCeCdCcCbCaC9C8C7C6C5C4C3C2C1C0
+#set dmadataH(6)  96'hDfDeDdDcDbDaD9D8D7D6D5D4
+#set dmadataL(7) 160'hF3F2F1F0EfEeEdEcEbEaE9E8E7E6E5E4E3E2E1E0
+#set dmadataH(7)  96'hFfFeFdFcFbFaF9F8F7F6F5F4
 #
-set dmadataL(0) 160'h131211100f0e0d0c0b0a09080706050403020100
-set dmadataH(0)  96'h1f1e1d1c1b1a191817161514
-set dmadataL(1) 160'h333231302f2e2d2c2b2a29282726252423222120
-set dmadataH(1)  96'h3f3e3d3c3b3a393837363534
-set dmadataL(2) 160'h535251504f4e4d4c4b4a49484746454443424140
-set dmadataH(2)  96'h5f5e5d5c5b5a595857565554
-set dmadataL(3) 160'h737271706f6e6d6c6b6a69686766656463626160
-set dmadataH(3)  96'h7f7e7d7c7b7a797877767574
-set dmadataL(4) 160'h939291908f8e8d8c8b8a89888786858483828180
-set dmadataH(4)  96'h9f9e9d9c9b9a999897969594
-set dmadataL(5) 160'hB3B2B1B0AfAeAdAcAbAaA9A8A7A6A5A4A3A2A1A0
-set dmadataH(5)  96'hBfBeBdBcBbBaB9B8B7B6B5B4
-set dmadataL(6) 160'hD3D2D1D0CfCeCdCcCbCaC9C8C7C6C5C4C3C2C1C0
-set dmadataH(6)  96'hDfDeDdDcDbDaD9D8D7D6D5D4
-set dmadataL(7) 160'hF3F2F1F0EfEeEdEcEbEaE9E8E7E6E5E4E3E2E1E0
-set dmadataH(7)  96'hFfFeFdFcFbFaF9F8F7F6F5F4
-
-write_dma 12'hABC dmadataL dmadataH 8'h10 8
+#write_dma 12'hABC dmadataL dmadataH 8'h10 8
 
 
 
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h11 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h12 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h13 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h14 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h15 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h15 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h16 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h17 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h18 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h19 8
-run 100ns
-write_dma 12'hABC dmadataL dmadataH 8'h1A 8
-run 100ns
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h11 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h12 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h13 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h14 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h15 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h15 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h16 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h17 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h18 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h19 8
+#run 100ns
+#write_dma 12'hABC dmadataL dmadataH 8'h1A 8
+#run 100ns
 
-write_reg32 64'hfbb00400 128'h1
+#write_reg32 64'hfbb00400 128'h1
 run 100ns
 force -freeze sim:/virtex7_dma_top/u1/dma0/u2/m_axis_r_rq.tready 0 0
 run 80ns
 force -freeze sim:/virtex7_dma_top/u1/dma0/u2/m_axis_r_rq.tready 1 0
 run 100ns
+#run 12us
+write_reg128 64'hfbb00010 128'h0000_0004_5600_0400_0000_0000_0000_1040
+run 100ns
+write_reg128 64'hfbb00010 128'h0000_0004_5600_0000_0000_0000_0000_1040
+run 200ns
+write_reg128 64'hfbb00010 128'h0000_0004_5600_0200_0000_0000_0000_1040
+run 200ns
+write_reg128 64'hfbb00010 128'h0000_0004_5600_0300_0000_0000_0000_1040
+run 200ns
+write_reg128 64'hfbb00010 128'h0000_0004_5600_0400_0000_0000_0000_1040
 

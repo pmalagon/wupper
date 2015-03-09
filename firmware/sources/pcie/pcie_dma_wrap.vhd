@@ -59,7 +59,9 @@ use work.pcie_package.all;
 entity pcie_dma_wrap is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
-    NUMBER_OF_DESCRIPTORS : integer := 8);
+    NUMBER_OF_DESCRIPTORS : integer := 8;
+    BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
+    SVN_VERSION           : integer := 0);
   port (
     appreg_clk           : out    std_logic;
     fifo_din             : out    std_logic_vector(255 downto 0);
@@ -71,7 +73,7 @@ entity pcie_dma_wrap is
     fifo_we              : out    std_logic;
     fifo_wr_clk          : out    std_logic;
     flush_fifo           : out    std_logic;
-    interrupt_call       : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+    interrupt_call       : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
     pcie_rxn             : in     std_logic_vector(7 downto 0);
     pcie_rxp             : in     std_logic_vector(7 downto 0);
     pcie_txn             : out    std_logic_vector(7 downto 0);
@@ -118,8 +120,8 @@ architecture structure of pcie_dma_wrap is
   signal cfg_mgmt_read_write_done   : std_logic;
   signal cfg_mgmt_read_data         : std_logic_vector(31 downto 0);
   signal interrupt_table_en         : std_logic;
-  signal dma_interrupt_call         : STD_LOGIC_VECTOR(1 downto 0);
-  signal clk40                      : std_logic;
+  signal clkDiv6                    : std_logic;
+  signal dma_interrupt_call         : STD_LOGIC_VECTOR(3 downto 0);
 
   component pcie_ep_wrap
     port (
@@ -159,14 +161,16 @@ architecture structure of pcie_dma_wrap is
   component DMA_Core
     generic(
       NUMBER_OF_DESCRIPTORS : integer := 8;
-      NUMBER_OF_INTERRUPTS  : integer := 8);
+      NUMBER_OF_INTERRUPTS  : integer := 8;
+      SVN_VERSION           : integer := 0;
+      BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
     port (
       bar0                 : in     std_logic_vector(31 downto 0);
       bar1                 : in     std_logic_vector(31 downto 0);
       bar2                 : in     std_logic_vector(31 downto 0);
       clk                  : in     std_logic;
-      clk40                : in     std_logic;
-      dma_interrupt_call   : out    STD_LOGIC_VECTOR(1 downto 0);
+      clkDiv6              : in     std_logic;
+      dma_interrupt_call   : out    STD_LOGIC_VECTOR(3 downto 0);
       fifo_din             : out    std_logic_vector(255 downto 0);
       fifo_dout            : in     std_logic_vector(255 downto 0);
       fifo_empty           : in     std_logic;
@@ -202,9 +206,9 @@ architecture structure of pcie_dma_wrap is
       cfg_interrupt_msix_int     : out    std_logic;
       cfg_interrupt_msix_sent    : in     std_logic;
       clk                        : in     std_logic;
-      clk40                      : in     std_logic;
-      dma_interrupt_call         : in     std_logic_vector(1 downto 0);
-      interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+      clkDiv6                    : in     std_logic;
+      dma_interrupt_call         : in     std_logic_vector(3 downto 0);
+      interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
       interrupt_table_en         : in     std_logic;
       interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
       reset                      : in     std_logic);
@@ -229,7 +233,7 @@ architecture structure of pcie_dma_wrap is
   component pcie_slow_clock
     port (
       clk        : in     std_logic;
-      clk40      : out    std_logic;
+      clkDiv6    : out    std_logic;
       pll_locked : out    std_logic;
       reset_n    : in     std_logic;
       reset_out  : out    std_logic);
@@ -238,7 +242,7 @@ architecture structure of pcie_dma_wrap is
 begin
   fifo_rd_clk <= clk;
   fifo_wr_clk <= clk;
-  appreg_clk <= clk40;
+  appreg_clk <= clkDiv6;
 
   u1: pcie_ep_wrap
     port map(
@@ -277,13 +281,15 @@ begin
   dma0: DMA_Core
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
-      NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS)
+      NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
+      SVN_VERSION           => SVN_VERSION,
+      BUILD_DATETIME        => BUILD_DATETIME)
     port map(
       bar0                 => bar0,
       bar1                 => bar1,
       bar2                 => bar2,
       clk                  => clk,
-      clk40                => clk40,
+      clkDiv6              => clkDiv6,
       dma_interrupt_call   => dma_interrupt_call,
       fifo_din             => fifo_din,
       fifo_dout            => fifo_dout,
@@ -319,7 +325,7 @@ begin
       cfg_interrupt_msix_int     => cfg_interrupt_msix_int,
       cfg_interrupt_msix_sent    => cfg_interrupt_msix_sent,
       clk                        => clk,
-      clk40                      => clk40,
+      clkDiv6                    => clkDiv6,
       dma_interrupt_call         => dma_interrupt_call,
       interrupt_call             => interrupt_call,
       interrupt_table_en         => interrupt_table_en,
@@ -344,7 +350,7 @@ begin
   u3: pcie_slow_clock
     port map(
       clk        => clk,
-      clk40      => clk40,
+      clkDiv6    => clkDiv6,
       pll_locked => pll_locked,
       reset_n    => sys_reset_n,
       reset_out  => reset_hard);

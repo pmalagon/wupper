@@ -57,7 +57,7 @@ use work.pcie_package.all;
 entity pcie_slow_clock is
   port (
     clk        : in     std_logic;
-    clk40      : out    std_logic;
+    clkDiv6    : out    std_logic;
     pll_locked : out    std_logic;
     reset_n    : in     std_logic;
     reset_out  : out    std_logic);
@@ -85,7 +85,7 @@ ATTRIBUTE SYN_BLACK_BOX OF clk_wiz_40 : COMPONENT IS TRUE;
 ATTRIBUTE BLACK_BOX_PAD_PIN : STRING;
 ATTRIBUTE BLACK_BOX_PAD_PIN OF clk_wiz_40 : COMPONENT IS "clk_in250,clk_out40,reset,locked";
 
-   signal clk40_s: std_logic;
+   signal clkDiv6_s: std_logic;
    signal reset_s: std_logic;
    signal locked_s: std_logic;
    signal reset_cnt: integer range 0 to 15;
@@ -95,7 +95,7 @@ begin
 
 reset_s <= not reset_n;
 pll_locked <= locked_s;
-clk40 <= clk40_s;
+clkDiv6 <= clkDiv6_s;
 
 clk0 : clk_wiz_40
    port map ( 
@@ -103,18 +103,18 @@ clk0 : clk_wiz_40
    -- Clock in ports
    clk_in250 => clk,
   -- Clock out ports  
-   clk_out40 => clk40_s,
+   clk_out40 => clkDiv6_s,
   -- Status and control signals                
    reset => reset_s,
    locked => locked_s            
  );
  
-  process(reset_s,locked_s, clk40_s)
+  process(reset_s,locked_s, clkDiv6_s)
  begin
    if(reset_s='1' or locked_s = '0') then
       reset_cnt <= 0;
       reset_out <= '1';
-   elsif(rising_edge(clk40_s)) then
+   elsif(rising_edge(clkDiv6_s)) then
       if(reset_cnt < 15) then
          reset_cnt <= reset_cnt + 1;
          reset_out <= '1';

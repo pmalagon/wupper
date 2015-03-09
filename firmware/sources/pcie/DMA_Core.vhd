@@ -59,14 +59,16 @@ use work.pcie_package.all;
 entity DMA_Core is
   generic(
     NUMBER_OF_DESCRIPTORS : integer := 8;
-    NUMBER_OF_INTERRUPTS  : integer := 8);
+    NUMBER_OF_INTERRUPTS  : integer := 8;
+    SVN_VERSION           : integer := 0;
+    BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
   port (
     bar0                 : in     std_logic_vector(31 downto 0);
     bar1                 : in     std_logic_vector(31 downto 0);
     bar2                 : in     std_logic_vector(31 downto 0);
     clk                  : in     std_logic;
-    clk40                : in     std_logic;
-    dma_interrupt_call   : out    STD_LOGIC_VECTOR(1 downto 0);
+    clkDiv6              : in     std_logic;
+    dma_interrupt_call   : out    STD_LOGIC_VECTOR(3 downto 0);
     fifo_din             : out    std_logic_vector(255 downto 0);
     fifo_dout            : in     std_logic_vector(255 downto 0);
     fifo_empty           : in     std_logic;
@@ -140,13 +142,15 @@ architecture structure of DMA_Core is
   component dma_control
     generic(
       NUMBER_OF_DESCRIPTORS : integer := 8;
-      NUMBER_OF_INTERRUPTS  : integer := 8);
+      NUMBER_OF_INTERRUPTS  : integer := 8;
+      SVN_VERSION           : integer := 0;
+      BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
     port (
       bar0                 : in     STD_LOGIC_VECTOR(31 downto 0);
       bar1                 : in     STD_LOGIC_VECTOR(31 downto 0);
       bar2                 : in     STD_LOGIC_VECTOR(31 downto 0);
       clk                  : in     STD_LOGIC;
-      clk40                : in     STD_LOGIC;
+      clkDiv6              : in     STD_LOGIC;
       dma_descriptors      : out    dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
       dma_soft_reset       : out    STD_LOGIC;
       dma_status           : in     dma_statuses_type;
@@ -161,7 +165,9 @@ architecture structure of DMA_Core is
       register_map_monitor : in     register_map_monitor_type;
       register_map_control : out    register_map_control_type;
       interrupt_table_en   : out    STD_LOGIC;
-      dma_interrupt_call   : out    STD_LOGIC_VECTOR(1 downto 0));
+      dma_interrupt_call   : out    STD_LOGIC_VECTOR(3 downto 0);
+      fifo_empty           : in     std_logic;
+      fifo_full            : in     std_logic);
   end component dma_control;
 
 begin
@@ -203,13 +209,15 @@ begin
   u1: dma_control
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
-      NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS)
+      NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
+      SVN_VERSION           => SVN_VERSION,
+      BUILD_DATETIME        => BUILD_DATETIME)
     port map(
       bar0                 => bar0,
       bar1                 => bar1,
       bar2                 => bar2,
       clk                  => clk,
-      clk40                => clk40,
+      clkDiv6              => clkDiv6,
       dma_descriptors      => u1_dma_descriptors,
       dma_soft_reset       => dma_soft_reset,
       dma_status           => dma_status,
@@ -224,6 +232,8 @@ begin
       register_map_monitor => register_map_monitor,
       register_map_control => register_map_control,
       interrupt_table_en   => interrupt_table_en,
-      dma_interrupt_call   => dma_interrupt_call);
+      dma_interrupt_call   => dma_interrupt_call,
+      fifo_empty           => fifo_empty,
+      fifo_full            => fifo_full);
 end architecture structure ; -- of DMA_Core
 

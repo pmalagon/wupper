@@ -74,7 +74,7 @@ entity application is
     fifo_we              : in     std_logic;
     fifo_wr_clk          : in     std_logic;
     flush_fifo           : in     std_logic;
-    interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+    interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
     leds                 : out    std_logic_vector(7 downto 0);
     pll_locked           : in     std_logic;
     register_map_control : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
@@ -167,11 +167,11 @@ begin
     end if;
   end process;
   
-  g0: if(NUMBER_OF_INTERRUPTS>2) generate
-    interrupt_call(2 downto 2) <= register_map_control_s.INT_TEST_2;
-    g1: if(NUMBER_OF_INTERRUPTS>3) generate
-      interrupt_call(3 downto 3) <= register_map_control_s.INT_TEST_3;
-      interrupt_call(NUMBER_OF_INTERRUPTS-1 downto 4) <= (others => '0');
+  g0: if(NUMBER_OF_INTERRUPTS>4) generate
+    interrupt_call(4 downto 4) <= register_map_control_s.INT_TEST_2;
+    g1: if(NUMBER_OF_INTERRUPTS>5) generate
+      interrupt_call(5 downto 5) <= register_map_control_s.INT_TEST_3;
+      interrupt_call(NUMBER_OF_INTERRUPTS-1 downto 6) <= (others => '0');
     end generate;
   end generate;
   

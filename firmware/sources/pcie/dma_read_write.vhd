@@ -172,7 +172,11 @@ begin
                               read_not_write    => '1',
                               enable            => '0',
                               current_address   => (others => '0'),
-                              end_address       => (others => '0'));
+                              end_address       => (others => '0'),
+                              wrap_around       => '0',
+                              evencycle_dma     => '0',
+                              evencycle_pc      => '0',
+                              pc_pointer        => (others => '0'));
       req_tag <= "0000";
       active_descriptor_s <= 0;
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop

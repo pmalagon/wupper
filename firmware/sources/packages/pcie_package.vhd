@@ -77,6 +77,10 @@ package pcie_package is
     dword_count     : std_logic_vector(10 downto 0);
     read_not_write  : std_logic;     --1 means this is a read descriptor, 0: write descriptor
     enable          : std_logic;     --descriptor is valid
+    wrap_around     : std_logic;     --1 means when end is reached, keep enabled and start over
+    evencycle_dma   : std_logic;     --For every time the current_address overflows, this bit toggles
+    evencycle_pc    : std_logic;     --For every time the pc pointer overflows, this bit toggles.
+    pc_pointer      : std_logic_vector(63 downto 0); --Last address that the PC has read / written. For write: overflow and read until this cycle. 
   end record;
 
   type dma_descriptors_type is array (natural range <>) of dma_descriptor_type;
@@ -119,7 +123,6 @@ package pcie_package is
   ---- Application specific registers BEGIN 🂱 ----
   ------------------------------------------------  
   type register_map_control_type is record
-    BOARD_ID         : std_logic_vector(63 downto 0);    
     STATUS_LEDS      : std_logic_vector(7 downto 0);
     INT_TEST_2       : std_logic_vector(0 downto 0);
     INT_TEST_3       : std_logic_vector(0 downto 0); 

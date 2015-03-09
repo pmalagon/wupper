@@ -59,7 +59,9 @@ use work.pcie_package.all;
 entity virtex7_dma_top is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
-    NUMBER_OF_DESCRIPTORS : integer := 8);
+    NUMBER_OF_DESCRIPTORS : integer := 8;
+    SVN_VERSION           : integer := 0;
+    BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
   port (
     emcclk      : in     std_logic; --! emcclk is part of the JTAG high speed programming.
     emcclk_out  : out    std_logic; --! use emcclk_out in order to not optimize emcclk away
@@ -87,7 +89,7 @@ architecture structure of virtex7_dma_top is
   signal fifo_empty           : std_logic;
   signal fifo_rd_clk          : std_logic; --! High speed DMA fifo for the PCIe => PC transfers
   signal flush_fifo           : std_logic; --! Reset signal for the FIFOs
-  signal interrupt_call       : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+  signal interrupt_call       : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
   signal appreg_clk           : std_logic;
   signal u1_pll_locked        : std_logic;
   signal reset_soft           : std_logic;
@@ -96,7 +98,9 @@ architecture structure of virtex7_dma_top is
   component pcie_dma_wrap
     generic(
       NUMBER_OF_INTERRUPTS  : integer := 8;
-      NUMBER_OF_DESCRIPTORS : integer := 8);
+      NUMBER_OF_DESCRIPTORS : integer := 8;
+      BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
+      SVN_VERSION           : integer := 0);
     port (
       appreg_clk           : out    std_logic;
       fifo_din             : out    std_logic_vector(255 downto 0);
@@ -108,7 +112,7 @@ architecture structure of virtex7_dma_top is
       fifo_we              : out    std_logic;
       fifo_wr_clk          : out    std_logic;
       flush_fifo           : out    std_logic;
-      interrupt_call       : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+      interrupt_call       : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
       pcie_rxn             : in     std_logic_vector(7 downto 0);
       pcie_rxp             : in     std_logic_vector(7 downto 0);
       pcie_txn             : out    std_logic_vector(7 downto 0);
@@ -137,7 +141,7 @@ architecture structure of virtex7_dma_top is
       fifo_we              : in     std_logic;
       fifo_wr_clk          : in     std_logic;
       flush_fifo           : in     std_logic;
-      interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 2);
+      interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
       leds                 : out    std_logic_vector(7 downto 0);
       pll_locked           : in     std_logic;
       register_map_control : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
@@ -156,7 +160,9 @@ begin
   u1: pcie_dma_wrap
     generic map(
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
-      NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS)
+      NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
+      BUILD_DATETIME        => BUILD_DATETIME,
+      SVN_VERSION           => SVN_VERSION)
     port map(
       appreg_clk           => appreg_clk,
       fifo_din             => fifo_din,
