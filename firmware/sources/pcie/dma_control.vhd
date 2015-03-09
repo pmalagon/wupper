@@ -823,7 +823,6 @@ begin
       ------------------------------------------------
       ---- Application specific registers BEGIN 🂱 ----
       ------------------------------------------------    
-      register_map_control_s.BOARD_ID       <= BOARD_ID_C;
       register_map_control_s.STATUS_LEDS    <= STATUS_LEDS_C;
       register_map_control_s.INT_TEST_2     <= "0";
       register_map_control_s.INT_TEST_3     <= "0";
@@ -1120,7 +1119,6 @@ begin
             ------------------------------------------------
             ---- Application specific registers BEGIN 🂱 ----
             ------------------------------------------------
-            when REG_BOARD_ID        => register_map_control_s.BOARD_ID       <= register_write_data_40_s(63 downto 0);
             when REG_STATUS_LEDS     => register_map_control_s.STATUS_LEDS    <= register_write_data_40_s(7 downto 0);
             when REG_INT_TEST_2      => register_map_control_s.INT_TEST_2     <= "1";
             when REG_INT_TEST_3      => register_map_control_s.INT_TEST_3     <= "1";

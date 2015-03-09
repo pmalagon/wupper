@@ -6,12 +6,34 @@ set HDLDIR $scriptdir/../../
 
 reset_run $SYNTH_RUN
 
+set svn_hash [exec svn info]
+set svn_hash_lines [split $svn_hash "\n"]
+set svn_version "0"
+cd $HDLDIR
+foreach line $svn_hash_lines {
+   if [regexp {Last Changed Rev: } $line ] {
+      set svn_version [ lindex [split $line] 3 ]
+   }
+}
+cd $scriptdir
+
+puts "SVN_VERSION = $svn_version"
+
+
+set systemTime [clock seconds]
+set build_date "40'h[clock format $systemTime -format %y%m%d%H%M]"
+puts "BUILD_DATE = $build_date"
+
+
+
+set_property generic "APP_CLK_FREQ=100 BUILD_DATETIME=$build_date SVN_VERSION=$svn_version" [current_fileset]
+
 launch_runs $SYNTH_RUN
 launch_runs $IMPL_RUN
 #launch_runs $IMPL_RUN  -to_step write_bitstream
 #cd $HDLDIR/Synt/
 wait_on_run $IMPL_RUN
-set TIMESTAMP [clock format [clock seconds] -format {%y%m%d_%H_%M}]
+set TIMESTAMP [clock format $systemTime -format {%y%m%d_%H_%M}]
 
 
 
