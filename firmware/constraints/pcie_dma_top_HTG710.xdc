@@ -79,7 +79,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {leds[7]}]
 # with these devices that contain only 1.8 V banks.
 #
 
-set_property LOC AN39 [get_ports sys_reset_n]
+set_property PACKAGE_PIN AN39 [get_ports sys_reset_n]
 set_property IOSTANDARD LVCMOS18 [get_ports sys_reset_n]
 set_property PULLUP true [get_ports sys_reset_n]
 
@@ -122,6 +122,7 @@ set_false_path -reset_path -from [get_pins u1/u1/u1/inst/gt_top_i/pipe_wrapper_i
 ###############################################################################
 # End
 ###############################################################################
+
 
 
 
