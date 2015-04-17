@@ -1,5 +1,5 @@
 \section{Core architecture}
-Xilinx has introduced the AXI4-Stream interface \cite{ug761} for the Virtex-7 PCIe core, this is a simplified version of the ARM AMBA AXI bus \cite{arm}  which doesn't contain any address lines. Instead the Address and other information are supplied in the header of each PCIe package. Figure~\ref{fig:pcie_core_structure} shows the structure of the PCIe DMA Core design. The DMA core is divided in two parts:
+Xilinx has introduced the AXI4-Stream interface \cite{ug761} for the Virtex-7 PCIe core, this is a simplified version of the ARM AMBA AXI bus \cite{arm}  which doesn't contain any address lines. Instead the Address and other information are supplied in the header of each PCIe package. Figure~\ref{fig:pcie_core_structure} shows the structure of the PCIe Engine design. The PCIe Engine is divided in two parts:
 \begin{enumerate}
 \item DMA Control \\This is the entity in which the descriptors are parsed and fed to the engine, and where the status register of every descriptor can be read back through PCIe. DMA control contains a register map, with addresses to the descriptors, status registers and external registers for the user application.
 \item DMA Read Write \\This entity contains two processes:
@@ -12,7 +12,7 @@ Both processes can fire an MSI-X type interrupt through the interrupt controller
 \begin{figure}[H]
 \centering
 \includegraphics[trim=0mm 0cm 0mm 1cm,width=0.75\textwidth, page=1]{pictures/dma_core_structure.pdf}
-\caption{Structure of the PCIe DMA core}
+\caption{Structure of the PCIe Engine}
 \label{fig:pcie_core_structure}
 \end{figure}
 Figure~\ref{fig:pcie_core_structure} also shows the sync stage for the IO and external registers. The user space registers are synchronized to a slower clock (e.g. 40 MHz) in order to relax timing closure of the design. To make sure no glitches or latch-up will occur, the synchronization stage does not update during a write cycle of the DMA Control process.

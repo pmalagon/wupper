@@ -1,5 +1,5 @@
-\section{Operating the PCIe DMA core}
-No driver nor software, which can be released under an open source license, has been yet developed. For that reason we kindly ask people in the community to develop a driver which can handle the PCIe DMA core according to the specifications in this chapter.
+\section{Operating the PCIe Engine}
+No driver nor software, which can be released under an open source license, has been yet developed. For that reason we kindly ask people in the community to develop a driver which can handle the PCIe Engine according to the specifications in this chapter.
 
 In this chapter we assume that the card is loaded with the latest firmware, it has been placed in a Gen3 PCIe slot and the PC is running Linux. Optionally a Vivado hardware server can be connected to view the Debug probes of the ILA cores, as specified in the constraints file. \cite{programming}\
 
@@ -18,7 +18,7 @@ sudo rmmod driver_name
 
 \subsection{Setting the DMA descriptors}
 
-The DMA Core has a register map with 128 bit address space per register, however registers can be read and written in words of 32, 64, 96 or 128 bits at a time. The addresses of the register have an offset with respect to a Base Address Register (BAR) that can be readout running: The PCIe DMA core has 3 different BAR spaces all with their own memory map. 
+The PCIe Engine has a register map with 128 bit address space per register, however registers can be read and written in words of 32, 64, 96 or 128 bits at a time. The addresses of the register have an offset with respect to a Base Address Register (BAR) that can be readout running: The PCIe Engine has 3 different BAR spaces all with their own memory map. 
 \newpage
 
 \subsubsection{The register map}
@@ -74,11 +74,11 @@ Starting from the offset address of BAR0, BAR1 and BAR2, the register map for BA
 	\hline
 	0x0410 & FIFO Flush, any write to this register will flush (reset) the DMA Fifo & any & W & Flush \\
 	\hline
-	0x0420 & DMA Reset, any write to this register will reset the DMA core, the backup cache and the state machines. & any & W & Reset \\
+	0x0420 & DMA Reset, any write to this register will reset the PCIe Engine, the backup cache and the state machines. & any & W & Reset \\
 	\hline
 	0x0430 & Soft Reset, any write to this register issue a soft reset for the application. & any & W & Reset \\
 	\hline	\end{tabularx}
-	\caption{DMA Core register map BAR0}\label{tab:dma_register_map_bar0}
+	\caption{PCIe Engine register map BAR0}\label{tab:dma_register_map_bar0}
 \end{table}
 \newpage
 BAR1 holds registers associated with the Interrupt vector, the offset for BAR1 is usually 0xFBA00000
@@ -103,10 +103,10 @@ BAR1 holds registers associated with the Interrupt vector, the offset for BAR1 i
 	0x100 & Interrupt Table enable & [0] & R/W & Enable interrupts \\
 	\hline
 	\end{tabularx}
-	\caption{DMA Core register map BAR1}\label{tab:dma_register_map_bar1}
+	\caption{PCIe Engine register map BAR1}\label{tab:dma_register_map_bar1}
 \end{table}
 
-BAR2 currently holds some registers for testing and debugging the core, it will eventually hold application specific registers. the offset for BAR2 is usually 0xFB900000
+BAR2 currently holds some registers for testing and debugging the Engine, it will eventually hold application specific registers. the offset for BAR2 is usually 0xFB900000
 
 \begin{table}[H]
 	\centering
@@ -129,13 +129,13 @@ BAR2 currently holds some registers for testing and debugging the core, it will 
 	\hline
 
 	\end{tabularx}
-	\caption{DMA Core register map BAR2}\label{tab:dma_register_map_bar2}
+	\caption{PCIe Engine register map BAR2}\label{tab:dma_register_map_bar2}
 \end{table}
 \newpage
 \subsubsection{Driver functionality}
 Before any DMA actions can be performed, one or more memory buffers have to be allocated. 
 
-If the buffer is for instance allocated at address 0x00000004d5c00000, initialize bits 64:0 of the descriptor with 0x00000004d5c00000, and end address (bit 127:64) 0x00000004d5c00000 plus the write size. If a \underline{DMA Write} is to be performed, initialize bits 10:0 of descriptor 0a with 0x40 (for 256 bytes per TLP, depending on the PC chipset) and bit 11 with '0' for write, then enable the corresponding descriptor enable bit at address 0x400. The TLP size of 0x40 (32 bit words) is limited by the maximum TLP that the PC can handle, in most cases this is 256 bytes, the core can handle bigger TLP's up to 4096 bytes.
+If the buffer is for instance allocated at address 0x00000004d5c00000, initialize bits 64:0 of the descriptor with 0x00000004d5c00000, and end address (bit 127:64) 0x00000004d5c00000 plus the write size. If a \underline{DMA Write} is to be performed, initialize bits 10:0 of descriptor 0a with 0x40 (for 256 bytes per TLP, depending on the PC chipset) and bit 11 with '0' for write, then enable the corresponding descriptor enable bit at address 0x400. The TLP size of 0x40 (32 bit words) is limited by the maximum TLP that the PC can handle, in most cases this is 256 bytes, the Engine can handle bigger TLP's up to 4096 bytes.
 \begin{lstlisting}[language=BASH, frame=single, caption=Create a Write descriptor]
 #write descriptor 0
 #BAR0 offset:  Contents:

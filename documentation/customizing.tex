@@ -1,6 +1,6 @@
 \section{Customizing the application}
 \subsection{connection of the DMA FIFOs}
-The Virtex-7 PCIe DMA Core comes with a very simple user application, described in application.vhd.
+The Virtex-7 PCIe Engine comes with a very simple user application, described in application.vhd.
 
 This file contains a read and a write port for a FIFO. This FIFO has a port width of 256 bit and is read or written at 250 MHz, resulting in a theoretical throughput of 60Gbit/s.
 
@@ -13,7 +13,7 @@ s_fifo_din <= x"DEADBEEF"&cnt&x"00001111"&cnt&x"22223333"&cnt&x"44445555"&cnt;
 \end{lstlisting}
 \newpage
 \subsection{Application specific registers}
-Besides DMA memory reads and writes, the PCIe DMA core also provides means to create a custom application specific register map. By default, the BAR2 register space is reserved for this purpose.
+Besides DMA memory reads and writes, the PCIe Engine also provides means to create a custom application specific register map. By default, the BAR2 register space is reserved for this purpose.
 
 \begin{lstlisting}[language=VHDL, frame=single, caption=custom register types]
   type register_map_control_type is record
