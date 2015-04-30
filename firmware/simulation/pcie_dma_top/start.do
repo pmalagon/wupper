@@ -163,6 +163,10 @@ write_reg128 64'hfbb00030 128'h0000_0004_5600_0700_0000_0000_0000_1840
 #enable descriptor 0 and 1
 write_reg32 64'hfbb00400 128'h3
 #enable interrupt table 
+run 15ns
+force -freeze sim:/virtex7_dma_top/u1/dma0/m_axis_r_rq.tready 0 0
+run 12ns
+force -freeze sim:/virtex7_dma_top/u1/dma0/m_axis_r_rq.tready 1 0
 #write_reg32 64'hfba0100 32'h1
 
 run 100ns

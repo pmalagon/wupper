@@ -98,16 +98,12 @@ architecture structure of DMA_Core is
 
   signal dma_status         : dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
   signal u1_dma_descriptors : dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-  signal u0_m_axis_rq       : axis_type;
-  signal u2_m_axis_r_rq     : axis_r_type;
-  signal cache_tready       : std_logic;
   signal dma_soft_reset     : std_logic;
 
   component dma_read_write
     generic(
       NUMBER_OF_DESCRIPTORS : integer := 8);
     port (
-      cache_tready    : in     std_logic;
       clk             : in     std_logic;
       dma_descriptors : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
       dma_soft_reset  : in     std_logic;
@@ -124,20 +120,6 @@ architecture structure of DMA_Core is
       s_axis_r_rc     : out    axis_r_type;
       s_axis_rc       : in     axis_type);
   end component dma_read_write;
-
-  component dma_write_cache
-    generic(
-      USE_BACKUP_CACHE : boolean := true);
-    port (
-      cache_tready   : out    std_logic;
-      clk            : in     std_logic;
-      dma_soft_reset : in     std_logic;
-      m_axis_r_rq    : in     axis_r_type;
-      m_axis_rq      : out    axis_type;
-      reset          : in     std_logic;
-      s_axis_r_rq    : out    axis_r_type;
-      s_axis_rq      : in     axis_type);
-  end component dma_write_cache;
 
   component dma_control
     generic(
@@ -176,7 +158,6 @@ begin
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS)
     port map(
-      cache_tready    => cache_tready,
       clk             => clk,
       dma_descriptors => u1_dma_descriptors,
       dma_soft_reset  => dma_soft_reset,
@@ -187,24 +168,11 @@ begin
       fifo_full       => fifo_full,
       fifo_re         => fifo_re,
       fifo_we         => fifo_we,
-      m_axis_r_rq     => u2_m_axis_r_rq,
-      m_axis_rq       => u0_m_axis_rq,
+      m_axis_r_rq     => m_axis_r_rq,
+      m_axis_rq       => m_axis_rq,
       reset           => reset,
       s_axis_r_rc     => s_axis_r_rc,
       s_axis_rc       => s_axis_rc);
-
-  u2: dma_write_cache
-    generic map(
-      USE_BACKUP_CACHE => true)
-    port map(
-      cache_tready   => cache_tready,
-      clk            => clk,
-      dma_soft_reset => dma_soft_reset,
-      m_axis_r_rq    => m_axis_r_rq,
-      m_axis_rq      => m_axis_rq,
-      reset          => reset,
-      s_axis_r_rq    => u2_m_axis_r_rq,
-      s_axis_rq      => u0_m_axis_rq);
 
   u1: dma_control
     generic map(

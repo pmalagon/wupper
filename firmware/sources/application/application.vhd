@@ -116,6 +116,7 @@ ATTRIBUTE BLACK_BOX_PAD_PIN OF fifo_256x256 : COMPONENT IS "clk,rst,din[255:0],w
   signal cnt: std_logic_vector(31 downto 0);
   
   signal reset: std_logic;
+  signal s_flush_fifo: std_logic;
   
 begin
 
@@ -130,12 +131,14 @@ begin
 
   fifo_full <= '0';
   
+  s_flush_fifo <= flush_fifo or reset;
+  
   --! 
   --! Instantiation of the fifo (PCIe => PC)
   fifo0 : fifo_256x256
   PORT MAP (
     clk => fifo_rd_clk,
-    rst => flush_fifo,
+    rst => s_flush_fifo,
     -- Towards DMA core
     rd_en => fifo_re,
     dout => fifo_dout,

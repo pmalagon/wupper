@@ -1,8 +1,14 @@
 set IMPL_RUN [get_runs impl*]
 set SYNTH_RUN [get_runs synth*]
-set PROJECT_NAME "pcie_dma_top"
+set PROJECT_NAME "pcie_dma_top_VC709"
 set scriptdir [pwd]
 set HDLDIR $scriptdir/../../
+
+foreach design [get_designs] {
+   puts "Closing design: $design"
+   current_design $design
+   close_design
+}
 
 reset_run $SYNTH_RUN
 
@@ -25,11 +31,17 @@ set build_date "40'h[clock format $systemTime -format %y%m%d%H%M]"
 puts "BUILD_DATE = $build_date"
 
 
+set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_HTG710.xdc]
+set_property is_enabled true [get_files  $HDLDIR/constraints/pcie_dma_top_VC709.xdc]
 
-set_property generic "APP_CLK_FREQ=100 BUILD_DATETIME=$build_date SVN_VERSION=$svn_version" [current_fileset]
+#set to true in order to generate the GBT links
+set NUMBER_OF_INTERRUPTS 8
+set NUMBER_OF_DESCRIPTORS 8
+
+set_property generic "BUILD_DATETIME=$build_date SVN_VERSION=$svn_version NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS" [current_fileset]
 
 launch_runs $SYNTH_RUN
-launch_runs $IMPL_RUN
+launch_runs $IMPL_RUN 
 #launch_runs $IMPL_RUN  -to_step write_bitstream
 #cd $HDLDIR/Synt/
 wait_on_run $IMPL_RUN
@@ -46,10 +58,11 @@ cd $HDLDIR/output/
 
 
 set BitFile ${PROJECT_NAME}_$TIMESTAMP.bit
+set IMPL_DIR [get_property DIRECTORY [current_run]]
 
 write_cfgmem -force -format MCS -size 128 -interface BPIx16 -loadbit "up 0x00000000 $BitFile" ${PROJECT_NAME}_$TIMESTAMP.mcs
-if {[file exists $HDLDIR/Projects/${PROJECT_NAME}/${PROJECT_NAME}.runs/$IMPL_RUN/debug_nets.ltx] == 1} {
-   file copy $HDLDIR/Projects/${PROJECT_NAME}/${PROJECT_NAME}.runs/$IMPL_RUN/debug_nets.ltx ${PROJECT_NAME}_debug_nets_$TIMESTAMP.ltx
+if {[file exists $IMPL_DIR/debug_nets.ltx] == 1} {
+   file copy $IMPL_DIR/debug_nets.ltx ${PROJECT_NAME}_debug_nets_$TIMESTAMP.ltx
 }
 
 

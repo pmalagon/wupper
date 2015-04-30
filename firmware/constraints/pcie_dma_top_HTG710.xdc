@@ -118,7 +118,7 @@ set_false_path -to [get_pins u1/u1/pipe_clock0/g0.pclk_i1/S1]
 ###############################################################################
 
 set_false_path -from [get_ports sys_reset_n]
-set_false_path -reset_path -from [get_pins u1/u1/u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C] 
+set_false_path -reset_path -from [get_pins u1/u1/u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C]
 ###############################################################################
 # End
 ###############################################################################

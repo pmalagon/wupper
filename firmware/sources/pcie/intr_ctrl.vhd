@@ -70,7 +70,11 @@ entity intr_ctrl is
     interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
     interrupt_table_en         : in     std_logic;
     interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
-    reset                      : in     std_logic);
+    reset                      : in     std_logic;
+    s_axis_cc                  : in     axis_type;
+    s_axis_cq                  : in     axis_type;
+    s_axis_rc                  : in     axis_type;
+    s_axis_rq                  : in     axis_type);
 end entity intr_ctrl;
 
 
@@ -92,6 +96,8 @@ architecture rtl of intr_ctrl is
   attribute dont_touch : string;
   attribute dont_touch of monitor_cfg_interrupt_msix_data    : signal is "true";
   attribute dont_touch of monitor_cfg_interrupt_msix_address : signal is "true";
+  
+  signal axi_busy                             : std_logic;
 
 begin
 
@@ -149,22 +155,30 @@ begin
     end if; --reset
   end process;
 
-  --cfg_interrupt_msix_int     <= s_cfg_interrupt_msix_int;
   cfg_interrupt_msix_data    <= s_cfg_interrupt_msix_data;
   cfg_interrupt_msix_address <= s_cfg_interrupt_msix_address;
   
+  axi_busy <= (s_axis_cc.tvalid or s_axis_cq.tvalid) or (s_axis_rc.tvalid or s_axis_rq.tvalid);
+  
   regSync250: process(clk)
     variable cfg_interrupt_msix_int_v : std_logic;
+    variable axi_busy_p1 : std_logic;
+    variable request_int: std_logic;
   begin
     if(rising_edge(clk)) then
-      --cfg_interrupt_msix_data    <= s_cfg_interrupt_msix_data;
-      --cfg_interrupt_msix_address <= s_cfg_interrupt_msix_address;
-      if(cfg_interrupt_msix_int_v = '0' and s_cfg_interrupt_msix_int = '1') then --detect rising edge
+      if(request_int = '1' and (axi_busy = '0' and axi_busy_p1 = '0')) then --two axi idle clockcycles, don't send in between two DMA TLP's
+        request_int := '0';
         cfg_interrupt_msix_int  <= '1';
       else
+        request_int := request_int; 
         cfg_interrupt_msix_int  <= '0';
       end if;
+      if(cfg_interrupt_msix_int_v = '0' and s_cfg_interrupt_msix_int = '1')  then --detect rising edge
+        request_int := '1';
+      end if;
       cfg_interrupt_msix_int_v := s_cfg_interrupt_msix_int;  -- pipeline
+      axi_busy_p1 := axi_busy;
+      
     end if;
   end process;
   

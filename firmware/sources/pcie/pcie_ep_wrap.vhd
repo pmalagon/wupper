@@ -56,6 +56,13 @@ use work.pcie_package.all;
 
 entity pcie_ep_wrap is
   port (
+    cfg_fc_cpld                : out    std_logic_vector(11 downto 0);
+    cfg_fc_cplh                : out    std_logic_vector(7 downto 0);
+    cfg_fc_npd                 : out    std_logic_vector(11 downto 0);
+    cfg_fc_nph                 : out    std_logic_vector(7 downto 0);
+    cfg_fc_pd                  : out    std_logic_vector(11 downto 0);
+    cfg_fc_ph                  : out    std_logic_vector(7 downto 0);
+    cfg_fc_sel                 : in     std_logic_vector(2 downto 0);
     cfg_interrupt_msix_address : in     std_logic_vector(63 downto 0);
     cfg_interrupt_msix_data    : in     std_logic_vector(31 downto 0);
     cfg_interrupt_msix_enable  : out    std_logic_vector(1 downto 0);
@@ -493,13 +500,13 @@ begin
         cfg_msg_transmit_type => "000",
         cfg_msg_transmit_data => x"00000000",
         cfg_msg_transmit_done => open,
-        cfg_fc_ph => open,
-        cfg_fc_pd => open,
-        cfg_fc_nph => open,
-        cfg_fc_npd => open,
-        cfg_fc_cplh => open,
-        cfg_fc_cpld => open,
-        cfg_fc_sel => "000",
+        cfg_fc_ph   => cfg_fc_ph,
+        cfg_fc_pd   => cfg_fc_pd,
+        cfg_fc_nph  => cfg_fc_nph,
+        cfg_fc_npd  => cfg_fc_npd,
+        cfg_fc_cplh => cfg_fc_cplh,
+        cfg_fc_cpld => cfg_fc_cpld,
+        cfg_fc_sel  => cfg_fc_sel,
         cfg_per_func_status_control => "000",
         cfg_per_func_status_data => open,
         cfg_per_function_number => "000",

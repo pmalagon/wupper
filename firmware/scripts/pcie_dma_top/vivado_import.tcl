@@ -33,7 +33,6 @@ read_vhdl -library work $proj_dir/sources/packages/pcie_package.vhd
 
 read_vhdl -library work $proj_dir/sources/pcie/DMA_Core.vhd
 read_vhdl -library work $proj_dir/sources/pcie/dma_read_write.vhd
-read_vhdl -library work $proj_dir/sources/pcie/dma_write_cache.vhd
 read_vhdl -library work $proj_dir/sources/pcie/intr_ctrl.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_dma_wrap.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_ep_wrap.vhd
@@ -43,7 +42,6 @@ read_vhdl -library work $proj_dir/sources/pcie/pcie_clocking.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_slow_clock.vhd
 
 import_ip $proj_dir/sources/pcie/pcie_x8_gen3_3_0.xci
-import_ip $proj_dir/sources/pcie/cache_fifo.xci
 import_ip $proj_dir/sources/pcie/clk_wiz_40.xci
 
 # ----------------------------------------------------------
@@ -56,6 +54,7 @@ import_ip $proj_dir/sources/application/fifo_256x256.xci
 upgrade_ip [get_ips  {pcie_x8_gen3_3_0 cache_fifo clk_wiz_40 fifo_256x256}]
 
 read_xdc -verbose $proj_dir/constraints/pcie_dma_top_VC709.xdc
+read_xdc -verbose $proj_dir/constraints/pcie_dma_top_HTG710.xdc
 close [ open $proj_dir/constraints/probes.xdc w ]
 read_xdc -verbose $proj_dir/constraints/probes.xdc
 set_property target_constrs_file $proj_dir/constraints/probes.xdc [current_fileset -constrset]

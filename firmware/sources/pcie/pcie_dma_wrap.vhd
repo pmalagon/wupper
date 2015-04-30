@@ -91,13 +91,9 @@ end entity pcie_dma_wrap;
 
 architecture structure of pcie_dma_wrap is
 
-  signal m_axis_MM2S                : axis_type;
   signal m_axis_r_MM2S              : axis_r_type;
-  signal s_axis_S2MM                : axis_type;
   signal s_axis_r_S2MM              : axis_r_type;
-  signal m_axis_CNTRL               : axis_type;
   signal m_axis_r_CNTRL             : axis_r_type;
-  signal s_axis_STS                 : axis_type;
   signal s_axis_r_STS               : axis_r_type;
   signal user_lnk_up                : std_logic;
   signal cfg_interrupt_msix_sent    : std_logic;
@@ -122,9 +118,28 @@ architecture structure of pcie_dma_wrap is
   signal interrupt_table_en         : std_logic;
   signal clkDiv6                    : std_logic;
   signal dma_interrupt_call         : STD_LOGIC_VECTOR(3 downto 0);
+  signal m_axis_cq                  : axis_type;
+  signal m_axis_cc                  : axis_type;
+  signal m_axis_rc                  : axis_type;
+  signal m_axis_rq                  : axis_type;
+  signal cfg_fc_ph                  : std_logic_vector(7 downto 0);
+  signal cfg_fc_pd                  : std_logic_vector(11 downto 0);
+  signal cfg_fc_nph                 : std_logic_vector(7 downto 0);
+  signal cfg_fc_npd                 : std_logic_vector(11 downto 0);
+  signal cfg_fc_cplh                : std_logic_vector(7 downto 0);
+  signal cfg_fc_cpld                : std_logic_vector(11 downto 0);
+  signal cfg_fc_sel                 : std_logic_vector(2 downto 0);
+  signal sys_rst_n                  : std_logic;
 
   component pcie_ep_wrap
     port (
+      cfg_fc_cpld                : out    std_logic_vector(11 downto 0);
+      cfg_fc_cplh                : out    std_logic_vector(7 downto 0);
+      cfg_fc_npd                 : out    std_logic_vector(11 downto 0);
+      cfg_fc_nph                 : out    std_logic_vector(7 downto 0);
+      cfg_fc_pd                  : out    std_logic_vector(11 downto 0);
+      cfg_fc_ph                  : out    std_logic_vector(7 downto 0);
+      cfg_fc_sel                 : in     std_logic_vector(2 downto 0);
       cfg_interrupt_msix_address : in     std_logic_vector(63 downto 0);
       cfg_interrupt_msix_data    : in     std_logic_vector(31 downto 0);
       cfg_interrupt_msix_enable  : out    std_logic_vector(1 downto 0);
@@ -211,7 +226,11 @@ architecture structure of pcie_dma_wrap is
       interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
       interrupt_table_en         : in     std_logic;
       interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
-      reset                      : in     std_logic);
+      reset                      : in     std_logic;
+      s_axis_cc                  : in     axis_type;
+      s_axis_cq                  : in     axis_type;
+      s_axis_rc                  : in     axis_type;
+      s_axis_rq                  : in     axis_type);
   end component intr_ctrl;
 
   component pcie_init
@@ -219,6 +238,13 @@ architecture structure of pcie_dma_wrap is
       bar0                     : out    std_logic_vector(31 downto 0);
       bar1                     : out    std_logic_vector(31 downto 0);
       bar2                     : out    std_logic_vector(31 downto 0);
+      cfg_fc_cpld              : in     std_logic_vector(11 downto 0);
+      cfg_fc_cplh              : in     std_logic_vector(7 downto 0);
+      cfg_fc_npd               : in     std_logic_vector(11 downto 0);
+      cfg_fc_nph               : in     std_logic_vector(7 downto 0);
+      cfg_fc_pd                : in     std_logic_vector(11 downto 0);
+      cfg_fc_ph                : in     std_logic_vector(7 downto 0);
+      cfg_fc_sel               : out    std_logic_vector(2 downto 0);
       cfg_mgmt_addr            : out    std_logic_vector(18 downto 0);
       cfg_mgmt_byte_enable     : out    std_logic_vector(3 downto 0);
       cfg_mgmt_read            : out    std_logic;
@@ -243,9 +269,17 @@ begin
   fifo_rd_clk <= clk;
   fifo_wr_clk <= clk;
   appreg_clk <= clkDiv6;
+  sys_rst_n <= sys_reset_n;
 
   u1: pcie_ep_wrap
     port map(
+      cfg_fc_cpld                => cfg_fc_cpld,
+      cfg_fc_cplh                => cfg_fc_cplh,
+      cfg_fc_npd                 => cfg_fc_npd,
+      cfg_fc_nph                 => cfg_fc_nph,
+      cfg_fc_pd                  => cfg_fc_pd,
+      cfg_fc_ph                  => cfg_fc_ph,
+      cfg_fc_sel                 => cfg_fc_sel,
       cfg_interrupt_msix_address => cfg_interrupt_msix_address,
       cfg_interrupt_msix_data    => cfg_interrupt_msix_data,
       cfg_interrupt_msix_enable  => cfg_interrupt_msix_enable,
@@ -260,22 +294,22 @@ begin
       cfg_mgmt_write             => cfg_mgmt_write,
       cfg_mgmt_write_data        => cfg_mgmt_write_data,
       clk                        => clk,
-      m_axis_cq                  => s_axis_STS,
+      m_axis_cq                  => m_axis_cq,
       m_axis_r_cq                => s_axis_r_STS,
       m_axis_r_rc                => s_axis_r_S2MM,
-      m_axis_rc                  => s_axis_S2MM,
+      m_axis_rc                  => m_axis_rc,
       pci_exp_rxn                => pcie_rxn,
       pci_exp_rxp                => pcie_rxp,
       pci_exp_txn                => pcie_txn,
       pci_exp_txp                => pcie_txp,
       reset                      => reset,
-      s_axis_cc                  => m_axis_CNTRL,
+      s_axis_cc                  => m_axis_cc,
       s_axis_r_cc                => m_axis_r_CNTRL,
       s_axis_r_rq                => m_axis_r_MM2S,
-      s_axis_rq                  => m_axis_MM2S,
+      s_axis_rq                  => m_axis_rq,
       sys_clk_n                  => sys_clk_n,
       sys_clk_p                  => sys_clk_p,
-      sys_rst_n                  => sys_reset_n,
+      sys_rst_n                  => sys_rst_n,
       user_lnk_up                => user_lnk_up);
 
   dma0: DMA_Core
@@ -300,18 +334,18 @@ begin
       flush_fifo           => flush_fifo,
       interrupt_table_en   => interrupt_table_en,
       interrupt_vector     => interrupt_vector,
-      m_axis_cc            => m_axis_CNTRL,
+      m_axis_cc            => m_axis_cc,
       m_axis_r_cc          => m_axis_r_CNTRL,
       m_axis_r_rq          => m_axis_r_MM2S,
-      m_axis_rq            => m_axis_MM2S,
+      m_axis_rq            => m_axis_rq,
       register_map_control => register_map_control,
       register_map_monitor => register_map_monitor,
       reset                => reset,
       reset_global_soft    => reset_soft,
-      s_axis_cq            => s_axis_STS,
+      s_axis_cq            => m_axis_cq,
       s_axis_r_cq          => s_axis_r_STS,
       s_axis_r_rc          => s_axis_r_S2MM,
-      s_axis_rc            => s_axis_S2MM,
+      s_axis_rc            => m_axis_rc,
       user_lnk_up          => user_lnk_up);
 
   u2: intr_ctrl
@@ -330,13 +364,24 @@ begin
       interrupt_call             => interrupt_call,
       interrupt_table_en         => interrupt_table_en,
       interrupt_vector           => interrupt_vector,
-      reset                      => reset);
+      reset                      => reset,
+      s_axis_cc                  => m_axis_cc,
+      s_axis_cq                  => m_axis_cq,
+      s_axis_rc                  => m_axis_rc,
+      s_axis_rq                  => m_axis_rq);
 
   u0: pcie_init
     port map(
       bar0                     => bar0,
       bar1                     => bar1,
       bar2                     => bar2,
+      cfg_fc_cpld              => cfg_fc_cpld,
+      cfg_fc_cplh              => cfg_fc_cplh,
+      cfg_fc_npd               => cfg_fc_npd,
+      cfg_fc_nph               => cfg_fc_nph,
+      cfg_fc_pd                => cfg_fc_pd,
+      cfg_fc_ph                => cfg_fc_ph,
+      cfg_fc_sel               => cfg_fc_sel,
       cfg_mgmt_addr            => cfg_mgmt_addr,
       cfg_mgmt_byte_enable     => cfg_mgmt_byte_enable,
       cfg_mgmt_read            => cfg_mgmt_read,
@@ -352,7 +397,7 @@ begin
       clk        => clk,
       clkDiv6    => clkDiv6,
       pll_locked => pll_locked,
-      reset_n    => sys_reset_n,
+      reset_n    => sys_rst_n,
       reset_out  => reset_hard);
 end architecture structure ; -- of pcie_dma_wrap
 

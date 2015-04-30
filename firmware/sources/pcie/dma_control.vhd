@@ -88,22 +88,18 @@ end entity dma_control;
 
 
 architecture rtl of dma_control is
-  
-  type completer_state_type is(IDLE, READ_REGISTER, WRITE_REGISTER_READ, WRITE_REGISTER_MODIFYWRITE, SEND_UNKNOWN_REQUEST, SEND_COMPLETER_ABORT, WAIT_FOR_TLAST);
+
+  type completer_state_type is(IDLE, READ_REGISTER, WRITE_REGISTER_READ, WRITE_REGISTER_MODIFYWRITE, SEND_UNKNOWN_REQUEST);
   signal completer_state: completer_state_type := IDLE;
-  signal completer_state_slv: std_logic_vector(3 downto 0);
+  signal completer_state_slv: std_logic_vector(2 downto 0);
   attribute dont_touch : string;
   attribute dont_touch of completer_state_slv : signal is "true";
   
-  constant IDLE_SLV                           : std_logic_vector(3 downto 0) := "0000";
-  constant READ_REGISTER_SLV                  : std_logic_vector(3 downto 0) := "0001";
-  constant WRITE_REGISTER_READ_SLV            : std_logic_vector(3 downto 0) := "0011";
-  constant WRITE_REGISTER_MODIFYWRITE_SLV     : std_logic_vector(3 downto 0) := "0100";
-  constant SEND_UNKNOWN_REQUEST_SLV           : std_logic_vector(3 downto 0) := "0111";
-  constant SEND_COMPLETER_ABORT_SLV           : std_logic_vector(3 downto 0) := "1000";
-  constant WAIT_FOR_TLAST_SLV                 : std_logic_vector(3 downto 0) := "1001";
-  
-  
+  constant IDLE_SLV                           : std_logic_vector(2 downto 0) := "000";
+  constant READ_REGISTER_SLV                  : std_logic_vector(2 downto 0) := "001";
+  constant WRITE_REGISTER_READ_SLV            : std_logic_vector(2 downto 0) := "011";
+  constant WRITE_REGISTER_MODIFYWRITE_SLV     : std_logic_vector(2 downto 0) := "100";
+  constant SEND_UNKNOWN_REQUEST_SLV           : std_logic_vector(2 downto 0) := "111";
   
   signal dma_descriptors_s                : dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
   signal dma_descriptors_40_r_s           : dma_descriptors_type(0 to 7);
@@ -130,7 +126,7 @@ architecture rtl of dma_control is
   signal bar0_valid                       : std_logic;
   signal transaction_class_s              : std_logic_vector(2 downto 0);
   signal attributes_s                     : std_logic_vector(2 downto 0);
-  signal seen_tlast_s                     : std_logic;
+  --signal seen_tlast_s                     : std_logic;
   signal register_data_s                  : std_logic_vector(127 downto 0);
   signal register_data_r                  : std_logic_vector(127 downto 0); --temporary register for read/modify/write
   signal register_map_monitor_s           : register_map_monitor_type;
@@ -297,7 +293,7 @@ begin
     else
       if(rising_edge(clk)) then
         --defaults:
-        seen_tlast_s         <= seen_tlast_s;
+        --seen_tlast_s         <= seen_tlast_s;
         address_type_s       <= address_type_s;
         register_address_s   <= register_address_s;
         dword_count_s        <= dword_count_s;
@@ -404,7 +400,6 @@ begin
           end if;
         end loop;
         
-    
         case (completer_state) is
           when IDLE =>
             completer_state_slv <= IDLE_SLV;
@@ -423,7 +418,6 @@ begin
               transaction_class_s  <= s_axis_cq.tdata(123 downto 121);
               attributes_s         <= s_axis_cq.tdata(126 downto 124);
               register_data_s      <= s_axis_cq.tdata(255 downto 128);
-              seen_tlast_s         <= s_axis_cq.tlast;
               if(s_axis_cq.tdata(31 downto 20) = (bar0(31 downto 20))) then
                 bar0_valid <= '1';
               else
@@ -462,7 +456,6 @@ begin
               when others => m_axis_cc.tkeep <= x"FF";
             end case;
             
-            seen_tlast_s     <= s_axis_cq.tlast or seen_tlast_s;
             
             --wait for reply from 40 MHz sync:
             if(register_read_done_250_s = '1') then
@@ -474,12 +467,7 @@ begin
                 s_axis_r_cq.tready <= '0';
                 completer_state <= READ_REGISTER;
               else
-                if(seen_tlast_s = '1') then
-                  completer_state <= IDLE;
-                else
-                  s_axis_r_cq.tready <= '0';
-                  completer_state <= SEND_COMPLETER_ABORT;
-                end if;
+                completer_state <= IDLE;
               end if;
             else
               register_read_enable_250_s <= '1';
@@ -518,12 +506,7 @@ begin
               else
                 m_axis_cc.tlast  <= '1';
                 m_axis_cc.tvalid <= '1';
-                if(seen_tlast_s = '1') then
-                  completer_state   <= IDLE;
-                else
-                  completer_state   <= SEND_COMPLETER_ABORT;
-                  s_axis_r_cq.tready <= '0';
-                end if;
+                completer_state   <= IDLE;
               end if;
             --wait for reply from 40 MHz sync: 
             elsif(register_read_done_250_s = '1') then
@@ -541,7 +524,6 @@ begin
             completion_status_v := "000";
             locked_completion_v := '0';
             m_axis_cc.tkeep <= x"07";
-            seen_tlast_s <= s_axis_cq.tlast or seen_tlast_s;
             m_axis_cc.tdata(255 downto 96) <= (others => '0');
             
           when WRITE_REGISTER_MODIFYWRITE =>
@@ -585,12 +567,7 @@ begin
               else
                 m_axis_cc.tlast  <= '1';
                 m_axis_cc.tvalid <= '1';
-                if(seen_tlast_s = '1') then
-                  completer_state   <= IDLE;
-                else
-                  completer_state   <= SEND_COMPLETER_ABORT;
-                  s_axis_r_cq.tready <= '0';
-                end if;
+                completer_state   <= IDLE;
               end if;
             else 
               m_axis_cc.tlast  <= '0';
@@ -605,7 +582,6 @@ begin
             completion_status_v := "000";
             locked_completion_v := '0';
             m_axis_cc.tkeep <= x"07";
-            seen_tlast_s <= s_axis_cq.tlast or seen_tlast_s;
             m_axis_cc.tdata(255 downto 96) <= (others => '0');
           when SEND_UNKNOWN_REQUEST =>
             completer_state_slv <= SEND_UNKNOWN_REQUEST_SLV;
@@ -615,53 +591,14 @@ begin
             completion_status_v   := "001"; --unsupported request
             locked_completion_v   := '0';
             m_axis_cc.tkeep       <= x"07";
-            seen_tlast_s          <= s_axis_cq.tlast or seen_tlast_s;
             m_axis_cc.tlast       <= '1';
             m_axis_cc.tvalid      <= '1';
             if(m_axis_r_cc.tready = '0') then
               completer_state     <= SEND_UNKNOWN_REQUEST;
               s_axis_r_cq.tready <= '0';
             else
-              if(seen_tlast_s = '1') then
-                completer_state   <= IDLE;
-              else
-                completer_state   <= SEND_COMPLETER_ABORT;
-                s_axis_r_cq.tready <= '0';
-              end if;
+              completer_state   <= IDLE;
             end if;
-          when SEND_COMPLETER_ABORT =>
-            completer_state_slv <= SEND_COMPLETER_ABORT_SLV;
-            poisoned_completion_v := '0';
-            dword_count_v         := std_logic_vector(to_unsigned(1,11));
-            byte_count_v          := dword_count_v&"00";
-            completion_status_v   := "100"; --completer abort
-            locked_completion_v   := '0';
-            m_axis_cc.tkeep       <= x"07";
-            seen_tlast_s          <= s_axis_cq.tlast or seen_tlast_s;
-            m_axis_cc.tlast       <= '1';
-            m_axis_cc.tvalid      <= '1';
-            if(m_axis_r_cc.tready = '0') then
-              completer_state     <= SEND_COMPLETER_ABORT;
-              s_axis_r_cq.tready <= '0';
-            else
-              if(seen_tlast_s = '1') then
-                completer_state   <= IDLE;
-              else
-                completer_state   <= WAIT_FOR_TLAST;
-                s_axis_r_cq.tready <= '0';
-              end if;
-            end if;
-          when WAIT_FOR_TLAST =>
-            tlast_timer_s <= tlast_timer_s - 1;
-            completer_state_slv <= WAIT_FOR_TLAST_SLV;
-            if(s_axis_cq.tlast = '1' or tlast_timer_s=x"00") then
-              completer_state <= IDLE;
-            else
-              completer_state <= WAIT_FOR_TLAST;
-              s_axis_r_cq.tready <= '0';
-            end if;
-              
-            
           when others =>
             completer_state <= IDLE;
             completer_state_slv <= IDLE_SLV;
@@ -671,10 +608,10 @@ begin
         m_axis_cc.tdata(7)            <= '0';
         m_axis_cc.tdata(9 downto 8)   <= address_type_s;
         m_axis_cc.tdata(15 downto 10) <= "000000";
-        m_axis_cc.tdata(28 downto 16) <= byte_count_v;
+        m_axis_cc.tdata(28 downto 16) <= "00000000"&byte_count_v(4 downto 0);
         m_axis_cc.tdata(29)           <= locked_completion_v;
         m_axis_cc.tdata(31 downto 30) <= "00";
-        m_axis_cc.tdata(42 downto 32) <= dword_count_v;
+        m_axis_cc.tdata(42 downto 32) <= "00000000"&dword_count_v(2 downto 0);
         m_axis_cc.tdata(45 downto 43) <= completion_status_v;
         m_axis_cc.tdata(46)           <= poisoned_completion_v;
         m_axis_cc.tdata(47)           <= '0';

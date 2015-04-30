@@ -60,7 +60,6 @@ entity dma_read_write is
   generic(
     NUMBER_OF_DESCRIPTORS : integer := 8);
   port (
-    cache_tready    : in     std_logic;
     clk             : in     std_logic;
     dma_descriptors : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
     dma_soft_reset  : in     std_logic;
@@ -130,18 +129,19 @@ architecture rtl of dma_read_write is
   type receive_tag_status_type is array (0 to 15) of receive_tag_status_record_type;
   signal receive_tag_status_s: receive_tag_status_type;
   signal current_receive_tag_s: integer range 0 to 15;
+  signal s_m_axis_rq : axis_type;
 
   
 begin
 
+  m_axis_rq <= s_m_axis_rq;
 
-
-  re: process(rw_state, m_axis_r_rq, dma_descriptors, active_descriptor_s, fifo_empty, current_descriptor, cache_tready)
+  re: process(rw_state, m_axis_r_rq, dma_descriptors, active_descriptor_s, fifo_empty, current_descriptor)
   begin
     fifo_re <= '0';
     case(rw_state) is
       when IDLE =>
-        if(((fifo_empty = '0') and (m_axis_r_rq.tready = '1')) and cache_tready = '1') then
+        if((fifo_empty = '0') and (m_axis_r_rq.tready = '1')) then
           if((dma_descriptors(active_descriptor_s).enable = '1') and (dma_descriptors(active_descriptor_s).read_not_write = '0')) then
             fifo_re <= '1';
           end if;
@@ -189,10 +189,10 @@ begin
         rw_state <= IDLE;
         fifo_dout_pipe <= fifo_dout(255 downto 128);
         req_tag <= req_tag;
-        m_axis_rq.tvalid <= '0';
-        m_axis_rq.tdata <= (others => '0');
-        m_axis_rq.tkeep <= x"00";
-        m_axis_rq.tlast	<= '0';
+        s_m_axis_rq.tvalid <= '0';
+        s_m_axis_rq.tdata <= (others => '0');
+        s_m_axis_rq.tkeep <= x"00";
+        s_m_axis_rq.tlast	<= '0';
         current_receive_tag_s <= current_receive_tag_s ;
         active_descriptor_s <= active_descriptor_s;
         receive_tags_s <= receive_tags_s;
@@ -218,11 +218,11 @@ begin
             current_descriptor <= dma_descriptors(active_descriptor_s);
             active_descriptor_s <= next_active_descriptor_v;
             if((m_axis_r_rq.tready = '1') and (dma_descriptors(active_descriptor_s).enable = '1')) then
-              if(((dma_descriptors(active_descriptor_s).read_not_write = '0') and (fifo_empty = '0')) and (cache_tready = '1')) then
+              if(((dma_descriptors(active_descriptor_s).read_not_write = '0') and (fifo_empty = '0'))) then
                 rw_state <= START_WRITE;
                 descriptor_done_s(active_descriptor_s) <= '1'; --pulse only once
               end if;
-              if(((dma_descriptors(active_descriptor_s).read_not_write = '1') and (fifo_full = '0')) and (cache_tready = '1')) then
+              if(((dma_descriptors(active_descriptor_s).read_not_write = '1') and (fifo_full = '0'))) then
                 rw_state <= START_READ;
                 descriptor_done_s(active_descriptor_s) <= '1'; --pulse only once
               end if;
@@ -232,7 +232,7 @@ begin
             if(m_axis_r_rq.tready = '1') then
               current_descriptor.dword_count <= current_descriptor.dword_count - 4;
                                   -----DW 7-4
-              m_axis_rq.tdata  <= fifo_dout(127 downto 0) & --128 bits data
+              s_m_axis_rq.tdata  <= fifo_dout(127 downto 0) & --128 bits data
                                   -----DW 3
                                   '0'&       --31 - 1 bit reserved	        127
                                   req_attr & --30-28 3 bits Attr	        124-126
@@ -249,71 +249,73 @@ begin
                                   --DW 1-0
                                   current_descriptor.current_address(63 downto 2) & "00";  --62 bit word address address + 2 bit Address type (0, untranslated)
               if(current_descriptor.dword_count <= 4) then
-                m_axis_rq.tlast <= '1';
+                s_m_axis_rq.tlast <= '1';
                 rw_state <= IDLE;
                 
                 req_tag <= req_tag + 1;
                 current_descriptor.dword_count <= (others => '0');
                 case(current_descriptor.dword_count(3 downto 0)) is
-                  when x"4" => m_axis_rq.tkeep  <= x"FF";
-                  when x"3" => m_axis_rq.tkeep  <= x"7F";
-                  when x"2" => m_axis_rq.tkeep  <= x"3F";
-                  when x"1" => m_axis_rq.tkeep  <= x"1F";
-                  when x"0" => m_axis_rq.tkeep  <= x"0F";
-                  when others => m_axis_rq.tkeep <= x"FF";
+                  when x"4" => s_m_axis_rq.tkeep  <= x"FF";
+                  when x"3" => s_m_axis_rq.tkeep  <= x"7F";
+                  when x"2" => s_m_axis_rq.tkeep  <= x"3F";
+                  when x"1" => s_m_axis_rq.tkeep  <= x"1F";
+                  when x"0" => s_m_axis_rq.tkeep  <= x"0F";
+                  when others => s_m_axis_rq.tkeep <= x"FF";
                 end case;
               else
-                m_axis_rq.tkeep <= x"FF";
+                s_m_axis_rq.tkeep <= x"FF";
                 rw_state <= CONT_WRITE;
-                m_axis_rq.tlast <= '0';
+                s_m_axis_rq.tlast <= '0';
               end if;
-              m_axis_rq.tvalid <= '1';
+              s_m_axis_rq.tvalid <= '1';
             else
-              m_axis_rq.tvalid <= '0';
+              s_m_axis_rq.tvalid <= '0';
               current_descriptor.dword_count <= current_descriptor.dword_count;
               rw_state <= START_WRITE;
             end if;
           when CONT_WRITE  =>
             rw_state_slv <= CONT_WRITE_SLV;
+            rw_state <= CONT_WRITE; --default
             if(m_axis_r_rq.tready = '1') then
               current_descriptor.dword_count <= current_descriptor.dword_count - 8;
-                                  -----DW 7-4
-              m_axis_rq.tdata  <= fifo_dout(127 downto 0) & --128 bits data
-                                  fifo_dout_pipe; --128 bits data from last clock cycle
-              if(current_descriptor.dword_count <= 8) then
-                m_axis_rq.tlast <= '1';
+              s_m_axis_rq.tdata  <= fifo_dout(127 downto 0) & --128 bits data
+                                fifo_dout_pipe; --128 bits data from last clock cycle
+            else
+              fifo_dout_pipe <= fifo_dout_pipe;
+              s_m_axis_rq.tdata  <= s_m_axis_rq.tdata;
+            end if;
+                                -----DW 7-4
+            
+            if(current_descriptor.dword_count <= 8) then
+              s_m_axis_rq.tlast <= '1';
+              if(m_axis_r_rq.tready = '1') then
                 rw_state <= IDLE;
                 req_tag <= req_tag + 1;
                 current_descriptor.dword_count <= (others => '0');
-                case(current_descriptor.dword_count(3 downto 0)) is
-                  when x"8" => m_axis_rq.tkeep  <= x"FF";
-                  when x"7" => m_axis_rq.tkeep  <= x"7F";
-                  when x"6" => m_axis_rq.tkeep  <= x"3F";
-                  when x"5" => m_axis_rq.tkeep  <= x"1F";
-                  when x"4" => m_axis_rq.tkeep  <= x"0F";
-                  when x"3" => m_axis_rq.tkeep  <= x"07";
-                  when x"2" => m_axis_rq.tkeep  <= x"03";
-                  when x"1" => m_axis_rq.tkeep  <= x"01";
-                  when x"0" => m_axis_rq.tkeep  <= x"00";
-                  when others => m_axis_rq.tkeep <= x"FF";
-                end case;
-              else
-                rw_state <= CONT_WRITE;
-                m_axis_rq.tlast <= '0';
-                m_axis_rq.tkeep  <= x"FF";
+              
               end if;
-              m_axis_rq.tvalid <= '1';
+              case(current_descriptor.dword_count(3 downto 0)) is
+                when x"8" => s_m_axis_rq.tkeep  <= x"FF";
+                when x"7" => s_m_axis_rq.tkeep  <= x"7F";
+                when x"6" => s_m_axis_rq.tkeep  <= x"3F";
+                when x"5" => s_m_axis_rq.tkeep  <= x"1F";
+                when x"4" => s_m_axis_rq.tkeep  <= x"0F";
+                when x"3" => s_m_axis_rq.tkeep  <= x"07";
+                when x"2" => s_m_axis_rq.tkeep  <= x"03";
+                when x"1" => s_m_axis_rq.tkeep  <= x"01";
+                when x"0" => s_m_axis_rq.tkeep  <= x"00";
+                when others => s_m_axis_rq.tkeep <= x"FF";
+              end case;
             else
-              fifo_dout_pipe <= fifo_dout_pipe;
-              m_axis_rq.tvalid <= '0';
-              current_descriptor.dword_count <= current_descriptor.dword_count;
-              rw_state <= CONT_WRITE;
+              s_m_axis_rq.tlast <= '0';
+              s_m_axis_rq.tkeep  <= x"FF";
             end if;
+            s_m_axis_rq.tvalid <= '1';
           when START_READ  =>
             rw_state_slv <= START_READ_SLV;
             if(m_axis_r_rq.tready = '1') then
                                   -----DW 7-4
-              m_axis_rq.tdata  <= x"00000000"&x"00000000"&x"00000000"&x"00000000"& --128 bits data
+              s_m_axis_rq.tdata  <= x"00000000"&x"00000000"&x"00000000"&x"00000000"& --128 bits data
                                   -----DW 3
                                   '0' &      --31 - 1 bit reserved
                                   req_attr & --30-28 3 bits Attr
@@ -329,7 +331,7 @@ begin
                                   current_descriptor.dword_count&  -- 10-0 DWord Count 0 - IO Write completions
                                   --DW 1-0
                                   current_descriptor.current_address(63 downto 2)&"00"; --62 bit word address address + 2 bit Address type (0, untranslated)
-              m_axis_rq.tlast <= '1';
+              s_m_axis_rq.tlast <= '1';
               rw_state <= IDLE;
               req_tag <= req_tag + 1;
               receive_tags_s(current_receive_tag_s).tag <= "0001"&req_tag;
@@ -341,10 +343,10 @@ begin
                 current_receive_tag_s <= 0;
               end if;
               
-              m_axis_rq.tkeep  <= x"0F";
-              m_axis_rq.tvalid <= '1';
+              s_m_axis_rq.tkeep  <= x"0F";
+              s_m_axis_rq.tvalid <= '1';
             else
-              m_axis_rq.tvalid <= '0';
+              s_m_axis_rq.tvalid <= '0';
               rw_state <= START_READ;
             end if;
           when others =>
