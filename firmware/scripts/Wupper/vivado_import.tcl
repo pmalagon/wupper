@@ -31,10 +31,10 @@ read_vhdl -library work $proj_dir/sources/packages/pcie_package.vhd
 # dma sources
 # ----------------------------------------------------------
 
-read_vhdl -library work $proj_dir/sources/pcie/DMA_Core.vhd
+read_vhdl -library work $proj_dir/sources/pcie/wupper_core.vhd
 read_vhdl -library work $proj_dir/sources/pcie/dma_read_write.vhd
 read_vhdl -library work $proj_dir/sources/pcie/intr_ctrl.vhd
-read_vhdl -library work $proj_dir/sources/pcie/pcie_dma_wrap.vhd
+read_vhdl -library work $proj_dir/sources/pcie/wupper.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_ep_wrap.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_init.vhd
 read_vhdl -library work $proj_dir/sources/pcie/dma_control.vhd

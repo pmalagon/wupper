@@ -56,7 +56,7 @@ use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 use work.pcie_package.all;
 
-entity DMA_Core is
+entity wupper_core is
   generic(
     NUMBER_OF_DESCRIPTORS : integer := 8;
     NUMBER_OF_INTERRUPTS  : integer := 8;
@@ -76,7 +76,7 @@ entity DMA_Core is
     fifo_re              : out    std_logic;
     fifo_we              : out    std_logic;
     flush_fifo           : out    std_logic;
-    interrupt_table_en   : out    std_logic;
+    interrupt_table_en   : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
     interrupt_vector     : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
     m_axis_cc            : out    axis_type;
     m_axis_r_cc          : in     axis_r_type;
@@ -91,10 +91,10 @@ entity DMA_Core is
     s_axis_r_rc          : out    axis_r_type;
     s_axis_rc            : in     axis_type;
     user_lnk_up          : in     std_logic);
-end entity DMA_Core;
+end entity wupper_core;
 
 
-architecture structure of DMA_Core is
+architecture structure of wupper_core is
 
   signal dma_status         : dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
   signal u1_dma_descriptors : dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
@@ -146,7 +146,7 @@ architecture structure of DMA_Core is
       s_axis_r_cq          : out    axis_r_type;
       register_map_monitor : in     register_map_monitor_type;
       register_map_control : out    register_map_control_type;
-      interrupt_table_en   : out    STD_LOGIC;
+      interrupt_table_en   : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
       dma_interrupt_call   : out    STD_LOGIC_VECTOR(3 downto 0);
       fifo_empty           : in     std_logic;
       fifo_full            : in     std_logic);
@@ -203,5 +203,5 @@ begin
       dma_interrupt_call   => dma_interrupt_call,
       fifo_empty           => fifo_empty,
       fifo_full            => fifo_full);
-end architecture structure ; -- of DMA_Core
+end architecture structure ; -- of wupper_core
 

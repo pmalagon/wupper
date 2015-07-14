@@ -68,7 +68,7 @@ entity intr_ctrl is
     clkDiv6                    : in     std_logic;
     dma_interrupt_call         : in     std_logic_vector(3 downto 0);
     interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-    interrupt_table_en         : in     std_logic;
+    interrupt_table_en         : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
     interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
     reset                      : in     std_logic;
     s_axis_cc                  : in     axis_type;
@@ -142,9 +142,9 @@ begin
       v_cfg_interrupt_msix_int        := '0';
       s_cfg_interrupt_msix_address    <= s_cfg_interrupt_msix_address;
       s_cfg_interrupt_msix_data       <= s_cfg_interrupt_msix_data;
-      if (cfg_interrupt_msix_enable = "01") and interrupt_table_en = '1' then
+      if (cfg_interrupt_msix_enable = "01") then
         for i in 0 to NUMBER_OF_INTERRUPTS - 1 loop
-          if(s_interrupt_call(i)='1') then
+          if(s_interrupt_call(i)='1') and (interrupt_table_en(i) = '1') then
               v_cfg_interrupt_msix_int      := '1'; --fire interrupt after one pipeline
               s_cfg_interrupt_msix_address  <= interrupt_vector_s(i).int_vec_add;
               s_cfg_interrupt_msix_data     <= interrupt_vector_s(i).int_vec_data;

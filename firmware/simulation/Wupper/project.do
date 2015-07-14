@@ -25,11 +25,11 @@ project addfile ../../sources/shared/virtex7_dma_top.vhd
 # dma sources
 # ----------------------------------------------------------
 
-project addfile ../../sources/pcie/DMA_Core.vhd
+project addfile ../../sources/pcie/wupper_core.vhd
 project addfile ../../sources/pcie/pcie_slow_clock.vhd
 project addfile ../../sources/pcie/pcie_init.vhd
 project addfile ../../sources/pcie/pcie_ep_wrap.vhd
-project addfile ../../sources/pcie/pcie_dma_wrap.vhd
+project addfile ../../sources/pcie/wupper.vhd
 project addfile ../../sources/pcie/intr_ctrl.vhd
 project addfile ../../sources/pcie/dma_read_write.vhd
 

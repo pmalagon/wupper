@@ -56,7 +56,7 @@ use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 use work.pcie_package.all;
 
-entity pcie_dma_wrap is
+entity wupper is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
     NUMBER_OF_DESCRIPTORS : integer := 8;
@@ -86,10 +86,10 @@ entity pcie_dma_wrap is
     sys_clk_n            : in     std_logic;
     sys_clk_p            : in     std_logic;
     sys_reset_n          : in     std_logic);
-end entity pcie_dma_wrap;
+end entity wupper;
 
 
-architecture structure of pcie_dma_wrap is
+architecture structure of wupper is
 
   signal m_axis_r_MM2S              : axis_r_type;
   signal s_axis_r_S2MM              : axis_r_type;
@@ -115,7 +115,7 @@ architecture structure of pcie_dma_wrap is
   signal cfg_mgmt_read              : std_logic;
   signal cfg_mgmt_read_write_done   : std_logic;
   signal cfg_mgmt_read_data         : std_logic_vector(31 downto 0);
-  signal interrupt_table_en         : std_logic;
+  signal interrupt_table_en         : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
   signal clkDiv6                    : std_logic;
   signal dma_interrupt_call         : STD_LOGIC_VECTOR(3 downto 0);
   signal m_axis_cq                  : axis_type;
@@ -173,7 +173,7 @@ architecture structure of pcie_dma_wrap is
       user_lnk_up                : out    std_logic);
   end component pcie_ep_wrap;
 
-  component DMA_Core
+  component wupper_core
     generic(
       NUMBER_OF_DESCRIPTORS : integer := 8;
       NUMBER_OF_INTERRUPTS  : integer := 8;
@@ -193,7 +193,7 @@ architecture structure of pcie_dma_wrap is
       fifo_re              : out    std_logic;
       fifo_we              : out    std_logic;
       flush_fifo           : out    std_logic;
-      interrupt_table_en   : out    std_logic;
+      interrupt_table_en   : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
       interrupt_vector     : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
       m_axis_cc            : out    axis_type;
       m_axis_r_cc          : in     axis_r_type;
@@ -208,7 +208,7 @@ architecture structure of pcie_dma_wrap is
       s_axis_r_rc          : out    axis_r_type;
       s_axis_rc            : in     axis_type;
       user_lnk_up          : in     std_logic);
-  end component DMA_Core;
+  end component wupper_core;
 
   component intr_ctrl
     generic(
@@ -224,7 +224,7 @@ architecture structure of pcie_dma_wrap is
       clkDiv6                    : in     std_logic;
       dma_interrupt_call         : in     std_logic_vector(3 downto 0);
       interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-      interrupt_table_en         : in     std_logic;
+      interrupt_table_en         : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
       interrupt_vector           : in     interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
       reset                      : in     std_logic;
       s_axis_cc                  : in     axis_type;
@@ -312,7 +312,7 @@ begin
       sys_rst_n                  => sys_rst_n,
       user_lnk_up                => user_lnk_up);
 
-  dma0: DMA_Core
+  dma0: wupper_core
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
@@ -399,5 +399,5 @@ begin
       pll_locked => pll_locked,
       reset_n    => sys_rst_n,
       reset_out  => reset_hard);
-end architecture structure ; -- of pcie_dma_wrap
+end architecture structure ; -- of wupper
 

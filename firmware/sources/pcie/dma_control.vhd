@@ -71,7 +71,7 @@ entity dma_control is
     dma_soft_reset       : out    std_logic;
     dma_status           : in     dma_statuses_type;
     flush_fifo           : out    std_logic;
-    interrupt_table_en   : out    std_logic;
+    interrupt_table_en   : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
     interrupt_vector     : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
     m_axis_cc            : out    axis_type;
     m_axis_r_cc          : in     axis_r_type;
@@ -112,7 +112,7 @@ architecture rtl of dma_control is
 
   signal int_vector_s                     : interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
   signal int_vector_40_s                  : interrupt_vectors_type(0 to 7);
-  signal int_table_en_s                   : std_logic_vector(0 downto 0);
+  signal int_table_en_s                   : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
   
   signal register_address_s               : std_logic_vector(63 downto 0);
   signal address_type_s                   : std_logic_vector(1 downto 0);
@@ -641,7 +641,7 @@ begin
     variable dma_descriptors_v            : dma_descriptors_type(0 to 7);
     variable dma_status_v                 : dma_statuses_type(0 to 7);
     variable int_vector_v                 : interrupt_vectors_type(0 to NUMBER_OF_INTERRUPTS-1);
-    variable int_table_en_v               : std_logic_vector(0 downto 0);
+    variable int_table_en_v               : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
     variable fifo_full_interrupt_v        : std_logic_vector(2 downto 0);  
     variable data_available_interrupt_v   : std_logic_vector(2 downto 0);  
   begin
@@ -657,7 +657,7 @@ begin
       dma_descriptors_40_r_s          <= dma_descriptors_v;
       dma_status_40_s                 <= dma_status_v;
       interrupt_vector                <= int_vector_v;
-      interrupt_table_en              <= int_table_en_v(0);
+      interrupt_table_en              <= int_table_en_v;
       
       register_read_address_v      := register_read_address_250_s;
       register_read_enable_v       := register_read_enable1_250_s;
@@ -756,7 +756,7 @@ begin
       for i in 0 to (NUMBER_OF_INTERRUPTS-1) loop
         int_vector_40_s(i) <= (int_vec_add => (others => '0'), int_vec_data => (others => '0'),int_vec_ctrl => (others => '0') );
       end loop;
-      int_table_en_s            <= "0";
+      int_table_en_s            <= (others => '0');
       ------------------------------------------------
       ---- Application specific registers BEGIN 🂱 ----
       ------------------------------------------------    
@@ -921,7 +921,7 @@ begin
             when REG_INT_VEC_07      => register_read_data_40_s(63 downto 0)   <=  int_vector_40_s(7).int_vec_add; 
                                         register_read_data_40_s(95 downto 64)  <=  int_vector_40_s(7).int_vec_data;
                                         register_read_data_40_s(127 downto 96) <=  int_vector_40_s(7).int_vec_ctrl;
-            when REG_INT_TAB_EN      => register_read_data_40_s(0 downto 0)    <=  int_table_en_s;
+            when REG_INT_TAB_EN      => register_read_data_40_s(NUMBER_OF_INTERRUPTS-1 downto 0)    <=  int_table_en_s;
             when others   =>            register_read_data_40_s <= (others => '0'); 
           end case;
         --Read registers in BAR2
@@ -1047,7 +1047,7 @@ begin
             when REG_INT_VEC_07      => int_vector_40_s(7).int_vec_add   <= register_write_data_40_s(63 downto 0);
                                         int_vector_40_s(7).int_vec_data  <= register_write_data_40_s(95 downto 64);
                                         int_vector_40_s(7).int_vec_ctrl  <= register_write_data_40_s(127 downto 96);
-            when REG_INT_TAB_EN      => int_table_en_s                   <= register_write_data_40_s(0 downto 0);
+            when REG_INT_TAB_EN      => int_table_en_s                   <= register_write_data_40_s(NUMBER_OF_INTERRUPTS-1 downto 0);
             when others => 
           end case;
         --Write registers in BAR2
