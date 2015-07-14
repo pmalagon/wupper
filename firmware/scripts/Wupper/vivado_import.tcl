@@ -21,7 +21,7 @@ set_property default_lib work [current_project]
 # ----------------------------------------------------------
 # PCIe DMA top module
 # ----------------------------------------------------------
-read_vhdl -library work $proj_dir/sources/shared/virtex7_dma_top.vhd
+read_vhdl -library work $proj_dir/sources/shared/wupper_oc_top.vhd
 # ----------------------------------------------------------
 # packages
 # ----------------------------------------------------------
@@ -60,7 +60,7 @@ read_xdc -verbose $proj_dir/constraints/probes.xdc
 set_property target_constrs_file $proj_dir/constraints/probes.xdc [current_fileset -constrset]
 set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE MoreGlobalIterations [get_runs impl_1]
 
-set_property top virtex7_dma_top [current_fileset]
+set_property top wupper_oc_top [current_fileset]
 
 puts "INFO: Done!"
 

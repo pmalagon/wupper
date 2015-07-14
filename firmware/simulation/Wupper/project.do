@@ -20,7 +20,7 @@ project addfile ../../sources/packages/pcie_package.vhd
 # ----------------------------------------------------------
 # PCIe DMA top module
 # ----------------------------------------------------------
-project addfile ../../sources/shared/virtex7_dma_top.vhd
+project addfile ../../sources/shared/wupper_oc_top.vhd
 # ----------------------------------------------------------
 # dma sources
 # ----------------------------------------------------------
