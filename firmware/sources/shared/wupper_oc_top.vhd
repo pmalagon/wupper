@@ -56,7 +56,7 @@ use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 use work.pcie_package.all;
 
-entity virtex7_dma_top is
+entity wupper_oc_top is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
     NUMBER_OF_DESCRIPTORS : integer := 8;
@@ -73,10 +73,10 @@ entity virtex7_dma_top is
     sys_clk_n   : in     std_logic;
     sys_clk_p   : in     std_logic; --! 100MHz PCIe reference clock
     sys_reset_n : in     std_logic); --! Active-low system reset from PCIe interface
-end entity virtex7_dma_top;
+end entity wupper_oc_top;
 
 
-architecture structure of virtex7_dma_top is
+architecture structure of wupper_oc_top is
 
   signal register_map_monitor : register_map_monitor_type; --! this signal contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
   signal register_map_control : register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
@@ -95,7 +95,7 @@ architecture structure of virtex7_dma_top is
   signal reset_soft           : std_logic;
   signal reset_hard           : std_logic;
 
-  component pcie_dma_wrap
+  component wupper
     generic(
       NUMBER_OF_INTERRUPTS  : integer := 8;
       NUMBER_OF_DESCRIPTORS : integer := 8;
@@ -125,7 +125,7 @@ architecture structure of virtex7_dma_top is
       sys_clk_n            : in     std_logic;
       sys_clk_p            : in     std_logic;
       sys_reset_n          : in     std_logic);
-  end component pcie_dma_wrap;
+  end component wupper;
 
   component application
     generic(
@@ -157,7 +157,7 @@ begin
   --! Instantiation of the actual PCI express core. Please note the 40MHz
   --! clock required by the core, the 250MHz clock (fifo_rd_clk and fifo_wr_clk) 
   --! are generated from sys_clk_p and _n
-  u1: pcie_dma_wrap
+  u1: wupper
     generic map(
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
@@ -212,5 +212,5 @@ begin
       register_map_monitor => register_map_monitor,
       reset_hard           => reset_hard,
       reset_soft           => reset_soft);
-end architecture structure ; -- of virtex7_dma_top
+end architecture structure ; -- wupper_oc_top
 
