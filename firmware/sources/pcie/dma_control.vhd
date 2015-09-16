@@ -60,6 +60,7 @@ entity dma_control is
     NUMBER_OF_DESCRIPTORS : integer := 8;
     NUMBER_OF_INTERRUPTS  : integer := 8;
     SVN_VERSION           : integer := 0;
+    CARD_TYPE             : integer := 709;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
   port (
     bar0                 : in     std_logic_vector(31 downto 0);
@@ -935,6 +936,7 @@ begin
             when REG_STATUS_LEDS       => register_read_data_40_s  <= x"000000000000000000000000000000"&register_map_control_s.STATUS_LEDS;
             when REG_GENERIC_CONSTANTS => register_read_data_40_s  <= x"0000000000000000000000000000"&std_logic_vector(to_unsigned(NUMBER_OF_INTERRUPTS, 8))&
                                                                                                       std_logic_vector(to_unsigned(NUMBER_OF_DESCRIPTORS, 8));
+            when REG_CARD_TYPE         => register_read_data_40_s  <= x"0000000000000000"&std_logic_vector(to_unsigned(CARD_TYPE,64));
             -- Monitor Registers
             when REG_PLL_LOCK          => register_read_data_40_s  <= x"0000000000000000000000000000000"&"000"&register_map_monitor_s.PLL_LOCK;
             ------------------------------------------------

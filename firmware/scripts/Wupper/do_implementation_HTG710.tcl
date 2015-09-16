@@ -38,7 +38,9 @@ set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_VC709
 set NUMBER_OF_INTERRUPTS 8
 set NUMBER_OF_DESCRIPTORS 8
 
-set_property generic "BUILD_DATETIME=$build_date SVN_VERSION=$svn_version NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS" [current_fileset]
+set CARD_TYPE 710
+
+set_property generic "BUILD_DATETIME=$build_date SVN_VERSION=$svn_version NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS CARD_TYPE=$CARD_TYPE" [current_fileset]
 
 launch_runs $SYNTH_RUN
 launch_runs $IMPL_RUN 

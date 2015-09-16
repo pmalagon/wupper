@@ -109,6 +109,7 @@ package pcie_package is
   constant REG_BOARD_ID            : std_logic_vector(19 downto 0) := x"00000";  
   constant REG_STATUS_LEDS         : std_logic_vector(19 downto 0) := x"00010";  
   constant REG_GENERIC_CONSTANTS   : std_logic_vector(19 downto 0) := x"00020";
+  constant REG_CARD_TYPE           : std_logic_vector(19 downto 0) := x"00040";
   -- Monitor Registers
   constant REG_PLL_LOCK            : std_logic_vector(19 downto 0) := x"00300";
   -- Test interrupt registers.

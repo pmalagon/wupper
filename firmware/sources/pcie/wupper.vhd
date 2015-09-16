@@ -60,6 +60,7 @@ entity wupper is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
     NUMBER_OF_DESCRIPTORS : integer := 8;
+    CARD_TYPE             : integer := 709;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
     SVN_VERSION           : integer := 0);
   port (
@@ -178,6 +179,7 @@ architecture structure of wupper is
       NUMBER_OF_DESCRIPTORS : integer := 8;
       NUMBER_OF_INTERRUPTS  : integer := 8;
       SVN_VERSION           : integer := 0;
+      CARD_TYPE             : integer := 709;
       BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
     port (
       bar0                 : in     std_logic_vector(31 downto 0);
@@ -317,6 +319,7 @@ begin
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
       SVN_VERSION           => SVN_VERSION,
+      CARD_TYPE				=> CARD_TYPE,
       BUILD_DATETIME        => BUILD_DATETIME)
     port map(
       bar0                 => bar0,
