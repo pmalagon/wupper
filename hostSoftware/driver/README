@@ -5,7 +5,7 @@ drivers: contains the drivers after building
 
 wupper: source and Makefile cmem driver
 include: include files needed by drivers.
-scripts: script for starting and stopping of felix, io and cmem drivers and making /dev/wupper, /dev/cmem
+scripts: script for starting and stopping of wupper and cmem drivers and making /dev/wupper, /dev/cmem
 The script makedrivers builds all drivers by running make in the cmem and wupper directories
 The script cleandrivers removes all intermediate build products from the cmem and wupper
 directories and the drivers from the drivers directory.
