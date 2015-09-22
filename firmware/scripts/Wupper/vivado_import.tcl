@@ -5,7 +5,7 @@
 
 #Script Configuration
 
-set proj_name pcie_dma_top
+set proj_name wupper_oc_top
 # Set the supportfiles directory path
 set scriptdir [pwd]
 set proj_dir $scriptdir/../../

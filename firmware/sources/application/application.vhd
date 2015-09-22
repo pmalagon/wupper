@@ -68,6 +68,7 @@ entity application is
     fifo_din             : in     std_logic_vector(255 downto 0);
     fifo_dout            : out    std_logic_vector(255 downto 0);
     fifo_empty           : out    std_logic;
+    fifo_empty_thresh    : in     STD_LOGIC_VECTOR(7 downto 0);
     fifo_full            : out    std_logic;
     fifo_rd_clk          : in     std_logic;
     fifo_re              : in     std_logic;
@@ -96,6 +97,8 @@ COMPONENT fifo_256x256
     rd_en : IN STD_LOGIC;
     dout : OUT STD_LOGIC_VECTOR(255 DOWNTO 0);
     full : OUT STD_LOGIC;
+    prog_empty : OUT STD_LOGIC;
+    prog_empty_thresh: IN STD_LOGIC_VECTOR(7 downto 0);
     empty : OUT STD_LOGIC
   );
 END COMPONENT;
@@ -142,7 +145,9 @@ begin
     -- Towards DMA core
     rd_en => fifo_re,
     dout => fifo_dout,
-    empty => fifo_empty,
+    prog_empty => fifo_empty,
+    prog_empty_thresh => fifo_empty_thresh,
+    empty => open,
     -- Application signals
     wr_en => s_fifo_we,
     din => s_fifo_din,

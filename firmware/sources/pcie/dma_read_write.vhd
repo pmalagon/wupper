@@ -60,21 +60,22 @@ entity dma_read_write is
   generic(
     NUMBER_OF_DESCRIPTORS : integer := 8);
   port (
-    clk             : in     std_logic;
-    dma_descriptors : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-    dma_soft_reset  : in     std_logic;
-    dma_status      : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-    fifo_din        : out    std_logic_vector(255 downto 0);
-    fifo_dout       : in     std_logic_vector(255 downto 0);
-    fifo_empty      : in     std_logic;
-    fifo_full       : in     std_logic;
-    fifo_re         : out    std_logic;
-    fifo_we         : out    std_logic;
-    m_axis_r_rq     : in     axis_r_type;
-    m_axis_rq       : out    axis_type;
-    reset           : in     std_logic;
-    s_axis_r_rc     : out    axis_r_type;
-    s_axis_rc       : in     axis_type);
+    clk               : in     std_logic;
+    dma_descriptors   : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+    dma_soft_reset    : in     std_logic;
+    dma_status        : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+    fifo_din          : out    std_logic_vector(255 downto 0);
+    fifo_dout         : in     std_logic_vector(255 downto 0);
+    fifo_empty        : in     std_logic;
+    fifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
+    fifo_full         : in     std_logic;
+    fifo_re           : out    std_logic;
+    fifo_we           : out    std_logic;
+    m_axis_r_rq       : in     axis_r_type;
+    m_axis_rq         : out    axis_type;
+    reset             : in     std_logic;
+    s_axis_r_rc       : out    axis_r_type;
+    s_axis_rc         : in     axis_type);
 end entity dma_read_write;
 
 
@@ -147,19 +148,26 @@ begin
           end if;
         end if;
       when START_WRITE =>
-        if((fifo_empty = '0') and (m_axis_r_rq.tready = '1')) then
+        if((m_axis_r_rq.tready = '1')) then
           if(current_descriptor.dword_count > 8) then
             fifo_re <= '1';
           end if;
         end if;
       when CONT_WRITE =>
-        if((fifo_empty = '0') and (m_axis_r_rq.tready = '1')) then
+        if((m_axis_r_rq.tready = '1')) then
           if(current_descriptor.dword_count > 16) then
             fifo_re <= '1';
           end if;
         end if;
       when others =>
     end case;
+  end process;
+  
+  thresh: process(current_descriptor)
+    variable wc: std_logic_vector(10 downto 0);
+  begin
+    wc := current_descriptor.dword_count-1;
+    fifo_empty_thresh(7 downto 0) <= wc(10 downto 3)+1;
   end process;
   
   add_header: process(clk, reset, dma_soft_reset)

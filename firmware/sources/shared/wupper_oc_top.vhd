@@ -95,6 +95,7 @@ architecture structure of wupper_oc_top is
   signal u1_pll_locked        : std_logic;
   signal reset_soft           : std_logic;
   signal reset_hard           : std_logic;
+  signal fifo_empty_thresh    : STD_LOGIC_VECTOR(7 downto 0);
 
   component wupper
     generic(
@@ -108,6 +109,7 @@ architecture structure of wupper_oc_top is
       fifo_din             : out    std_logic_vector(255 downto 0);
       fifo_dout            : in     std_logic_vector(255 downto 0);
       fifo_empty           : in     std_logic;
+      fifo_empty_thresh    : out    STD_LOGIC_VECTOR(7 downto 0);
       fifo_full            : in     std_logic;
       fifo_rd_clk          : out    std_logic;
       fifo_re              : out    std_logic;
@@ -137,6 +139,7 @@ architecture structure of wupper_oc_top is
       fifo_din             : in     std_logic_vector(255 downto 0);
       fifo_dout            : out    std_logic_vector(255 downto 0);
       fifo_empty           : out    std_logic;
+      fifo_empty_thresh    : in     STD_LOGIC_VECTOR(7 downto 0);
       fifo_full            : out    std_logic;
       fifo_rd_clk          : in     std_logic;
       fifo_re              : in     std_logic;
@@ -171,6 +174,7 @@ begin
       fifo_din             => fifo_din,
       fifo_dout            => fifo_dout,
       fifo_empty           => fifo_empty,
+      fifo_empty_thresh    => fifo_empty_thresh,
       fifo_full            => fifo_full,
       fifo_rd_clk          => fifo_rd_clk,
       fifo_re              => fifo_re,
@@ -202,6 +206,7 @@ begin
       fifo_din             => fifo_din,
       fifo_dout            => fifo_dout,
       fifo_empty           => fifo_empty,
+      fifo_empty_thresh    => fifo_empty_thresh,
       fifo_full            => fifo_full,
       fifo_rd_clk          => fifo_rd_clk,
       fifo_re              => fifo_re,

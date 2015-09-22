@@ -10,7 +10,7 @@ if { [string length $projectEnv]==0} {
 vdel -all -lib work
 vlib work
 vmap work work
-project new . pcie_dma_top
+project new . wupper_oc_top
 
 # ----------------------------------------------------------
 # packages

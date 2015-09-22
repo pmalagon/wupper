@@ -155,7 +155,7 @@ architecture rtl of dma_control is
   signal bar0_40_s                        : std_logic_vector(31 downto 0);
   signal bar1_40_s                        : std_logic_vector(31 downto 0);
   signal bar2_40_s                        : std_logic_vector(31 downto 0);
-  signal fifo_full_interrupt_40_s         : std_logic; 
+  signal fifo_full_interrupt_40_s         : std_logic;
   signal data_available_interrupt_40_s    : std_logic;
   signal flush_fifo_40_s                  : std_logic;
   signal dma_soft_reset_40_s              : std_logic;
@@ -168,89 +168,16 @@ architecture rtl of dma_control is
   signal next_current_address_s           : slv64_arr;
   signal last_current_address_s           : slv64_arr;
   signal last_pc_pointer_s                : slv64_arr;
-  
-  signal dma_wait         : std_logic_vector(0 to (NUMBER_OF_DESCRIPTORS-1));
-  
-  --leave 16x8 = 128 bits space per register
 
-  -- ### BAR0 registers: start
-  constant REG_DESCRIPTOR_0        : std_logic_vector(19 downto 0) := x"00000";
-  constant REG_DESCRIPTOR_0a       : std_logic_vector(19 downto 0) := x"00010";
-  constant REG_DESCRIPTOR_1        : std_logic_vector(19 downto 0) := x"00020";
-  constant REG_DESCRIPTOR_1a       : std_logic_vector(19 downto 0) := x"00030";
-  constant REG_DESCRIPTOR_2        : std_logic_vector(19 downto 0) := x"00040";
-  constant REG_DESCRIPTOR_2a       : std_logic_vector(19 downto 0) := x"00050";
-  constant REG_DESCRIPTOR_3        : std_logic_vector(19 downto 0) := x"00060";
-  constant REG_DESCRIPTOR_3a       : std_logic_vector(19 downto 0) := x"00070";
-  constant REG_DESCRIPTOR_4        : std_logic_vector(19 downto 0) := x"00080";
-  constant REG_DESCRIPTOR_4a       : std_logic_vector(19 downto 0) := x"00090";
-  constant REG_DESCRIPTOR_5        : std_logic_vector(19 downto 0) := x"000A0";
-  constant REG_DESCRIPTOR_5a       : std_logic_vector(19 downto 0) := x"000B0";
-  constant REG_DESCRIPTOR_6        : std_logic_vector(19 downto 0) := x"000C0";
-  constant REG_DESCRIPTOR_6a       : std_logic_vector(19 downto 0) := x"000D0";
-  constant REG_DESCRIPTOR_7        : std_logic_vector(19 downto 0) := x"000E0";
-  constant REG_DESCRIPTOR_7a       : std_logic_vector(19 downto 0) := x"000F0";
-  constant REG_DESCRIPTOR_8        : std_logic_vector(19 downto 0) := x"00100";
-  constant REG_DESCRIPTOR_8a       : std_logic_vector(19 downto 0) := x"00110";
-  constant REG_DESCRIPTOR_9        : std_logic_vector(19 downto 0) := x"00120";
-  constant REG_DESCRIPTOR_9a       : std_logic_vector(19 downto 0) := x"00130";
-  constant REG_DESCRIPTOR_10       : std_logic_vector(19 downto 0) := x"00140";
-  constant REG_DESCRIPTOR_10a      : std_logic_vector(19 downto 0) := x"00150";
-  constant REG_DESCRIPTOR_11       : std_logic_vector(19 downto 0) := x"00160";
-  constant REG_DESCRIPTOR_11a      : std_logic_vector(19 downto 0) := x"00170";
-  constant REG_DESCRIPTOR_12       : std_logic_vector(19 downto 0) := x"00180";
-  constant REG_DESCRIPTOR_12a      : std_logic_vector(19 downto 0) := x"00190";
-  constant REG_DESCRIPTOR_13       : std_logic_vector(19 downto 0) := x"001A0";
-  constant REG_DESCRIPTOR_13a      : std_logic_vector(19 downto 0) := x"001B0";
-  constant REG_DESCRIPTOR_14       : std_logic_vector(19 downto 0) := x"001C0";
-  constant REG_DESCRIPTOR_14a      : std_logic_vector(19 downto 0) := x"001D0";
-  constant REG_DESCRIPTOR_15       : std_logic_vector(19 downto 0) := x"001E0";
-  constant REG_DESCRIPTOR_15a      : std_logic_vector(19 downto 0) := x"001F0";
-  constant REG_STATUS_0            : std_logic_vector(19 downto 0) := x"00200";
-  constant REG_STATUS_1            : std_logic_vector(19 downto 0) := x"00210";
-  constant REG_STATUS_2            : std_logic_vector(19 downto 0) := x"00220";
-  constant REG_STATUS_3            : std_logic_vector(19 downto 0) := x"00230";
-  constant REG_STATUS_4            : std_logic_vector(19 downto 0) := x"00240";
-  constant REG_STATUS_5            : std_logic_vector(19 downto 0) := x"00250";
-  constant REG_STATUS_6            : std_logic_vector(19 downto 0) := x"00260";
-  constant REG_STATUS_7            : std_logic_vector(19 downto 0) := x"00270";
-  constant REG_STATUS_8            : std_logic_vector(19 downto 0) := x"00280";
-  constant REG_STATUS_9            : std_logic_vector(19 downto 0) := x"00290";
-  constant REG_STATUS_10           : std_logic_vector(19 downto 0) := x"002A0";
-  constant REG_STATUS_11           : std_logic_vector(19 downto 0) := x"002B0";
-  constant REG_STATUS_12           : std_logic_vector(19 downto 0) := x"002C0";
-  constant REG_STATUS_13           : std_logic_vector(19 downto 0) := x"002D0";
-  constant REG_STATUS_14           : std_logic_vector(19 downto 0) := x"002E0";
-  constant REG_STATUS_15           : std_logic_vector(19 downto 0) := x"002F0";
-  constant REG_BAR0                : std_logic_vector(19 downto 0) := x"00300";
-  constant REG_BAR1                : std_logic_vector(19 downto 0) := x"00310";
-  constant REG_BAR2                : std_logic_vector(19 downto 0) := x"00320";  
-  constant REG_DESCRIPTOR_ENABLE   : std_logic_vector(19 downto 0) := x"00400";
-  constant REG_FIFO_FLUSH          : std_logic_vector(19 downto 0) := x"00410";
-  constant REG_DMA_RESET           : std_logic_vector(19 downto 0) := x"00420";
-  constant REG_RESET_SOFT          : std_logic_vector(19 downto 0) := x"00430";
-  -- BAR0 registers: end
-  -- ### BAR1 registers: start
-     -- interrupt vectors
-  constant REG_INT_VEC_00          : std_logic_vector(19 downto 0) := x"00000";
-  constant REG_INT_VEC_01          : std_logic_vector(19 downto 0) := x"00010";
-  constant REG_INT_VEC_02          : std_logic_vector(19 downto 0) := x"00020";
-  constant REG_INT_VEC_03          : std_logic_vector(19 downto 0) := x"00030";
-  constant REG_INT_VEC_04          : std_logic_vector(19 downto 0) := x"00040";
-  constant REG_INT_VEC_05          : std_logic_vector(19 downto 0) := x"00050";
-  constant REG_INT_VEC_06          : std_logic_vector(19 downto 0) := x"00060";
-  constant REG_INT_VEC_07          : std_logic_vector(19 downto 0) := x"00070";
-  constant REG_INT_TAB_EN          : std_logic_vector(19 downto 0) := x"00100";
-  -- BAR1 registers: end
-  -- ### BAR2 registers: start
-  -- NOTE: the address values for BAR2 are defined in the pcie_package.vhd
-  --       because the are machine generated with Jinja
-  -- BAR2 registers: end
-  
+  signal dma_wait         : std_logic_vector(0 to (NUMBER_OF_DESCRIPTORS-1));
+
+
+
+
 begin
 
   dma_status_s(0 to (NUMBER_OF_DESCRIPTORS-1)) <= dma_status;
-  
+
   pipe_descriptors: process(clk, dma_descriptors_s)
   begin
     for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
@@ -260,15 +187,15 @@ begin
     if(rising_edge(clk)) then
 
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
-        dma_descriptors(i).start_address <= dma_descriptors_s(i).start_address;
-        dma_descriptors(i).end_address <= dma_descriptors_s(i).end_address;
-        dma_descriptors(i).dword_count <= dma_descriptors_s(i).dword_count;
+        dma_descriptors(i).start_address  <= dma_descriptors_s(i).start_address;
+        dma_descriptors(i).end_address    <= dma_descriptors_s(i).end_address;
+        dma_descriptors(i).dword_count    <= dma_descriptors_s(i).dword_count;
         dma_descriptors(i).read_not_write <= dma_descriptors_s(i).read_not_write;
-        dma_descriptors(i).wrap_around <= dma_descriptors_s(i).wrap_around;
-        dma_descriptors(i).pc_pointer <= dma_descriptors_s(i).pc_pointer;
-        dma_descriptors(i).evencycle_dma <= dma_descriptors_s(i).evencycle_dma;
-        dma_descriptors(i).evencycle_pc <= dma_descriptors_s(i).evencycle_pc;
-        
+        dma_descriptors(i).wrap_around    <= dma_descriptors_s(i).wrap_around;
+        dma_descriptors(i).pc_pointer     <= dma_descriptors_s(i).pc_pointer;
+        dma_descriptors(i).evencycle_dma  <= dma_descriptors_s(i).evencycle_dma;
+        dma_descriptors(i).evencycle_pc   <= dma_descriptors_s(i).evencycle_pc;
+
       end loop;
     end if;
   end process;
@@ -298,8 +225,8 @@ begin
         address_type_s       <= address_type_s;
         register_address_s   <= register_address_s;
         dword_count_s        <= dword_count_s;
-        request_type_s       <= request_type_s;    
-        requester_id_s       <= requester_id_s;    
+        request_type_s       <= request_type_s;
+        requester_id_s       <= requester_id_s;
         tag_s                <= tag_s;
         target_function_s    <= target_function_s;
         bar_id_s             <= bar_id_s;
@@ -307,13 +234,13 @@ begin
         bar0_valid           <= bar0_valid;
         transaction_class_s  <= transaction_class_s;
         attributes_s         <= attributes_s;
-        s_axis_r_cq.tready   <= '1';  
-                                         
+        s_axis_r_cq.tready   <= '1';
+
         register_read_address_250_s <= register_read_address_250_s;
         register_read_enable_250_s <= '0';
         register_write_enable_250_s <= '0';
-        
-        register_write_enable1_250_s <= register_write_enable_250_s;        
+
+        register_write_enable1_250_s <= register_write_enable_250_s;
         register_read_enable1_250_s <= register_read_enable_250_s;
 
         poisoned_completion_v := '0';
@@ -321,11 +248,11 @@ begin
         byte_count_v          := dword_count_v&"00";
         completion_status_v   := "000";
         locked_completion_v   := '0';
-        m_axis_cc.tlast  <= '0';
-        m_axis_cc.tvalid <= '0';
-        
-        tlast_timer_s     <= x"FF";
-        
+        m_axis_cc.tlast       <= '0';
+        m_axis_cc.tvalid      <= '0';
+
+        tlast_timer_s         <= x"FF";
+
         --wait for 40 MHz signals to be synchronized
         if(read_interrupt_250_s = '1' and read_interrupt_40_s = '1') then
           read_interrupt_250_s <= '0';
@@ -333,7 +260,7 @@ begin
         if(write_interrupt_250_s = '1' and write_interrupt_40_s = '1') then
           write_interrupt_250_s <= '0';
         end if;
-        
+
         for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
           dma_descriptors_s(i) <= dma_descriptors_s(i);
           --These signals are written in the 40 MHz domain, copy them over:
@@ -343,21 +270,21 @@ begin
           dma_descriptors_s(i).dword_count     <= dma_descriptors_w_250_s(i).dword_count;
           dma_descriptors_s(i).pc_pointer      <= dma_descriptors_w_250_s(i).pc_pointer;
           dma_descriptors_s(i).wrap_around     <= dma_descriptors_w_250_s(i).wrap_around;
-          
-          last_current_address_s(i) <= dma_descriptors_s(i).current_address; 
+
+          last_current_address_s(i) <= dma_descriptors_s(i).current_address;
           if(last_current_address_s(i) > dma_descriptors_s(i).current_address) then
             dma_descriptors_s(i).evencycle_dma <= not dma_descriptors_s(i).evencycle_dma; --Toggle on wrap around
           end if;
-          
-          last_pc_pointer_s(i) <= dma_descriptors_s(i).pc_pointer; 
+
+          last_pc_pointer_s(i) <= dma_descriptors_s(i).pc_pointer;
           if(last_pc_pointer_s(i) > dma_descriptors_s(i).pc_pointer) then
             dma_descriptors_s(i).evencycle_pc <= not dma_descriptors_s(i).evencycle_pc; --Toggle on wrap around
           end if;
-          
+
           next_current_address_s(i) <= (dma_descriptors_s(i).current_address + (dma_descriptors_s(i).dword_count&"00"));
-          
+
           --dma has wrapped around while PC still hasn't, check if we are smaller than write pointer.
-          if(dma_descriptors_s(i).wrap_around = '1' and ((dma_descriptors_s(i).evencycle_dma xor dma_descriptors_s(i).read_not_write) /= dma_descriptors_s(i).evencycle_pc)) then 
+          if(dma_descriptors_s(i).wrap_around = '1' and ((dma_descriptors_s(i).evencycle_dma xor dma_descriptors_s(i).read_not_write) /= dma_descriptors_s(i).evencycle_pc)) then
             if(next_current_address_s(i)<dma_descriptors_s(i).pc_pointer) then
               dma_wait(i) <= '0';
             else
@@ -366,12 +293,12 @@ begin
           else
               dma_wait(i) <= '0';
           end if;
-          
-          
+
+
           if(dma_descriptors_s(i).enable = '1') then
             if(dma_status_s(i).descriptor_done = '1') then
               --dma has wrapped around while PC still hasn't, check if we are smaller than write pointer.
-              if(dma_descriptors_s(i).wrap_around = '1' and ((dma_descriptors_s(i).evencycle_dma xor dma_descriptors_s(i).read_not_write) /= dma_descriptors_s(i).evencycle_pc)) then 
+              if(dma_descriptors_s(i).wrap_around = '1' and ((dma_descriptors_s(i).evencycle_dma xor dma_descriptors_s(i).read_not_write) /= dma_descriptors_s(i).evencycle_pc)) then
                 if(next_current_address_s(i)<dma_descriptors_s(i).pc_pointer) then
                   dma_descriptors_s(i).current_address <= next_current_address_s(i);
                 else
@@ -400,7 +327,7 @@ begin
             dma_descriptors_s(i).current_address <= dma_descriptors_s(i).start_address;
           end if;
         end loop;
-        
+
         case (completer_state) is
           when IDLE =>
             completer_state_slv <= IDLE_SLV;
@@ -414,7 +341,7 @@ begin
               requester_id_s       <= s_axis_cq.tdata(95 downto 80);
               tag_s                <= s_axis_cq.tdata(103 downto 96);
               target_function_s    <= s_axis_cq.tdata(111 downto 104);
-              bar_id_s             <= s_axis_cq.tdata(114 downto 112);  
+              bar_id_s             <= s_axis_cq.tdata(114 downto 112);
               bar_aperture_s       <= s_axis_cq.tdata(120 downto 115);
               transaction_class_s  <= s_axis_cq.tdata(123 downto 121);
               attributes_s         <= s_axis_cq.tdata(126 downto 124);
@@ -424,30 +351,30 @@ begin
               else
                 bar0_valid <= '0';
               end if;
-                       
+
               register_read_address_250_s <=  s_axis_cq.tdata(31 downto 4)&"0000";
               register_read_enable_250_s <= '1';
-                                                   
+
               case (request_type_v) is
                 when "0000" => completer_state <= READ_REGISTER;  --Memory Read request
-                               s_axis_r_cq.tready   <= '0';  
+                               s_axis_r_cq.tready   <= '0';
                 when "0001" => completer_state <= WRITE_REGISTER_READ; --Memory Write request
-                               s_axis_r_cq.tready   <= '0';                  
+                               s_axis_r_cq.tready   <= '0';
                 when "0010" => completer_state <= READ_REGISTER;  --IO Read Request
-                               s_axis_r_cq.tready   <= '0';                  
+                               s_axis_r_cq.tready   <= '0';
                 when "0011" => completer_state <= WRITE_REGISTER_READ; --IO Write request
-                               s_axis_r_cq.tready   <= '0';                  
-                when others => completer_state <= SEND_UNKNOWN_REQUEST; 
-                               s_axis_r_cq.tready   <= '0';                  
+                               s_axis_r_cq.tready   <= '0';
+                when others => completer_state <= SEND_UNKNOWN_REQUEST;
+                               s_axis_r_cq.tready   <= '0';
               end case;
             end if;
           when READ_REGISTER =>
-            completer_state_slv <= READ_REGISTER_SLV;
+            completer_state_slv   <= READ_REGISTER_SLV;
             poisoned_completion_v := '0';
-            dword_count_v := dword_count_s;
-            byte_count_v        := dword_count_v&"00";
-            completion_status_v := "000";
-            locked_completion_v := '0';
+            dword_count_v         := dword_count_s;
+            byte_count_v          := dword_count_v&"00";
+            completion_status_v   := "000";
+            locked_completion_v   := '0';
             case(dword_count_v(2 downto 0)) is
               when "001" => m_axis_cc.tkeep <= x"0F";
               when "010" => m_axis_cc.tkeep <= x"1F";
@@ -456,8 +383,8 @@ begin
               when "101" => m_axis_cc.tkeep <= x"FF";
               when others => m_axis_cc.tkeep <= x"FF";
             end case;
-            
-            
+
+
             --wait for reply from 40 MHz sync:
             if(register_read_done_250_s = '1') then
               register_read_enable_250_s <= '0';
@@ -488,7 +415,7 @@ begin
               when others =>
                 m_axis_cc.tdata(255 downto 96) <= x"00000000"& register_read_data_250_s;
             end case;
-            
+
           when WRITE_REGISTER_READ =>
             completer_state_slv <= WRITE_REGISTER_READ_SLV;
             m_axis_cc.tlast  <= '0';
@@ -509,7 +436,7 @@ begin
                 m_axis_cc.tvalid <= '1';
                 completer_state   <= IDLE;
               end if;
-            --wait for reply from 40 MHz sync: 
+            --wait for reply from 40 MHz sync:
             elsif(register_read_done_250_s = '1') then
               register_read_enable_250_s <= '0';
               completer_state <= WRITE_REGISTER_MODIFYWRITE;
@@ -518,7 +445,7 @@ begin
               completer_state <= WRITE_REGISTER_READ;
             end if;
             m_axis_cc.tdata(255 downto 96) <= (others => '0');
-            
+
             poisoned_completion_v := '0';
             dword_count_v := std_logic_vector(to_unsigned(1,11));
             byte_count_v := dword_count_v&"00";
@@ -526,7 +453,7 @@ begin
             locked_completion_v := '0';
             m_axis_cc.tkeep <= x"07";
             m_axis_cc.tdata(255 downto 96) <= (others => '0');
-            
+
           when WRITE_REGISTER_MODIFYWRITE =>
               completer_state_slv <= WRITE_REGISTER_MODIFYWRITE_SLV;
               register_data_v := register_read_data_250_s;
@@ -554,11 +481,11 @@ begin
               when others =>                 register_data_v := register_data_s;
               m_axis_cc.tdata(255 downto 96) <= (others => '0');
             end case;
-            
+
             register_write_data_250_s <= register_data_v;
             register_write_address_250_s <= register_address_s(31 downto 4)&"0000";
             register_write_enable_250_s <= '1';
-            
+
             if(register_write_done_250_s = '1') then
               if(m_axis_r_cc.tready = '0') then
                 completer_state     <= WRITE_REGISTER_MODIFYWRITE;
@@ -570,13 +497,13 @@ begin
                 m_axis_cc.tvalid <= '1';
                 completer_state   <= IDLE;
               end if;
-            else 
+            else
               m_axis_cc.tlast  <= '0';
               m_axis_cc.tvalid <= '0';
               completer_state <= WRITE_REGISTER_MODIFYWRITE;
               s_axis_r_cq.tready <= '0';
             end if;
-            
+
             poisoned_completion_v := '0';
             dword_count_v := std_logic_vector(to_unsigned(1,11));
             byte_count_v := dword_count_v&"00";
@@ -604,7 +531,7 @@ begin
             completer_state <= IDLE;
             completer_state_slv <= IDLE_SLV;
         end case;
-                            
+
         m_axis_cc.tdata(6 downto 0)   <= register_address_s(6 downto 0);
         m_axis_cc.tdata(7)            <= '0';
         m_axis_cc.tdata(9 downto 8)   <= address_type_s;
@@ -625,11 +552,11 @@ begin
         m_axis_cc.tdata(95)           <= '0';
       end if; --clk
     end if; --reset
-    
+
   end process;
 
-  
-  
+
+
   regSync40: process(clkDiv6)
     variable register_read_address_v      : std_logic_vector(31 downto 0);
     variable register_read_enable_v       : std_logic;
@@ -643,8 +570,8 @@ begin
     variable dma_status_v                 : dma_statuses_type(0 to 7);
     variable int_vector_v                 : interrupt_vectors_type(0 to NUMBER_OF_INTERRUPTS-1);
     variable int_table_en_v               : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
-    variable fifo_full_interrupt_v        : std_logic_vector(2 downto 0);  
-    variable data_available_interrupt_v   : std_logic_vector(2 downto 0);  
+    variable fifo_full_interrupt_v        : std_logic_vector(2 downto 0);
+    variable data_available_interrupt_v   : std_logic_vector(2 downto 0);
   begin
     if(rising_edge(clkDiv6)) then
       register_read_address_40_s      <= register_read_address_v;
@@ -659,7 +586,7 @@ begin
       dma_status_40_s                 <= dma_status_v;
       interrupt_vector                <= int_vector_v;
       interrupt_table_en              <= int_table_en_v;
-      
+
       register_read_address_v      := register_read_address_250_s;
       register_read_enable_v       := register_read_enable1_250_s;
       register_write_address_v     := register_write_address_250_s;
@@ -668,25 +595,25 @@ begin
       bar0_v                       := bar0;
       bar1_v                       := bar1;
       bar2_v                       := bar2;
-      
+
       read_interrupt_40_s <= read_interrupt_250_s;
       write_interrupt_40_s <= write_interrupt_250_s;
-      
+
       if(fifo_full_interrupt_v(2 downto 1) = "01") then --rising edge detected on full flag
         fifo_full_interrupt_40_s <= '1';
       else
         fifo_full_interrupt_40_s <= '0';
       end if;
-      
+
       if(data_available_interrupt_v(2 downto 1) = "10") then --falling edge detected on empty flag
         data_available_interrupt_40_s <= '1';
       else
         data_available_interrupt_40_s <= '0';
       end if;
-      
+
       fifo_full_interrupt_v      := fifo_full_interrupt_v(1 downto 0) & fifo_full;
       data_available_interrupt_v := data_available_interrupt_v(1 downto 0) & fifo_empty;
-      
+
       for i in 0 to (NUMBER_OF_DESCRIPTORS - 1) loop
         dma_descriptors_v(i)        := dma_descriptors_s(i);
         dma_status_v(i)             := dma_status_s(i);
@@ -696,8 +623,8 @@ begin
       end loop;
       int_table_en_v           := int_table_en_s;
     end if;
-  end process;  
-  
+  end process;
+
   regSync250: process(clk)
     variable register_write_done_v: std_logic;
     variable register_read_done1_v, register_read_done2_v,register_read_done3_v,register_read_done4_v: std_logic;
@@ -724,33 +651,33 @@ begin
       register_read_done2_v  := register_read_done3_v;
       register_read_done3_v  := register_read_done4_v;
       register_read_done4_v  := register_read_done_40_s;
-            
+
       register_read_data_v  := register_read_data_40_s;
       dma_descriptors_w_v   := dma_descriptors_40_w_s;
       flush_fifo_v          := flush_fifo_40_s;
       dma_soft_reset_v      := dma_soft_reset_40_s;
-      
+
     end if;
   end process;
 
-  dma_interrupt_call(3) <= fifo_full_interrupt_40_s;  
-  dma_interrupt_call(2) <= data_available_interrupt_40_s;  
+  dma_interrupt_call(3) <= fifo_full_interrupt_40_s;
+  dma_interrupt_call(2) <= data_available_interrupt_40_s;
 
-  dma_interrupt_call(1) <= write_interrupt_40_s;  
-  dma_interrupt_call(0) <= read_interrupt_40_s;  
+  dma_interrupt_call(1) <= write_interrupt_40_s;
+  dma_interrupt_call(0) <= read_interrupt_40_s;
 
   reset_global_soft <= reset_global_soft_40_s;  -- soft reset
-  
+
   register_map_monitor_s <= register_map_monitor;
   register_map_control   <= register_map_control_s;
-  
+
   regrw: process(clkDiv6, reset)
-    
+
   begin
     if(reset = '1') then
       register_write_done_40_s <= '0';
       register_read_done_40_s  <= '0';
-      register_read_data_40_s  <= (others => '0'); 
+      register_read_data_40_s  <= (others => '0');
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
         dma_descriptors_40_w_s(i) <= (start_address => (others => '0'), dword_count => (others => '0'), read_not_write => '0', enable => '0', current_address => (others => '0'), end_address => (others => '0'),wrap_around   => '0',  evencycle_dma => '0',   evencycle_pc  => '0',   pc_pointer    => (others => '0'));
       end loop;
@@ -890,7 +817,7 @@ begin
                                             register_read_data_40_s(127 downto NUMBER_OF_DESCRIPTORS) <= (others =>'0');
             when REG_FIFO_FLUSH    => register_read_data_40_s <= (others => '0');
             when REG_DMA_RESET     => register_read_data_40_s <= (others => '0');
-            when REG_RESET_SOFT    => register_read_data_40_s <= (others => '0');
+            when REG_SOFT_RESET    => register_read_data_40_s <= (others => '0');
             when others            => register_read_data_40_s <= (others => '0');                                                
               
               
@@ -1018,7 +945,7 @@ begin
             -- REG_DESCRIPTOR_ENABLE is written at 250 MHz, see the process above.
             when REG_FIFO_FLUSH =>  flush_fifo_40_s         <= '1';
             when REG_DMA_RESET  =>  dma_soft_reset_40_s     <= '1';
-            when REG_RESET_SOFT =>  reset_global_soft_40_s  <= '1';
+            when REG_SOFT_RESET =>  reset_global_soft_40_s  <= '1';
             when others => --do nothing
             
           end case;

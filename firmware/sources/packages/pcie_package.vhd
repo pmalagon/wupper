@@ -101,6 +101,85 @@ package pcie_package is
 
   type interrupt_vectors_type is array (natural range <>) of interrupt_vector_type;  
 
+  --! Address Offset assignment
+  --! --> BAR0 User Application Registers Addresses  
+  -- ### BAR0 registers: start
+  constant REG_DESCRIPTOR_0        : std_logic_vector(19 downto 0) := x"00000";
+  constant REG_DESCRIPTOR_0a       : std_logic_vector(19 downto 0) := x"00010";
+  constant REG_DESCRIPTOR_1        : std_logic_vector(19 downto 0) := x"00020";
+  constant REG_DESCRIPTOR_1a       : std_logic_vector(19 downto 0) := x"00030";
+  constant REG_DESCRIPTOR_2        : std_logic_vector(19 downto 0) := x"00040";
+  constant REG_DESCRIPTOR_2a       : std_logic_vector(19 downto 0) := x"00050";
+  constant REG_DESCRIPTOR_3        : std_logic_vector(19 downto 0) := x"00060";
+  constant REG_DESCRIPTOR_3a       : std_logic_vector(19 downto 0) := x"00070";
+  constant REG_DESCRIPTOR_4        : std_logic_vector(19 downto 0) := x"00080";
+  constant REG_DESCRIPTOR_4a       : std_logic_vector(19 downto 0) := x"00090";
+  constant REG_DESCRIPTOR_5        : std_logic_vector(19 downto 0) := x"000A0";
+  constant REG_DESCRIPTOR_5a       : std_logic_vector(19 downto 0) := x"000B0";
+  constant REG_DESCRIPTOR_6        : std_logic_vector(19 downto 0) := x"000C0";
+  constant REG_DESCRIPTOR_6a       : std_logic_vector(19 downto 0) := x"000D0";
+  constant REG_DESCRIPTOR_7        : std_logic_vector(19 downto 0) := x"000E0";
+  constant REG_DESCRIPTOR_7a       : std_logic_vector(19 downto 0) := x"000F0";
+  constant REG_DESCRIPTOR_8        : std_logic_vector(19 downto 0) := x"00100";
+  constant REG_DESCRIPTOR_8a       : std_logic_vector(19 downto 0) := x"00110";
+  constant REG_DESCRIPTOR_9        : std_logic_vector(19 downto 0) := x"00120";
+  constant REG_DESCRIPTOR_9a       : std_logic_vector(19 downto 0) := x"00130";
+  constant REG_DESCRIPTOR_10       : std_logic_vector(19 downto 0) := x"00140";
+  constant REG_DESCRIPTOR_10a      : std_logic_vector(19 downto 0) := x"00150";
+  constant REG_DESCRIPTOR_11       : std_logic_vector(19 downto 0) := x"00160";
+  constant REG_DESCRIPTOR_11a      : std_logic_vector(19 downto 0) := x"00170";
+  constant REG_DESCRIPTOR_12       : std_logic_vector(19 downto 0) := x"00180";
+  constant REG_DESCRIPTOR_12a      : std_logic_vector(19 downto 0) := x"00190";
+  constant REG_DESCRIPTOR_13       : std_logic_vector(19 downto 0) := x"001A0";
+  constant REG_DESCRIPTOR_13a      : std_logic_vector(19 downto 0) := x"001B0";
+  constant REG_DESCRIPTOR_14       : std_logic_vector(19 downto 0) := x"001C0";
+  constant REG_DESCRIPTOR_14a      : std_logic_vector(19 downto 0) := x"001D0";
+  constant REG_DESCRIPTOR_15       : std_logic_vector(19 downto 0) := x"001E0";
+  constant REG_DESCRIPTOR_15a      : std_logic_vector(19 downto 0) := x"001F0";
+  constant REG_STATUS_0            : std_logic_vector(19 downto 0) := x"00200";
+  constant REG_STATUS_1            : std_logic_vector(19 downto 0) := x"00210";
+  constant REG_STATUS_2            : std_logic_vector(19 downto 0) := x"00220";
+  constant REG_STATUS_3            : std_logic_vector(19 downto 0) := x"00230";
+  constant REG_STATUS_4            : std_logic_vector(19 downto 0) := x"00240";
+  constant REG_STATUS_5            : std_logic_vector(19 downto 0) := x"00250";
+  constant REG_STATUS_6            : std_logic_vector(19 downto 0) := x"00260";
+  constant REG_STATUS_7            : std_logic_vector(19 downto 0) := x"00270";
+  constant REG_STATUS_8            : std_logic_vector(19 downto 0) := x"00280";
+  constant REG_STATUS_9            : std_logic_vector(19 downto 0) := x"00290";
+  constant REG_STATUS_10           : std_logic_vector(19 downto 0) := x"002A0";
+  constant REG_STATUS_11           : std_logic_vector(19 downto 0) := x"002B0";
+  constant REG_STATUS_12           : std_logic_vector(19 downto 0) := x"002C0";
+  constant REG_STATUS_13           : std_logic_vector(19 downto 0) := x"002D0";
+  constant REG_STATUS_14           : std_logic_vector(19 downto 0) := x"002E0";
+  constant REG_STATUS_15           : std_logic_vector(19 downto 0) := x"002F0";
+  constant REG_BAR0                : std_logic_vector(19 downto 0) := x"00300";
+  constant REG_BAR1                : std_logic_vector(19 downto 0) := x"00310";
+  constant REG_BAR2                : std_logic_vector(19 downto 0) := x"00320";  
+  constant REG_DESCRIPTOR_ENABLE   : std_logic_vector(19 downto 0) := x"00400";
+  constant REG_FIFO_FLUSH          : std_logic_vector(19 downto 0) := x"00410";
+  constant REG_DMA_RESET           : std_logic_vector(19 downto 0) := x"00420";
+  constant REG_SOFT_RESET          : std_logic_vector(19 downto 0) := x"00430";
+  -- BAR0 registers: end
+
+  --! Address Offset assignment
+  --! --> BAR1 User Application Registers Addresses  
+  -- ### BAR1 registers: start
+     -- interrupt vectors
+  constant REG_INT_VEC_00          : std_logic_vector(19 downto 0) := x"00000";
+  constant REG_INT_VEC_01          : std_logic_vector(19 downto 0) := x"00010";
+  constant REG_INT_VEC_02          : std_logic_vector(19 downto 0) := x"00020";
+  constant REG_INT_VEC_03          : std_logic_vector(19 downto 0) := x"00030";
+  constant REG_INT_VEC_04          : std_logic_vector(19 downto 0) := x"00040";
+  constant REG_INT_VEC_05          : std_logic_vector(19 downto 0) := x"00050";
+  constant REG_INT_VEC_06          : std_logic_vector(19 downto 0) := x"00060";
+  constant REG_INT_VEC_07          : std_logic_vector(19 downto 0) := x"00070";
+  constant REG_INT_TAB_EN          : std_logic_vector(19 downto 0) := x"00100";
+  -- BAR1 registers: end
+  
+
+  --! Address Offset assignment
+  --! --> BAR2 User Application Registers Addresses
+  --! -- leave 16x8 = 128 bits space per register
   -- BAR2 User Application Registers Addresses 
   ------------------------------------------------
   ---- Application specific registers BEGIN 🂱 ----

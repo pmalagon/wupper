@@ -73,6 +73,7 @@ entity wupper_core is
     fifo_din             : out    std_logic_vector(255 downto 0);
     fifo_dout            : in     std_logic_vector(255 downto 0);
     fifo_empty           : in     std_logic;
+    fifo_empty_thresh    : out    STD_LOGIC_VECTOR(7 downto 0);
     fifo_full            : in     std_logic;
     fifo_re              : out    std_logic;
     fifo_we              : out    std_logic;
@@ -105,21 +106,22 @@ architecture structure of wupper_core is
     generic(
       NUMBER_OF_DESCRIPTORS : integer := 8);
     port (
-      clk             : in     std_logic;
-      dma_descriptors : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-      dma_soft_reset  : in     std_logic;
-      dma_status      : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-      fifo_din        : out    std_logic_vector(255 downto 0);
-      fifo_dout       : in     std_logic_vector(255 downto 0);
-      fifo_empty      : in     std_logic;
-      fifo_full       : in     std_logic;
-      fifo_re         : out    std_logic;
-      fifo_we         : out    std_logic;
-      m_axis_r_rq     : in     axis_r_type;
-      m_axis_rq       : out    axis_type;
-      reset           : in     std_logic;
-      s_axis_r_rc     : out    axis_r_type;
-      s_axis_rc       : in     axis_type);
+      clk               : in     std_logic;
+      dma_descriptors   : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+      dma_soft_reset    : in     std_logic;
+      dma_status        : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+      fifo_din          : out    std_logic_vector(255 downto 0);
+      fifo_dout         : in     std_logic_vector(255 downto 0);
+      fifo_empty        : in     std_logic;
+      fifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
+      fifo_full         : in     std_logic;
+      fifo_re           : out    std_logic;
+      fifo_we           : out    std_logic;
+      m_axis_r_rq       : in     axis_r_type;
+      m_axis_rq         : out    axis_type;
+      reset             : in     std_logic;
+      s_axis_r_rc       : out    axis_r_type;
+      s_axis_rc         : in     axis_type);
   end component dma_read_write;
 
   component dma_control
@@ -160,21 +162,22 @@ begin
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS)
     port map(
-      clk             => clk,
-      dma_descriptors => u1_dma_descriptors,
-      dma_soft_reset  => dma_soft_reset,
-      dma_status      => dma_status,
-      fifo_din        => fifo_din,
-      fifo_dout       => fifo_dout,
-      fifo_empty      => fifo_empty,
-      fifo_full       => fifo_full,
-      fifo_re         => fifo_re,
-      fifo_we         => fifo_we,
-      m_axis_r_rq     => m_axis_r_rq,
-      m_axis_rq       => m_axis_rq,
-      reset           => reset,
-      s_axis_r_rc     => s_axis_r_rc,
-      s_axis_rc       => s_axis_rc);
+      clk               => clk,
+      dma_descriptors   => u1_dma_descriptors,
+      dma_soft_reset    => dma_soft_reset,
+      dma_status        => dma_status,
+      fifo_din          => fifo_din,
+      fifo_dout         => fifo_dout,
+      fifo_empty        => fifo_empty,
+      fifo_empty_thresh => fifo_empty_thresh,
+      fifo_full         => fifo_full,
+      fifo_re           => fifo_re,
+      fifo_we           => fifo_we,
+      m_axis_r_rq       => m_axis_r_rq,
+      m_axis_rq         => m_axis_rq,
+      reset             => reset,
+      s_axis_r_rc       => s_axis_r_rc,
+      s_axis_rc         => s_axis_rc);
 
   u1: dma_control
     generic map(

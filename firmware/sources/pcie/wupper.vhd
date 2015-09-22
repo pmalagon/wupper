@@ -68,6 +68,7 @@ entity wupper is
     fifo_din             : out    std_logic_vector(255 downto 0);
     fifo_dout            : in     std_logic_vector(255 downto 0);
     fifo_empty           : in     std_logic;
+    fifo_empty_thresh    : out    STD_LOGIC_VECTOR(7 downto 0);
     fifo_full            : in     std_logic;
     fifo_rd_clk          : out    std_logic;
     fifo_re              : out    std_logic;
@@ -191,6 +192,7 @@ architecture structure of wupper is
       fifo_din             : out    std_logic_vector(255 downto 0);
       fifo_dout            : in     std_logic_vector(255 downto 0);
       fifo_empty           : in     std_logic;
+      fifo_empty_thresh    : out    STD_LOGIC_VECTOR(7 downto 0);
       fifo_full            : in     std_logic;
       fifo_re              : out    std_logic;
       fifo_we              : out    std_logic;
@@ -331,6 +333,7 @@ begin
       fifo_din             => fifo_din,
       fifo_dout            => fifo_dout,
       fifo_empty           => fifo_empty,
+      fifo_empty_thresh    => fifo_empty_thresh,
       fifo_full            => fifo_full,
       fifo_re              => fifo_re,
       fifo_we              => fifo_we,
