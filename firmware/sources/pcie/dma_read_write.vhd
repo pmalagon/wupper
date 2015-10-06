@@ -295,8 +295,8 @@ begin
                                 -----DW 7-4
             
             if(current_descriptor.dword_count <= 8) then
-              s_m_axis_rq.tlast <= '1';
               if(m_axis_r_rq.tready = '1') then
+                s_m_axis_rq.tlast <= '1';
                 rw_state <= IDLE;
                 req_tag <= req_tag + 1;
                 current_descriptor.dword_count <= (others => '0');
