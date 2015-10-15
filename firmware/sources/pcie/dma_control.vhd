@@ -674,7 +674,8 @@ begin
   regrw: process(clkDiv6, reset)
 
   begin
-    if(reset = '1') then
+    if(reset = '1' or dma_soft_reset_40_s= '1') then
+      dma_soft_reset_40_s      <= '0';
       register_write_done_40_s <= '0';
       register_read_done_40_s  <= '0';
       register_read_data_40_s  <= (others => '0');
