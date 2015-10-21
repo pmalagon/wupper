@@ -671,13 +671,13 @@ begin
   register_map_monitor_s <= register_map_monitor;
   register_map_control   <= register_map_control_s;
 
-  regrw: process(clkDiv6, reset)
+  regrw: process(clkDiv6, reset, dma_soft_reset_40_s)
 
   begin
     if(reset = '1' or dma_soft_reset_40_s= '1') then
       dma_soft_reset_40_s      <= '0';
-      register_write_done_40_s <= '0';
-      register_read_done_40_s  <= '0';
+      register_write_done_40_s <= '1';
+      register_read_done_40_s  <= '1';
       register_read_data_40_s  <= (others => '0');
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
         dma_descriptors_40_w_s(i) <= (start_address => (others => '0'), dword_count => (others => '0'), read_not_write => '0', enable => '0', current_address => (others => '0'), end_address => (others => '0'),wrap_around   => '0',  evencycle_dma => '0',   evencycle_pc  => '0',   pc_pointer    => (others => '0'));
