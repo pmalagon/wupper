@@ -103,7 +103,7 @@ architecture structure of wupper is
   signal cfg_interrupt_msix_int     : std_logic;
   signal cfg_interrupt_msix_address : std_logic_vector(63 downto 0);
   signal cfg_interrupt_msix_data    : std_logic_vector(31 downto 0);
-  signal cfg_interrupt_msix_enable  : std_logic_vector(1 downto 0);
+  signal cfg_interrupt_msix_enable  : std_logic_vector(3 downto 0);
   signal interrupt_vector           : interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
   signal reset                      : std_logic;
   signal clk                        : std_logic;
@@ -134,6 +134,9 @@ architecture structure of wupper is
   signal sys_rst_n                  : std_logic;
 
   component pcie_ep_wrap
+    generic(
+      CARD_TYPE             : integer := 709
+    );
     port (
       cfg_fc_cpld                : out    std_logic_vector(11 downto 0);
       cfg_fc_cplh                : out    std_logic_vector(7 downto 0);
@@ -144,7 +147,7 @@ architecture structure of wupper is
       cfg_fc_sel                 : in     std_logic_vector(2 downto 0);
       cfg_interrupt_msix_address : in     std_logic_vector(63 downto 0);
       cfg_interrupt_msix_data    : in     std_logic_vector(31 downto 0);
-      cfg_interrupt_msix_enable  : out    std_logic_vector(1 downto 0);
+      cfg_interrupt_msix_enable  : out    std_logic_vector(3 downto 0);
       cfg_interrupt_msix_fail    : out    std_logic;
       cfg_interrupt_msix_int     : in     std_logic;
       cfg_interrupt_msix_sent    : out    std_logic;
@@ -220,7 +223,7 @@ architecture structure of wupper is
     port (
       cfg_interrupt_msix_address : out    std_logic_vector(63 downto 0);
       cfg_interrupt_msix_data    : out    std_logic_vector(31 downto 0);
-      cfg_interrupt_msix_enable  : in     std_logic_vector(1 downto 0);
+      cfg_interrupt_msix_enable  : in     std_logic_vector(3 downto 0);
       cfg_interrupt_msix_fail    : in     std_logic;
       cfg_interrupt_msix_int     : out    std_logic;
       cfg_interrupt_msix_sent    : in     std_logic;
@@ -276,6 +279,8 @@ begin
   sys_rst_n <= sys_reset_n;
 
   u1: pcie_ep_wrap
+    generic map(
+      CARD_TYPE                  => CARD_TYPE)
     port map(
       cfg_fc_cpld                => cfg_fc_cpld,
       cfg_fc_cplh                => cfg_fc_cplh,

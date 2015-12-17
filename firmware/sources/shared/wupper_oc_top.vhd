@@ -15,13 +15,15 @@
 --!
 --! @date        07/01/2015    created
 --!
---! @version     1.0
+--! @version     1.1
 --!
 --! @brief 
 --! Top level design containing a simple application and the PCIe DMA 
 --! core
 --!
 --!
+--! 11/19/2015 B. Kuschak <brian@skybox.com> 
+--!          Modifications for KCU105.
 --! 
 --!
 --!-----------------------------------------------------------------------------
@@ -96,6 +98,7 @@ architecture structure of wupper_oc_top is
   signal reset_soft           : std_logic;
   signal reset_hard           : std_logic;
   signal fifo_empty_thresh    : STD_LOGIC_VECTOR(7 downto 0);
+  signal sys_reset_n_c        : std_logic;
 
   component wupper
     generic(
@@ -157,6 +160,14 @@ architecture structure of wupper_oc_top is
 
 begin
   emcclk_out <= emcclk;
+  
+  
+  -- This seems to be needed for ultrascale
+  ib1: IBUF 
+    port map (
+        I => sys_reset_n,
+        O => sys_reset_n_c);
+
 
 
   --! Instantiation of the actual PCI express core. Please note the 40MHz
@@ -193,7 +204,7 @@ begin
       reset_soft           => reset_soft,
       sys_clk_n            => sys_clk_n,
       sys_clk_p            => sys_clk_p,
-      sys_reset_n          => sys_reset_n);
+      sys_reset_n          => sys_reset_n_c);
 
 
   --! The example application only instantiates one fifo (PC=>PCIe). 

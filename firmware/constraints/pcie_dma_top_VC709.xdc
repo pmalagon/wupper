@@ -94,12 +94,12 @@ set_property PULLUP true [get_ports sys_reset_n]
 # Please refer to the Virtex-7 GT Transceiver User Guide
 # (UG) for guidelines regarding clock resource selection.
 #
-set_property LOC IBUFDS_GTE2_X1Y11 [get_cells u1/u1/refclk_buff]
+set_property LOC IBUFDS_GTE2_X1Y11 [get_cells u1/u1/g_virtex7.refclk_buff]
 
 ###############################################################################
 # Timing Constraints
 ###############################################################################
-create_clock -period 10.000 -name sys_clk [get_pins u1/u1/refclk_buff/O]
+create_clock -period 10.000 -name sys_clk [get_pins u1/u1/g_virtex7.refclk_buff/O]
 
 create_generated_clock -name clk_125mhz_x0y1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT0]
 create_generated_clock -name clk_250mhz_x0y1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT1]
@@ -118,10 +118,11 @@ set_false_path -to [get_pins u1/u1/pipe_clock0/g0.pclk_i1/S1]
 ###############################################################################
 
 set_false_path -from [get_ports sys_reset_n]
-set_false_path -reset_path -from [get_pins u1/u1/u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C] 
+set_false_path -reset_path -from [get_pins u1/u1/g_virtex7.u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C] 
 ###############################################################################
 # End
 ###############################################################################
+
 
 
 

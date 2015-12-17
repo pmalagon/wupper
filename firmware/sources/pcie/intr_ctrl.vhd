@@ -15,12 +15,16 @@
 --!
 --! @date        07/01/2015    created
 --!
---! @version     1.0
+--! @version     1.1
 --!
 --! @brief 
 --! This unit implements the creation of MSIx interrupts. It may be triggered by
 --! either of the input bits in interrupt_call or dma_interrupt_call.
 --! @detail
+--!
+--! 11/19/2015 B. Kuschak <brian@skybox.com> 
+--!          Modifications for KCU105.
+--!
 --!
 --!-----------------------------------------------------------------------------
 --! @TODO
@@ -60,7 +64,7 @@ entity intr_ctrl is
   port (
     cfg_interrupt_msix_address : out    std_logic_vector(63 downto 0);
     cfg_interrupt_msix_data    : out    std_logic_vector(31 downto 0);
-    cfg_interrupt_msix_enable  : in     std_logic_vector(1 downto 0);
+    cfg_interrupt_msix_enable  : in     std_logic_vector(3 downto 0);
     cfg_interrupt_msix_fail    : in     std_logic;
     cfg_interrupt_msix_int     : out    std_logic;
     cfg_interrupt_msix_sent    : in     std_logic;
@@ -142,7 +146,7 @@ begin
       v_cfg_interrupt_msix_int        := '0';
       s_cfg_interrupt_msix_address    <= s_cfg_interrupt_msix_address;
       s_cfg_interrupt_msix_data       <= s_cfg_interrupt_msix_data;
-      if (cfg_interrupt_msix_enable = "01") then
+      if (cfg_interrupt_msix_enable = "0001") then
         for i in 0 to NUMBER_OF_INTERRUPTS - 1 loop
           if(s_interrupt_call(i)='1') and (interrupt_table_en(i) = '1') then
               v_cfg_interrupt_msix_int      := '1'; --fire interrupt after one pipeline
