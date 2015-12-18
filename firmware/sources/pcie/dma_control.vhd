@@ -160,6 +160,8 @@ architecture rtl of dma_control is
   signal flush_fifo_40_s                  : std_logic;
   signal dma_soft_reset_40_s              : std_logic;
   signal reset_global_soft_40_s           : std_logic;
+  signal reset_register_map_40_s          : std_logic;
+  signal reset_register_map_s             : std_logic;
   signal write_interrupt_40_s             : std_logic;
   signal read_interrupt_40_s              : std_logic;
   signal write_interrupt_250_s            : std_logic;
@@ -595,6 +597,8 @@ begin
       bar0_v                       := bar0;
       bar1_v                       := bar1;
       bar2_v                       := bar2;
+      
+      reset_register_map_40_s <= reset_register_map_s;
 
       read_interrupt_40_s <= read_interrupt_250_s;
       write_interrupt_40_s <= write_interrupt_250_s;
@@ -671,14 +675,14 @@ begin
   register_map_monitor_s <= register_map_monitor;
   register_map_control   <= register_map_control_s;
 
-  regrw: process(clkDiv6, reset, dma_soft_reset_40_s)
+  regrw: process(clkDiv6, reset, reset_register_map_40_s)
 
   begin
-    if(reset = '1' or dma_soft_reset_40_s= '1') then
-      dma_soft_reset_40_s      <= '0';
+    if(reset = '1' or reset_register_map_40_s='1') then
       register_write_done_40_s <= '1';
       register_read_done_40_s  <= '1';
       register_read_data_40_s  <= (others => '0');
+      reset_register_map_s <= '0';
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
         dma_descriptors_40_w_s(i) <= (start_address => (others => '0'), dword_count => (others => '0'), read_not_write => '0', enable => '0', current_address => (others => '0'), end_address => (others => '0'),wrap_around   => '0',  evencycle_dma => '0',   evencycle_pc  => '0',   pc_pointer    => (others => '0'));
       end loop;
@@ -819,6 +823,7 @@ begin
             when REG_FIFO_FLUSH    => register_read_data_40_s <= (others => '0');
             when REG_DMA_RESET     => register_read_data_40_s <= (others => '0');
             when REG_SOFT_RESET    => register_read_data_40_s <= (others => '0');
+            when REG_REGISTER_RESET    => register_read_data_40_s <= (others => '0');
             when others            => register_read_data_40_s <= (others => '0');                                                
               
               
@@ -944,11 +949,12 @@ begin
             -- REG_STATUS_6 is readonly
             -- REG_STATUS_7 is readonly
             -- REG_DESCRIPTOR_ENABLE is written at 250 MHz, see the process above.
-            when REG_FIFO_FLUSH =>  flush_fifo_40_s         <= '1';
-            when REG_DMA_RESET  =>  dma_soft_reset_40_s     <= '1';
-            when REG_SOFT_RESET =>  reset_global_soft_40_s  <= '1';
+            when REG_FIFO_FLUSH        =>  flush_fifo_40_s         <= '1';
+            when REG_DMA_RESET         =>  dma_soft_reset_40_s     <= '1';
+            when REG_SOFT_RESET        =>  reset_global_soft_40_s  <= '1';
+            when REG_REGISTER_RESET    =>  reset_register_map_s    <= '1';
             when others => --do nothing
-            
+
           end case;
         --Write registers in BAR1
         elsif(register_write_address_40_s(31 downto 20) = bar1_40_s(31 downto 20)) then
@@ -978,7 +984,7 @@ begin
                                         int_vector_40_s(7).int_vec_data  <= register_write_data_40_s(95 downto 64);
                                         int_vector_40_s(7).int_vec_ctrl  <= register_write_data_40_s(127 downto 96);
             when REG_INT_TAB_EN      => int_table_en_s                   <= register_write_data_40_s(NUMBER_OF_INTERRUPTS-1 downto 0);
-            when others => 
+            when others =>
           end case;
         --Write registers in BAR2
         elsif(register_write_address_40_s(31 downto 20) = bar2_40_s(31 downto 20)) then

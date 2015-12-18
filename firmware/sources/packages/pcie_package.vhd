@@ -159,6 +159,7 @@ package pcie_package is
   constant REG_FIFO_FLUSH          : std_logic_vector(19 downto 0) := x"00410";
   constant REG_DMA_RESET           : std_logic_vector(19 downto 0) := x"00420";
   constant REG_SOFT_RESET          : std_logic_vector(19 downto 0) := x"00430";
+  constant REG_REGISTER_RESET      : std_logic_vector(19 downto 0) := x"00440";
   -- BAR0 registers: end
 
   --! Address Offset assignment
