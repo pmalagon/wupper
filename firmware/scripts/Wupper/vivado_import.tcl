@@ -53,7 +53,11 @@ import_ip $proj_dir/sources/pcie/clk_wiz_40.xci
 # ----------------------------------------------------------
 
 read_vhdl -library work $proj_dir/sources/application/application.vhd
+read_vhdl -library work $proj_dir/sources/application/LFSR.vhd
 import_ip $proj_dir/sources/application/fifo_256x256.xci
+import_ip $proj_dir/sources/application/fifo_256x512.xci
+import_ip $proj_dir/sources/application/xadc_wiz_0.xci
+import_ip $proj_dir/sources/application/multiplier.xci
 
 upgrade_ip [get_ips  {pcie_x8_gen3_3_0 clk_wiz_40 fifo_256x256}]
 

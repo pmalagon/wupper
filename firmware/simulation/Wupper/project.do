@@ -44,6 +44,9 @@ project addfile ../../Projects/pcie_dma_top/pcie_dma_top.srcs/sources_1/ip/pcie_
 # ----------------------------------------------------------
 
 project addfile ../../sources/application/application.vhd
+project addfile ../../sources/application/LFSR.vhd
+project addfile ../../sources/application/fifo.vhd
 project addfile ../../Projects/pcie_dma_top/pcie_dma_top.srcs/sources_1/ip/fifo_256x256/fifo_256x256_funcsim.vhdl
+project addfile ../../Projects/pcie_dma_top/pcie_dma_top.srcs/sources_1/ip/multiplier/multiplier_funcsim.vhdl
 
 project compileall

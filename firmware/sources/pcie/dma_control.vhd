@@ -694,8 +694,12 @@ begin
       ---- Application specific registers BEGIN 🂱 ----
       ------------------------------------------------    
       register_map_control_s.STATUS_LEDS    <= STATUS_LEDS_C;
-      register_map_control_s.INT_TEST_2     <= "0";
-      register_map_control_s.INT_TEST_3     <= "0";
+      register_map_control_s.INT_TEST_2     <= INT_TEST_2_C;
+      register_map_control_s.INT_TEST_3     <= INT_TEST_3_C;
+      register_map_control_s.LFSR_SEED      <= LFSR_SEED_C;
+      register_map_control_s.APP_MUX        <= APP_MUX_C;
+      register_map_control_s.LFSR_LOAD_SEED <= LFSR_LOAD_SEED_C;
+      register_map_control_s.APP_ENABLE     <= APP_ENABLE_C;
       ------------------------------------------------
       ---- Application specific registers END 🂱 ----
       ------------------------------------------------
@@ -872,6 +876,15 @@ begin
             when REG_CARD_TYPE         => register_read_data_40_s  <= x"0000000000000000"&std_logic_vector(to_unsigned(CARD_TYPE,64));
             -- Monitor Registers
             when REG_PLL_LOCK          => register_read_data_40_s  <= x"0000000000000000000000000000000"&"000"&register_map_monitor_s.PLL_LOCK;
+            when REG_CORE_TEMPERATURE  => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_0"&register_map_monitor_s.CORE_TEMPERATURE;
+            
+            -- Application Control Registers
+            when REG_LFSR_SEED_0       => register_read_data_40_s  <= register_map_control_s.LFSR_SEED(127 downto 0);
+            when REG_LFSR_SEED_1       => register_read_data_40_s  <= register_map_control_s.LFSR_SEED(255 downto 128);
+            when REG_APP_MUX           => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_000"&"000"&register_map_control_s.APP_MUX;
+            when REG_LFSR_LOAD_SEED    => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_000"&"000"&register_map_control_s.LFSR_LOAD_SEED;
+            when REG_APP_ENABLE        => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_000"&"00"&register_map_control_s.APP_ENABLE;
+            
             ------------------------------------------------
             ---- Application specific registers END   🂱 ----
             ------------------------------------------------
@@ -995,6 +1008,14 @@ begin
             when REG_STATUS_LEDS     => register_map_control_s.STATUS_LEDS    <= register_write_data_40_s(7 downto 0);
             when REG_INT_TEST_2      => register_map_control_s.INT_TEST_2     <= "1";
             when REG_INT_TEST_3      => register_map_control_s.INT_TEST_3     <= "1";
+            --! Example Application Register
+            when REG_LFSR_SEED_0     => register_map_control_s.LFSR_SEED(127 downto 0)    <= register_write_data_40_s(127 downto 0);
+            when REG_LFSR_SEED_1     => register_map_control_s.LFSR_SEED(255 downto 128)  <= register_write_data_40_s(127 downto 0);
+            when REG_APP_MUX         => register_map_control_s.APP_MUX                    <= register_write_data_40_s(0 downto 0);
+            when REG_LFSR_LOAD_SEED  => register_map_control_s.LFSR_LOAD_SEED             <= register_write_data_40_s(0 downto 0);
+            when REG_APP_ENABLE      => register_map_control_s.APP_ENABLE                 <= register_write_data_40_s(1 downto 0);
+            
+            
             ------------------------------------------------
             ---- Application specific registers END   🂱 ----
             ------------------------------------------------

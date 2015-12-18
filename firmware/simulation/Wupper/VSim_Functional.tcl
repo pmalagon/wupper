@@ -1,6 +1,9 @@
 ### start simulation
 
-vsim -t ps -novopt +notimingchecks -L unisim work.virtex7_dma_top
+
+vsim -t ps -novopt +notimingchecks -L unisim work.wupper_oc_top
+
+
 
 onerror {resume}
 #Log all the objects in design. These will appear in .wlf file#

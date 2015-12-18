@@ -192,9 +192,19 @@ package pcie_package is
   constant REG_CARD_TYPE           : std_logic_vector(19 downto 0) := x"00040";
   -- Monitor Registers
   constant REG_PLL_LOCK            : std_logic_vector(19 downto 0) := x"00300";
+  constant REG_CORE_TEMPERATURE    : std_logic_vector(19 downto 0) := x"00310";
   -- Test interrupt registers.
   constant REG_INT_TEST_2          : std_logic_vector(19 downto 0) := x"01060";
-  constant REG_INT_TEST_3          : std_logic_vector(19 downto 0) := x"01070";  
+  constant REG_INT_TEST_3          : std_logic_vector(19 downto 0) := x"01070";
+  -- Example application register
+  constant REG_LFSR_SEED_0         : std_logic_vector(19 downto 0) := x"02000";
+  constant REG_LFSR_SEED_1         : std_logic_vector(19 downto 0) := x"02010";
+  constant REG_APP_MUX             : std_logic_vector(19 downto 0) := x"02020";
+  constant REG_LFSR_LOAD_SEED      : std_logic_vector(19 downto 0) := x"02030";
+  constant REG_APP_ENABLE          : std_logic_vector(19 downto 0) := x"02040";
+  
+ 
+    
   ------------------------------------------------
   ---- Application specific registers END 🂱 ----
   ------------------------------------------------
@@ -206,7 +216,14 @@ package pcie_package is
   type register_map_control_type is record
     STATUS_LEDS      : std_logic_vector(7 downto 0);
     INT_TEST_2       : std_logic_vector(0 downto 0);
-    INT_TEST_3       : std_logic_vector(0 downto 0); 
+    INT_TEST_3       : std_logic_vector(0 downto 0);
+    
+    LFSR_SEED        : std_logic_vector(255 downto 0);
+    APP_MUX          : std_logic_vector(0 downto 0 );
+    LFSR_LOAD_SEED   : std_logic_vector(0 downto 0 );
+    APP_ENABLE       : std_logic_vector(1 downto 0 );
+
+    
   end record;
   
     ------------------------------------------------
@@ -217,8 +234,15 @@ package pcie_package is
   ------------------------------------------------
   ---- Application specific registers BEGIN 🂱 ----
   ------------------------------------------------
-  constant BOARD_ID_C    : std_logic_vector(63 downto 0) := x"0000000000FE71CE";
-  constant STATUS_LEDS_C : std_logic_vector(7 downto 0)  := x"AA";
+  constant BOARD_ID_C       : std_logic_vector(63 downto 0) := x"0000000000FE71CE";
+  constant STATUS_LEDS_C    : std_logic_vector(7 downto 0)  := x"AA";
+  constant INT_TEST_2_C     : std_logic_vector(0 downto 0)  := "0";
+  constant INT_TEST_3_C     : std_logic_vector(0 downto 0)  := "0";
+  constant LFSR_SEED_C      : std_logic_vector(255 downto 0):= (others=>'0');
+  constant APP_MUX_C        : std_logic_vector(0 downto 0)  := "0";
+  constant LFSR_LOAD_SEED_C : std_logic_vector(0 downto 0):= "0";
+  constant APP_ENABLE_C     : std_logic_vector(1 downto 0):= "00";
+  
   ------------------------------------------------
   ---- Application specific registers END   🂱 ----
   ------------------------------------------------
@@ -228,8 +252,9 @@ package pcie_package is
   ---- Application specific registers BEGIN 🂱 ----
   ------------------------------------------------
   type register_map_monitor_type is record
-    READ_ONLY             : std_logic_vector(0 downto 0);    
-    PLL_LOCK              : std_logic_vector(0 downto 0);    
+    READ_ONLY             : std_logic_vector(0 downto  0);    
+    PLL_LOCK              : std_logic_vector(0 downto  0);
+    CORE_TEMPERATURE      : std_logic_vector(11 downto 0); 
   end record;
   ------------------------------------------------
   ---- Application specific registers END   🂱 ----
