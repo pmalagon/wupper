@@ -64,35 +64,35 @@ entity wupper_core is
     CARD_TYPE             : integer := 709;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
   port (
-    bar0                 : in     std_logic_vector(31 downto 0);
-    bar1                 : in     std_logic_vector(31 downto 0);
-    bar2                 : in     std_logic_vector(31 downto 0);
-    clk                  : in     std_logic;
-    clkDiv6              : in     std_logic;
-    dma_interrupt_call   : out    STD_LOGIC_VECTOR(3 downto 0);
-    fifo_din             : out    std_logic_vector(255 downto 0);
-    fifo_dout            : in     std_logic_vector(255 downto 0);
-    fifo_empty           : in     std_logic;
-    fifo_empty_thresh    : out    STD_LOGIC_VECTOR(7 downto 0);
-    fifo_full            : in     std_logic;
-    fifo_re              : out    std_logic;
-    fifo_we              : out    std_logic;
-    flush_fifo           : out    std_logic;
-    interrupt_table_en   : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
-    interrupt_vector     : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
-    m_axis_cc            : out    axis_type;
-    m_axis_r_cc          : in     axis_r_type;
-    m_axis_r_rq          : in     axis_r_type;
-    m_axis_rq            : out    axis_type;
-    register_map_control : out    register_map_control_type;
-    register_map_monitor : in     register_map_monitor_type;
-    reset                : in     std_logic;
-    reset_global_soft    : out    std_logic;
-    s_axis_cq            : in     axis_type;
-    s_axis_r_cq          : out    axis_r_type;
-    s_axis_r_rc          : out    axis_r_type;
-    s_axis_rc            : in     axis_type;
-    user_lnk_up          : in     std_logic);
+    bar0                  : in     std_logic_vector(31 downto 0);
+    bar1                  : in     std_logic_vector(31 downto 0);
+    bar2                  : in     std_logic_vector(31 downto 0);
+    clk                   : in     std_logic;
+    clkDiv6               : in     std_logic;
+    dma_interrupt_call    : out    STD_LOGIC_VECTOR(3 downto 0);
+    downfifo_dout         : in     std_logic_vector(255 downto 0);
+    downfifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
+    downfifo_prog_empty   : in     std_logic;
+    downfifo_re           : out    std_logic;
+    flush_fifo            : out    std_logic;
+    interrupt_table_en    : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
+    interrupt_vector      : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
+    m_axis_cc             : out    axis_type;
+    m_axis_r_cc           : in     axis_r_type;
+    m_axis_r_rq           : in     axis_r_type;
+    m_axis_rq             : out    axis_type;
+    register_map_control  : out    register_map_control_type;
+    register_map_monitor  : in     register_map_monitor_type;
+    reset                 : in     std_logic;
+    reset_global_soft     : out    std_logic;
+    s_axis_cq             : in     axis_type;
+    s_axis_r_cq           : out    axis_r_type;
+    s_axis_r_rc           : out    axis_r_type;
+    s_axis_rc             : in     axis_type;
+    upfifo_din            : out    std_logic_vector(255 downto 0);
+    upfifo_prog_full      : in     std_logic;
+    upfifo_we             : out    std_logic;
+    user_lnk_up           : in     std_logic);
 end entity wupper_core;
 
 
@@ -106,22 +106,22 @@ architecture structure of wupper_core is
     generic(
       NUMBER_OF_DESCRIPTORS : integer := 8);
     port (
-      clk               : in     std_logic;
-      dma_descriptors   : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-      dma_soft_reset    : in     std_logic;
-      dma_status        : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-      fifo_din          : out    std_logic_vector(255 downto 0);
-      fifo_dout         : in     std_logic_vector(255 downto 0);
-      fifo_empty        : in     std_logic;
-      fifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
-      fifo_full         : in     std_logic;
-      fifo_re           : out    std_logic;
-      fifo_we           : out    std_logic;
-      m_axis_r_rq       : in     axis_r_type;
-      m_axis_rq         : out    axis_type;
-      reset             : in     std_logic;
-      s_axis_r_rc       : out    axis_r_type;
-      s_axis_rc         : in     axis_type);
+      clk                   : in     std_logic;
+      dma_descriptors       : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+      dma_soft_reset        : in     std_logic;
+      dma_status            : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+      downfifo_dout         : in     std_logic_vector(255 downto 0);
+      downfifo_empty_thresh : out    std_logic_vector(7 downto 0);
+      downfifo_prog_empty   : in     std_logic;
+      downfifo_re           : out    std_logic;
+      m_axis_r_rq           : in     axis_r_type;
+      m_axis_rq             : out    axis_type;
+      reset                 : in     std_logic;
+      s_axis_r_rc           : out    axis_r_type;
+      s_axis_rc             : in     axis_type;
+      upfifo_din            : out    std_logic_vector(255 downto 0);
+      upfifo_prog_full      : in     std_logic;
+      upfifo_we             : out    std_logic);
   end component dma_read_write;
 
   component dma_control
@@ -162,22 +162,22 @@ begin
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS)
     port map(
-      clk               => clk,
-      dma_descriptors   => u1_dma_descriptors,
-      dma_soft_reset    => dma_soft_reset,
-      dma_status        => dma_status,
-      fifo_din          => fifo_din,
-      fifo_dout         => fifo_dout,
-      fifo_empty        => fifo_empty,
-      fifo_empty_thresh => fifo_empty_thresh,
-      fifo_full         => fifo_full,
-      fifo_re           => fifo_re,
-      fifo_we           => fifo_we,
-      m_axis_r_rq       => m_axis_r_rq,
-      m_axis_rq         => m_axis_rq,
-      reset             => reset,
-      s_axis_r_rc       => s_axis_r_rc,
-      s_axis_rc         => s_axis_rc);
+      clk                   => clk,
+      dma_descriptors       => u1_dma_descriptors,
+      dma_soft_reset        => dma_soft_reset,
+      dma_status            => dma_status,
+      downfifo_dout         => downfifo_dout,
+      downfifo_empty_thresh => downfifo_empty_thresh,
+      downfifo_prog_empty   => downfifo_prog_empty,
+      downfifo_re           => downfifo_re,
+      m_axis_r_rq           => m_axis_r_rq,
+      m_axis_rq             => m_axis_rq,
+      reset                 => reset,
+      s_axis_r_rc           => s_axis_r_rc,
+      s_axis_rc             => s_axis_rc,
+      upfifo_din            => upfifo_din,
+      upfifo_prog_full      => upfifo_prog_full,
+      upfifo_we             => upfifo_we);
 
   u1: dma_control
     generic map(
@@ -207,7 +207,7 @@ begin
       register_map_control => register_map_control,
       interrupt_table_en   => interrupt_table_en,
       dma_interrupt_call   => dma_interrupt_call,
-      fifo_empty           => fifo_empty,
-      fifo_full            => fifo_full);
+      fifo_empty           => downfifo_prog_empty,
+      fifo_full            => upfifo_prog_full);
 end architecture structure ; -- of wupper_core
 

@@ -60,22 +60,22 @@ entity dma_read_write is
   generic(
     NUMBER_OF_DESCRIPTORS : integer := 8);
   port (
-    clk               : in     std_logic;
-    dma_descriptors   : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-    dma_soft_reset    : in     std_logic;
-    dma_status        : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
-    fifo_din          : out    std_logic_vector(255 downto 0);
-    fifo_dout         : in     std_logic_vector(255 downto 0);
-    fifo_empty        : in     std_logic;
-    fifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
-    fifo_full         : in     std_logic;
-    fifo_re           : out    std_logic;
-    fifo_we           : out    std_logic;
-    m_axis_r_rq       : in     axis_r_type;
-    m_axis_rq         : out    axis_type;
-    reset             : in     std_logic;
-    s_axis_r_rc       : out    axis_r_type;
-    s_axis_rc         : in     axis_type);
+    clk                   : in     std_logic;
+    dma_descriptors       : in     dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+    dma_soft_reset        : in     std_logic;
+    dma_status            : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
+    downfifo_dout         : in     std_logic_vector(255 downto 0);
+    downfifo_empty_thresh : out    std_logic_vector(7 downto 0);
+    downfifo_prog_empty   : in     std_logic;
+    downfifo_re           : out    std_logic;
+    m_axis_r_rq           : in     axis_r_type;
+    m_axis_rq             : out    axis_type;
+    reset                 : in     std_logic;
+    s_axis_r_rc           : out    axis_r_type;
+    s_axis_rc             : in     axis_type;
+    upfifo_din            : out    std_logic_vector(255 downto 0);
+    upfifo_prog_full      : in     std_logic;
+    upfifo_we             : out    std_logic);
 end entity dma_read_write;
 
 
@@ -106,30 +106,15 @@ architecture rtl of dma_read_write is
   constant PUSH_DATA_SLV                      : std_logic_vector(2 downto 0) := "001";
   
   signal current_descriptor: dma_descriptor_type;
-  signal fifo_dout_pipe: std_logic_vector(127 downto 0); --pipe part of the fifo data 1 clock cycle for 256 bit alignment
-  signal fifo_din_pipe: std_logic_vector(159 downto 0);  --pipe part of the fifo data 1 clock cycle for 256 bit alignment
-  signal req_tag: std_logic_vector (3 downto 0);
+  signal downfifo_dout_pipe: std_logic_vector(127 downto 0); --pipe part of the fifo data 1 clock cycle for 256 bit alignment
+  signal upfifo_din_pipe: std_logic_vector(159 downto 0);  --pipe part of the fifo data 1 clock cycle for 256 bit alignment
   constant req_tc: std_logic_vector (2 downto 0) := "000";
   constant req_attr: std_logic_vector(2 downto 0) := "000"; --ID based ordering, Relaxed ordering, No Snoop (should be "001"?)
   signal descriptor_done_s	: std_logic_vector(0 to (NUMBER_OF_DESCRIPTORS-1));
-  signal s_axis_rc_tlast_pipe, s_axis_rc_tvalid_pipe, fifo_full_pipe: std_logic;
+  signal s_axis_rc_tlast_pipe, s_axis_rc_tvalid_pipe, upfifo_prog_full_pipe: std_logic;
   signal receive_word_count: std_logic_vector(10 downto 0);
   signal active_descriptor_s: integer range 0 to (NUMBER_OF_DESCRIPTORS-1);
   
-  type receive_tag_record_type is record
-    enable: std_logic;
-    tag: std_logic_vector(7 downto 0);
-    dword_count: std_logic_vector(10 downto 0);
-  end record;
-  type receive_tags_type is array (0 to 15) of receive_tag_record_type;
-  signal receive_tags_s : receive_tags_type;
-  type receive_tag_status_record_type is record
-    dwords_done: std_logic_vector(10 downto 0);
-    done: std_logic;
-  end record;
-  type receive_tag_status_type is array (0 to 15) of receive_tag_status_record_type;
-  signal receive_tag_status_s: receive_tag_status_type;
-  signal current_receive_tag_s: integer range 0 to 15;
   signal s_m_axis_rq : axis_type;
 
   
@@ -137,26 +122,26 @@ begin
 
   m_axis_rq <= s_m_axis_rq;
 
-  re: process(rw_state, m_axis_r_rq, dma_descriptors, active_descriptor_s, fifo_empty, current_descriptor)
+  re: process(rw_state, m_axis_r_rq, dma_descriptors, active_descriptor_s, downfifo_prog_empty, current_descriptor)
   begin
-    fifo_re <= '0';
+    downfifo_re <= '0';
     case(rw_state) is
       when IDLE =>
-        if((fifo_empty = '0') and (m_axis_r_rq.tready = '1')) then
+        if((downfifo_prog_empty = '0') and (m_axis_r_rq.tready = '1')) then
           if((dma_descriptors(active_descriptor_s).enable = '1') and (dma_descriptors(active_descriptor_s).read_not_write = '0')) then
-            fifo_re <= '1';
+            downfifo_re <= '1';
           end if;
         end if;
       when START_WRITE =>
         if((m_axis_r_rq.tready = '1')) then
           if(current_descriptor.dword_count > 8) then
-            fifo_re <= '1';
+            downfifo_re <= '1';
           end if;
         end if;
       when CONT_WRITE =>
         if((m_axis_r_rq.tready = '1')) then
           if(current_descriptor.dword_count > 16) then
-            fifo_re <= '1';
+            downfifo_re <= '1';
           end if;
         end if;
       when others =>
@@ -165,9 +150,11 @@ begin
   
   thresh: process(current_descriptor)
     variable wc: std_logic_vector(10 downto 0);
+    variable th: std_logic_vector(7 downto 0);
   begin
     wc := current_descriptor.dword_count-1;
-    fifo_empty_thresh(7 downto 0) <= wc(10 downto 3)+1;
+    th := wc(10 downto 3)+1;
+    downfifo_empty_thresh <= th(7 downto 0);
   end process;
   
   add_header: process(clk, reset, dma_soft_reset)
@@ -185,7 +172,6 @@ begin
                               evencycle_dma     => '0',
                               evencycle_pc      => '0',
                               pc_pointer        => (others => '0'));
-      req_tag <= "0000";
       active_descriptor_s <= 0;
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
         descriptor_done_s(i) <= '0'; --clear done flag, controller may load a new descriptor
@@ -195,20 +181,12 @@ begin
         --defaults:
         current_descriptor <= current_descriptor; --keep the same, only change if idle
         rw_state <= IDLE;
-        fifo_dout_pipe <= fifo_dout(255 downto 128);
-        req_tag <= req_tag;
+        downfifo_dout_pipe <= downfifo_dout(255 downto 128);
         s_m_axis_rq.tvalid <= '0';
         s_m_axis_rq.tdata <= (others => '0');
         s_m_axis_rq.tkeep <= x"00";
         s_m_axis_rq.tlast	<= '0';
-        current_receive_tag_s <= current_receive_tag_s ;
         active_descriptor_s <= active_descriptor_s;
-        receive_tags_s <= receive_tags_s;
-        for i in 0 to 15 loop
-          if(receive_tag_status_s(i).done = '1') then
-            receive_tags_s(i).enable <= '0';
-          end if;
-        end loop;
         
         for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
             descriptor_done_s(i) <= '0'; --clear done flag, controller may load a new descriptor
@@ -226,21 +204,27 @@ begin
             current_descriptor <= dma_descriptors(active_descriptor_s);
             active_descriptor_s <= next_active_descriptor_v;
             if((m_axis_r_rq.tready = '1') and (dma_descriptors(active_descriptor_s).enable = '1')) then
-              if(((dma_descriptors(active_descriptor_s).read_not_write = '0') and (fifo_empty = '0'))) then
+              if(((dma_descriptors(active_descriptor_s).read_not_write = '0') and (downfifo_prog_empty = '0'))) then
                 rw_state <= START_WRITE;
                 descriptor_done_s(active_descriptor_s) <= '1'; --pulse only once
               end if;
-              if(((dma_descriptors(active_descriptor_s).read_not_write = '1') and (fifo_full = '0'))) then
+              if(((dma_descriptors(active_descriptor_s).read_not_write = '1') and (upfifo_prog_full = '0'))) then
                 rw_state <= START_READ;
                 descriptor_done_s(active_descriptor_s) <= '1'; --pulse only once
               end if;
+            end if;
+            if(m_axis_r_rq.tready = '0') then
+                s_m_axis_rq.tvalid <= s_m_axis_rq.tvalid;
+                s_m_axis_rq.tdata  <= s_m_axis_rq.tdata;
+                s_m_axis_rq.tkeep  <= s_m_axis_rq.tkeep;
+                s_m_axis_rq.tlast  <= s_m_axis_rq.tlast;
             end if;
           when START_WRITE =>
             rw_state_slv <= START_WRITE_SLV;
             if(m_axis_r_rq.tready = '1') then
               current_descriptor.dword_count <= current_descriptor.dword_count - 4;
                                   -----DW 7-4
-              s_m_axis_rq.tdata  <= fifo_dout(127 downto 0) & --128 bits data
+              s_m_axis_rq.tdata  <= downfifo_dout(127 downto 0) & --128 bits data
                                   -----DW 3
                                   '0'&       --31 - 1 bit reserved	        127
                                   req_attr & --30-28 3 bits Attr	        124-126
@@ -248,7 +232,7 @@ begin
                                   '0'&       -- 24 req_id enable	        120
                                   x"0000" &  --xcompleter_id_bus,    -- 23-16 Completer Bus number - selected if Compl ID    = 1  104-119
                                              --completer_id_dev_func, --15-8 Compl Dev / Func no - sel if Compl ID = 1
-                                  "0000"&req_tag &  -- 7-0 Client Tag	96-103
+                                  x"00" &    -- 7-0 Client Tag	96-103
                                   --DW 2	
                                   x"0000" &  --req_rid,       -- 31-16 Requester ID - 16 bits    80-95
                                   '0' &      -- poisoned request 1'b0,          -- 15 Rsvd		79
@@ -260,7 +244,6 @@ begin
                 s_m_axis_rq.tlast <= '1';
                 rw_state <= IDLE;
                 
-                req_tag <= req_tag + 1;
                 current_descriptor.dword_count <= (others => '0');
                 case(current_descriptor.dword_count(3 downto 0)) is
                   when x"4" => s_m_axis_rq.tkeep  <= x"FF";
@@ -286,10 +269,10 @@ begin
             rw_state <= CONT_WRITE; --default
             if(m_axis_r_rq.tready = '1') then
               current_descriptor.dword_count <= current_descriptor.dword_count - 8;
-              s_m_axis_rq.tdata  <= fifo_dout(127 downto 0) & --128 bits data
-                                fifo_dout_pipe; --128 bits data from last clock cycle
+              s_m_axis_rq.tdata  <= downfifo_dout(127 downto 0) & --128 bits data
+                                downfifo_dout_pipe; --128 bits data from last clock cycle
             else
-              fifo_dout_pipe <= fifo_dout_pipe;
+              downfifo_dout_pipe <= downfifo_dout_pipe;
               s_m_axis_rq.tdata  <= s_m_axis_rq.tdata;
             end if;
                                 -----DW 7-4
@@ -298,7 +281,6 @@ begin
               if(m_axis_r_rq.tready = '1') then
                 s_m_axis_rq.tlast <= '1';
                 rw_state <= IDLE;
-                req_tag <= req_tag + 1;
                 current_descriptor.dword_count <= (others => '0');
               
               end if;
@@ -331,7 +313,7 @@ begin
                                   '0' &      -- 24 req_id enable
                                   x"0000" &  --xcompleter_id_bus,    -- 23-16 Completer Bus number - selected if Compl ID    = 1
                                              --completer_id_dev_func, --15-8 Compl Dev / Func no - sel if Compl ID = 1
-                                  "0001"&req_tag &  -- 7-0 Client Tag
+                                  x"00" &    -- 7-0 Client Tag
                                   --DW 2
                                   x"0000" &  --req_rid,       -- 31-16 Requester ID - 16 bits
                                   '0' &      -- poisoned request 1'b0,          -- 15 Rsvd
@@ -341,15 +323,6 @@ begin
                                   current_descriptor.current_address(63 downto 2)&"00"; --62 bit word address address + 2 bit Address type (0, untranslated)
               s_m_axis_rq.tlast <= '1';
               rw_state <= IDLE;
-              req_tag <= req_tag + 1;
-              receive_tags_s(current_receive_tag_s).tag <= "0001"&req_tag;
-              receive_tags_s(current_receive_tag_s).enable <= '1';
-              receive_tags_s(current_receive_tag_s).dword_count <= current_descriptor.dword_count;
-              if(current_receive_tag_s < 15) then
-                current_receive_tag_s <= current_receive_tag_s + 1;
-              else
-                current_receive_tag_s <= 0;
-              end if;
               
               s_m_axis_rq.tkeep  <= x"0F";
               s_m_axis_rq.tvalid <= '1';
@@ -370,60 +343,39 @@ begin
   end generate;
    
 
-  s_axis_r_rc.tready <= not fifo_full;
+  s_axis_r_rc.tready <= not upfifo_prog_full;
 
   strip_hdr: process(clk, reset, dma_soft_reset)
     variable receive_word_count_v: std_logic_vector(10 downto 0);
-    variable receive_tags_done_v: std_logic_vector(10 downto 0);
   begin
     if(reset = '1') or (dma_soft_reset = '1') then
       strip_state <= IDLE;
-      for i in 0 to 15 loop
-        receive_tag_status_s(i).done <= '0';
-        receive_tag_status_s(i).dwords_done <= (others => '0');
-      end loop;
     else
       if(rising_edge(clk)) then
         
         --defaults:
         strip_state <= IDLE;
-        fifo_we <= '0';
+        upfifo_we <= '0';
         s_axis_rc_tlast_pipe <= s_axis_rc.tlast;
         s_axis_rc_tvalid_pipe <= s_axis_rc.tvalid;
-        fifo_full_pipe <= fifo_full;
+        upfifo_prog_full_pipe <= upfifo_prog_full;
         receive_word_count <= receive_word_count;
-        receive_tag_status_s <= receive_tag_status_s;
-        for i in 0 to 15 loop
-          if(receive_tags_s(i).enable = '0') then
-            receive_tag_status_s(i).done <= '0';
-            receive_tag_status_s(i).dwords_done <= (others => '0');
-          end if;
-        end loop;
         case (strip_state) is
           when IDLE =>
             strip_state_slv <= IDLE_SLV;
             strip_state <= IDLE;  --stay in idle if no data with a valid tag is found
-            if(s_axis_rc.tvalid = '1' and fifo_full = '0') then
-              fifo_din_pipe <= s_axis_rc.tdata(255 downto 96); --pipeline 160 bits of data
+            if(s_axis_rc.tvalid = '1') then
+              upfifo_din_pipe <= s_axis_rc.tdata(255 downto 96); --pipeline 160 bits of data
               receive_word_count <= s_axis_rc.tdata(42 downto 32);
-              for i in 0 to 15 loop
-                if((s_axis_rc.tdata(71 downto 64) = receive_tags_s(i).tag) and (receive_tags_s(i).enable = '1')) then
-                  receive_word_count_v := receive_tag_status_s(i).dwords_done + s_axis_rc.tdata(42 downto 32);
-                  if(receive_word_count_v >= receive_tags_s(i).dword_count) then
-                    receive_tag_status_s(i).done <= '1';
-                  end if;
-                  receive_tag_status_s(i).dwords_done <= receive_word_count_v;
-                  strip_state <= PUSH_DATA;
-                end if;
-              end loop;
+              strip_state <= PUSH_DATA;
             end if;
           when PUSH_DATA =>
             strip_state_slv <= PUSH_DATA_SLV;
             strip_state <= PUSH_DATA;
-            if((s_axis_rc.tvalid='1' or s_axis_rc_tlast_pipe = '1') and fifo_full_pipe = '0') then
-              fifo_we <= '1';
-              fifo_din_pipe <= s_axis_rc.tdata(255 downto 96); --pipeline 160 bits of data
-              fifo_din <= s_axis_rc.tdata(95 downto 0) & fifo_din_pipe;
+            if((s_axis_rc.tvalid='1' or s_axis_rc_tlast_pipe = '1') and upfifo_prog_full_pipe = '0') then
+              upfifo_we <= '1';
+              upfifo_din_pipe <= s_axis_rc.tdata(255 downto 96); --pipeline 160 bits of data
+              upfifo_din <= s_axis_rc.tdata(95 downto 0) & upfifo_din_pipe;
               if(receive_word_count <= 8 or (s_axis_rc_tlast_pipe = '1')) then
                 receive_word_count <= (others => '0');
                 strip_state <= IDLE;
@@ -431,7 +383,7 @@ begin
                 receive_word_count <= receive_word_count - 8;
               end if;
             else
-              fifo_din_pipe <= fifo_din_pipe;
+              upfifo_din_pipe <= upfifo_din_pipe;
             end if;
         end case;
       end if; --clk

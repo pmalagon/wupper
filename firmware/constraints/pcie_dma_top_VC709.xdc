@@ -101,17 +101,17 @@ set_property LOC IBUFDS_GTE2_X1Y11 [get_cells u1/u1/g_virtex7.refclk_buff]
 ###############################################################################
 create_clock -period 10.000 -name sys_clk [get_pins u1/u1/g_virtex7.refclk_buff/O]
 
-create_generated_clock -name clk_125mhz_x0y1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT0]
-create_generated_clock -name clk_250mhz_x0y1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT1]
-create_generated_clock -name userclk1 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT2]
-create_generated_clock -name userclk2 [get_pins u1/u1/pipe_clock0/mmcm0/CLKOUT3]
+create_generated_clock -name clk_125mhz_x0y1 [get_pins u1/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT0]
+create_generated_clock -name clk_250mhz_x0y1 [get_pins u1/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT1]
+create_generated_clock -name userclk1 [get_pins u1/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT2]
+create_generated_clock -name userclk2 [get_pins u1/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT3]
 
-create_generated_clock -name clk_125mhz_mux_x0y1 -source [get_pins u1/u1/pipe_clock0/g0.pclk_i1/I0] -divide_by 1 [get_pins u1/u1/pipe_clock0/g0.pclk_i1/O]
-create_generated_clock -name clk_250mhz_mux_x0y1 -source [get_pins u1/u1/pipe_clock0/g0.pclk_i1/I1] -divide_by 1 -add -master_clock clk_250mhz_x0y1 [get_pins u1/u1/pipe_clock0/g0.pclk_i1/O]
+create_generated_clock -name clk_125mhz_mux_x0y1 -source [get_pins u1/u1/g_virtex7.pipe_clock0/g0.pclk_i1/I0] -divide_by 1 [get_pins u1/u1/g_virtex7.pipe_clock0/g0.pclk_i1/O]
+create_generated_clock -name clk_250mhz_mux_x0y1 -source [get_pins u1/u1/g_virtex7.pipe_clock0/g0.pclk_i1/I1] -divide_by 1 -add -master_clock clk_250mhz_x0y1 [get_pins u1/u1/g_virtex7.pipe_clock0/g0.pclk_i1/O]
 set_clock_groups -name pcieclkmux -physically_exclusive -group clk_125mhz_mux_x0y1 -group clk_250mhz_mux_x0y1
 
-set_false_path -to [get_pins u1/u1/pipe_clock0/g0.pclk_i1/S0]
-set_false_path -to [get_pins u1/u1/pipe_clock0/g0.pclk_i1/S1]
+set_false_path -to [get_pins u1/u1/g_virtex7.pipe_clock0/g0.pclk_i1/S0]
+set_false_path -to [get_pins u1/u1/g_virtex7.pipe_clock0/g0.pclk_i1/S1]
 
 ###############################################################################
 # Physical Constraints

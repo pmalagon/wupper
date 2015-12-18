@@ -64,24 +64,24 @@ entity application is
   generic(
     NUMBER_OF_INTERRUPTS : integer := 8);
   port (
-    appreg_clk           : in     std_logic;
-    fifo_din             : in     std_logic_vector(255 downto 0);
-    fifo_dout            : out    std_logic_vector(255 downto 0);
-    fifo_empty           : out    std_logic;
-    fifo_empty_thresh    : in     STD_LOGIC_VECTOR(7 downto 0);
-    fifo_full            : out    std_logic;
-    fifo_rd_clk          : in     std_logic;
-    fifo_re              : in     std_logic;
-    fifo_we              : in     std_logic;
-    fifo_wr_clk          : in     std_logic;
-    flush_fifo           : in     std_logic;
-    interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-    leds                 : out    std_logic_vector(7 downto 0);
-    pll_locked           : in     std_logic;
-    register_map_control : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
-    register_map_monitor : out    register_map_monitor_type; --! contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
-    reset_hard           : in     std_logic;
-    reset_soft           : in     std_logic);
+    appreg_clk            : in     std_logic;
+    downfifo_dout         : out    std_logic_vector(255 downto 0);
+    downfifo_empty_thresh : in     std_logic_vector(7 downto 0);
+    downfifo_prog_empty   : out    std_logic;
+    downfifo_re           : in     std_logic;
+    fifo_rd_clk           : in     std_logic;
+    fifo_wr_clk           : in     std_logic;
+    flush_fifo            : in     std_logic;
+    interrupt_call        : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+    leds                  : out    std_logic_vector(7 downto 0);
+    pll_locked            : in     std_logic;
+    register_map_control  : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
+    register_map_monitor  : out    register_map_monitor_type; --! contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
+    reset_hard            : in     std_logic;
+    reset_soft            : in     std_logic;
+    upfifo_din            : in     std_logic_vector(255 downto 0);
+    upfifo_prog_full      : out    std_logic;
+    upfifo_we             : in     std_logic);
 end entity application;
 
 
@@ -132,7 +132,7 @@ begin
   leds <= register_map_control_s.STATUS_LEDS(7 downto 0);
   
 
-  fifo_full <= '0';
+  upfifo_prog_full <= '0';
   
   s_flush_fifo <= flush_fifo or reset;
   
@@ -143,10 +143,10 @@ begin
     clk => fifo_rd_clk,
     rst => s_flush_fifo,
     -- Towards DMA core
-    rd_en => fifo_re,
-    dout => fifo_dout,
-    prog_empty => fifo_empty,
-    prog_empty_thresh => fifo_empty_thresh,
+    rd_en => downfifo_re,
+    dout => downfifo_dout,
+    prog_empty => downfifo_prog_empty,
+    prog_empty_thresh => downfifo_empty_thresh,
     empty => open,
     -- Application signals
     wr_en => s_fifo_we,
