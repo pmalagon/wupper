@@ -15,6 +15,7 @@ close_project -quiet
 
 create_project -force -part xc7vx690tffg1761-2 $proj_name $proj_dir/Projects/$proj_name
 
+
 set_property target_language VHDL [current_project]
 set_property default_lib work [current_project]
 
@@ -41,7 +42,10 @@ read_vhdl -library work $proj_dir/sources/pcie/dma_control.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_clocking.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_slow_clock.vhd
 
+#for Virtex7 parts
 import_ip $proj_dir/sources/pcie/pcie_x8_gen3_3_0.xci
+#for Artix Ultrascale parts
+import_ip $proj_dir/sources/pcie/pcie3_x8_gen3.xci
 import_ip $proj_dir/sources/pcie/clk_wiz_40.xci
 
 # ----------------------------------------------------------
@@ -51,10 +55,11 @@ import_ip $proj_dir/sources/pcie/clk_wiz_40.xci
 read_vhdl -library work $proj_dir/sources/application/application.vhd
 import_ip $proj_dir/sources/application/fifo_256x256.xci
 
-upgrade_ip [get_ips  {pcie_x8_gen3_3_0 cache_fifo clk_wiz_40 fifo_256x256}]
+upgrade_ip [get_ips  {pcie_x8_gen3_3_0 clk_wiz_40 fifo_256x256}]
 
 read_xdc -verbose $proj_dir/constraints/pcie_dma_top_VC709.xdc
 read_xdc -verbose $proj_dir/constraints/pcie_dma_top_HTG710.xdc
+read_xdc -verbose $proj_dir/constraints/pcie_dma_top_kcu105.xdc
 close [ open $proj_dir/constraints/probes.xdc w ]
 read_xdc -verbose $proj_dir/constraints/probes.xdc
 set_property target_constrs_file $proj_dir/constraints/probes.xdc [current_fileset -constrset]

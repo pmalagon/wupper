@@ -674,7 +674,45 @@ g_virtex7: if (CARD_TYPE = 709 or CARD_TYPE = 710) generate
     
     cfg_interrupt_msix_enable(3 downto 2) <= "00";
     
-    end generate;
+          ---------- PIPE Clock Shared Mode ------------------------------//
+
+  pipe_clock0: pcie_clocking generic map(
+      PCIE_ASYNC_EN             =>    "FALSE" ,                     -- PCIe async enable
+      PCIE_TXBUF_EN             =>    "FALSE" ,                     -- PCIe TX buffer enable for Gen1/Gen2 only
+      PCIE_CLK_SHARING_EN       =>    "FALSE" ,                     -- Enable Clock Sharing
+      PCIE_LANE                 =>    8 ,                           -- PCIe number of lanes
+      PCIE_LINK_SPEED           =>    3 ,                           -- PCIe Maximum Link Speed
+      PCIE_REFCLK_FREQ          =>    0 ,                           -- PCIe Reference Clock Frequency
+      PCIE_USERCLK1_FREQ        =>    5 ,                           -- PCIe Core Clock Frequency - Core Clock Freq
+      PCIE_USERCLK2_FREQ        =>    4 ,                           -- PCIe User Clock Frequency - User Clock Freq
+      PCIE_OOBCLK_MODE          =>    1 , 
+      PCIE_DEBUG_MODE           =>    0                             -- Debug Enable
+  )
+  port map
+  (
+      ---------- Input -------------------------------------
+      CLK_CLK                   =>    ( sys_clk ),
+      CLK_TXOUTCLK              =>    ( pipe_txoutclk_out ),     -- Reference clock from lane 0
+      CLK_RXOUTCLK_IN           =>    ( pipe_rxoutclk_out ),
+      CLK_RST_N                 =>    ( pipe_mmcm_rst_n ),      -- Allow system reset for error_recovery             
+      CLK_PCLK_SEL              =>    ( pipe_pclk_sel_out ),
+      CLK_PCLK_SEL_SLAVE        =>    ( x"00"),
+      CLK_GEN3                  =>    ( pipe_gen3_out ),
+
+      ---------- Output ------------------------------------
+      CLK_PCLK                 =>    ( pipe_pclk_in),
+      CLK_PCLK_SLAVE           =>    open,
+      CLK_RXUSRCLK             =>    ( pipe_rxusrclk_in),
+      CLK_RXOUTCLK_OUT         =>    ( pipe_rxoutclk_in),
+      CLK_DCLK                 =>    ( pipe_dclk_in),
+      CLK_OOBCLK               =>    ( pipe_oobclk_in),
+      CLK_USERCLK1             =>    ( pipe_userclk1_in),
+      CLK_USERCLK2             =>    ( pipe_userclk2_in),
+      CLK_MMCM_LOCK            =>    ( pipe_mmcm_lock_in)
+
+  );
+    
+end generate;
 
 --Kintex Ultrascale devices
 g_ultrascale: if (CARD_TYPE = 105 or CARD_TYPE = 711) generate
@@ -839,43 +877,7 @@ g_ultrascale: if (CARD_TYPE = 105 or CARD_TYPE = 711) generate
     
 
 
-      ---------- PIPE Clock Shared Mode ------------------------------//
 
-    pipe_clock0: pcie_clocking generic map(
-        PCIE_ASYNC_EN             =>    "FALSE" ,                     -- PCIe async enable
-        PCIE_TXBUF_EN             =>    "FALSE" ,                     -- PCIe TX buffer enable for Gen1/Gen2 only
-        PCIE_CLK_SHARING_EN       =>    "FALSE" ,                     -- Enable Clock Sharing
-        PCIE_LANE                 =>    8 ,                           -- PCIe number of lanes
-        PCIE_LINK_SPEED           =>    3 ,                           -- PCIe Maximum Link Speed
-        PCIE_REFCLK_FREQ          =>    0 ,                           -- PCIe Reference Clock Frequency
-        PCIE_USERCLK1_FREQ        =>    5 ,                           -- PCIe Core Clock Frequency - Core Clock Freq
-        PCIE_USERCLK2_FREQ        =>    4 ,                           -- PCIe User Clock Frequency - User Clock Freq
-        PCIE_OOBCLK_MODE          =>    1 , 
-        PCIE_DEBUG_MODE           =>    0                             -- Debug Enable
-    )
-    port map
-    (
-        ---------- Input -------------------------------------
-        CLK_CLK                   =>    ( sys_clk ),
-        CLK_TXOUTCLK              =>    ( pipe_txoutclk_out ),     -- Reference clock from lane 0
-        CLK_RXOUTCLK_IN           =>    ( pipe_rxoutclk_out ),
-        CLK_RST_N                 =>    ( pipe_mmcm_rst_n ),      -- Allow system reset for error_recovery             
-        CLK_PCLK_SEL              =>    ( pipe_pclk_sel_out ),
-        CLK_PCLK_SEL_SLAVE        =>    ( x"00"),
-        CLK_GEN3                  =>    ( pipe_gen3_out ),
-
-        ---------- Output ------------------------------------
-        CLK_PCLK                 =>    ( pipe_pclk_in),
-        CLK_PCLK_SLAVE           =>    open,
-        CLK_RXUSRCLK             =>    ( pipe_rxusrclk_in),
-        CLK_RXOUTCLK_OUT         =>    ( pipe_rxoutclk_in),
-        CLK_DCLK                 =>    ( pipe_dclk_in),
-        CLK_OOBCLK               =>    ( pipe_oobclk_in),
-        CLK_USERCLK1             =>    ( pipe_userclk1_in),
-        CLK_USERCLK2             =>    ( pipe_userclk2_in),
-        CLK_MMCM_LOCK            =>    ( pipe_mmcm_lock_in)
-
-    );
 
     
     

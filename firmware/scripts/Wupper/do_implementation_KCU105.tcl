@@ -1,10 +1,10 @@
 set IMPL_RUN [get_runs impl*]
 set SYNTH_RUN [get_runs synth*]
-set PROJECT_NAME "pcie_dma_top_HTG"
+set PROJECT_NAME "pcie_dma_top_KCU105"
 set scriptdir [pwd]
 set HDLDIR $scriptdir/../../
 
-set_property part xc7vx690tffg1761-2 [current_project]
+set_property board_part xilinx.com:kcu105:part0:1.1 [current_project]
 
 foreach design [get_designs] {
    puts "Closing design: $design"
@@ -33,15 +33,15 @@ set build_date "40'h[clock format $systemTime -format %y%m%d%H%M]"
 puts "BUILD_DATE = $build_date"
 
 
-set_property is_enabled true [get_files  $HDLDIR/constraints/pcie_dma_top_HTG710.xdc]
-set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_kcu105.xdc]
+set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_HTG710.xdc]
+set_property is_enabled true [get_files  $HDLDIR/constraints/pcie_dma_top_kcu105.xdc]
 set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_VC709.xdc]
 
 #set to true in order to generate the GBT links
 set NUMBER_OF_INTERRUPTS 8
 set NUMBER_OF_DESCRIPTORS 8
 
-set CARD_TYPE 710
+set CARD_TYPE 105
 
 set_property generic "BUILD_DATETIME=$build_date SVN_VERSION=$svn_version NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS CARD_TYPE=$CARD_TYPE" [current_fileset]
 
