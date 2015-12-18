@@ -142,12 +142,25 @@ set_property IOSTANDARD LVCMOS18 [get_ports {leds[7]}]
 # Therefore the appropriate level shift is required to operate
 # with these devices that contain only 1.8 V banks.
 #
-
 # Changed for KCU105
 # ultrascale has dedicated PCIE reset pin
 set_property PACKAGE_PIN K22 [get_ports sys_reset_n]
 set_property IOSTANDARD LVCMOS18 [get_ports sys_reset_n]
 set_property PULLUP true [get_ports sys_reset_n]
+
+#
+#
+# SYS clock 100 MHz (input) signal. The sys_clk_p and sys_clk_n
+# signals are the PCI Express reference clock. Virtex-7 GT
+# Transceiver architecture requires the use of a dedicated clock
+# resources (FPGA input pins) associated with each GT Transceiver.
+# To use these pins an IBUFDS primitive (refclk_ibuf) is
+# instantiated in user's design.
+# Please refer to the Virtex-7 GT Transceiver User Guide
+# (UG) for guidelines regarding clock resource selection.
+#
+create_clock -period 10.000 -name sys_clk [get_pins u1/u1/g_ultrascale.refclk_buff/O]
+create_clock -period 10.000 -name sys_clk_p -waveform {0.000 5.000} [get_ports sys_clk_p]
 
 ###############################################################################
 # Physical Constraints
