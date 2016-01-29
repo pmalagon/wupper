@@ -131,6 +131,11 @@ typedef struct wupper_register {
 
 extern wupper_register_t wupper_registers[];
 /*****************************/
+/*****************************/
+typedef struct cmem_dev
+{
+  int fd;
+} cmem_dev_t;
 
 typedef struct cmem_buffer
 {
@@ -138,6 +143,7 @@ typedef struct cmem_buffer
   u_long virt_addr;
   u_long size;
   u_int handle;
+  cmem_dev_t* cmem;
 } cmem_buffer_t;
 /*****************************/
 
@@ -157,16 +163,21 @@ int  wupper_close(wupper_dev_t* wupper);
 int  wupper_open(wupper_dev_t* wupper, int deviceNumber);
 /************DMA Access***************/
 int  wupper_dma_max_tlp_bytes(wupper_dev_t* wupper);
-void wupper_dma_program_write(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper);
-void wupper_dma_program_read(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper);
-void wupper_dma_wait(u_int dma_id, wupper_dev_t* wupper);
+void wupper_dma_program_write(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper, int do_enable);
+void wupper_dma_program_read(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper, int do_enable);
+void wupper_dma_enable(wupper_dev_t* wupper, int enable);
+int  wupper_dma_wait(u_int dma_id, wupper_dev_t* wupper);
 void wupper_dma_stop(u_int dma_id, wupper_dev_t* wupper);
 void wupper_dma_advance_read_ptr(u_int dma_id, u_long dst, size_t size, size_t bytes, wupper_dev_t* wupper);
 void wupper_dma_fifo_flush(wupper_dev_t* wupper);
 void wupper_dma_reset(wupper_dev_t* wupper);
 void wupper_dma_soft_reset(wupper_dev_t* wupper);
+void wupper_dma_registermap_reset(wupper_dev_t* wupper);
 /*************Descriptor Access***************/
-int cmem_alloc(u_long size, cmem_buffer_t* buffer);
+/*************CMEM****************************/
+int cmem_open(cmem_dev_t* cmem);
+int cmem_close(cmem_dev_t* cmem);
+int cmem_alloc(cmem_buffer_t* buffer, cmem_dev_t* cmem, u_long size);
 int cmem_free(cmem_buffer_t* buffer);
 /*******************IRQ*******************/
 int  wupper_irq_init(wupper_dev_t* wupper);

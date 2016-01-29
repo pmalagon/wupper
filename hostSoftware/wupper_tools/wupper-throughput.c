@@ -52,6 +52,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -59,8 +60,51 @@
 
 
 #define DMA_ID (0)
-#define BUFSIZE (1024)
+#define BUFSIZE (65536)
 #define APPLICATION_NAME "wupper-throughput"
+wupper_dev_t wupper;
+cmem_buffer_t buffer;
+cmem_dev_t cmem;
+
+void
+load_unqseed()
+{
+	
+	//generate seed using rand()
+	printf("generating new seed...");
+	srand (time(NULL));
+    uint64_t r0, r1, r2, r3;
+    r0 = (uint64_t)rand()|((uint64_t)rand())<<32;
+    r1 = (uint64_t)rand()|((uint64_t)rand())<<32;
+    r2 = (uint64_t)rand()|((uint64_t)rand())<<32;
+    r3 = (uint64_t)rand()|((uint64_t)rand())<<32;
+    printf("DONE! \n");
+    
+    //set seed
+    printf("Writing seed to application register...");
+    wupper_cfg_set_option(&wupper,"LFSR_SEED_0A",r0);
+    wupper_cfg_set_option(&wupper,"LFSR_SEED_0B",r1);
+    wupper_cfg_set_option(&wupper,"LFSR_SEED_1A",r2);
+    wupper_cfg_set_option(&wupper,"LFSR_SEED_1B",r3);
+    
+  // reset LFSR with seed value
+  wupper_cfg_set_option(&wupper,"LFSR_LOAD_SEED",1);
+   
+  // release LFSR reset
+  wupper_cfg_set_option(&wupper,"LFSR_LOAD_SEED",0);
+  printf("DONE! \n");
+
+}
+
+void
+start_application2pc()
+{    
+  //select app mux 0 for LFSR
+  wupper_cfg_set_option(&wupper,"APP_MUX",0);
+  wupper_cfg_set_option(&wupper,"ENABLE_APPLICATION",01);
+  //wupper_cfg_set_option(&wupper,"ENABLE_APPLICATION",00);
+}
+
 
 void
 display_help()
@@ -75,13 +119,7 @@ display_help()
 	 APPLICATION_NAME);
 }
 
-double
-now()
-{
-  struct timespec tp;
-  clock_gettime(CLOCK_MONOTONIC, &tp);
-  return tp.tv_sec + 1e-9*tp.tv_nsec;
-}
+extern double now();
 
 int
 main(int argc, char** argv)
@@ -91,7 +129,7 @@ main(int argc, char** argv)
   int wraparound = 0;
   int opt;
 
-  wupper_dev_t wupper;
+  
 
   while ((opt = getopt(argc, argv, "hd:b:w")) != -1) {
     switch (opt) {
@@ -127,22 +165,29 @@ main(int argc, char** argv)
   wupper_dma_soft_reset(&wupper);
   wupper_dma_fifo_flush(&wupper);
 
-  wupper_cfg_set_option(&wupper, "gbt_emu_ena", 1);
-
-  cmem_buffer_t buffer;
-  cmem_alloc(BUFSIZE*nblocks, &buffer);
-
-
+  
+  // start LFSR
+  load_unqseed();
+  if(cmem_open(&cmem)!=0){printf("Could not open CMEM");} 
+  
+  if(cmem_alloc(&buffer, &cmem, BUFSIZE*nblocks)!=0)
+	{
+		printf("Could not allocate CMEM for buffer 1");
+    }
+  
+  //cmem_alloc(BUFSIZE*nblocks, &buffer);
   int max_tlp = wupper_dma_max_tlp_bytes(&wupper);
 
   double timedelta = 2;
   double t0 = now();
   unsigned long long blocks_read = 0;
+   printf("start app\n");
+   start_application2pc();
   
   if(wraparound)
     {
       fprintf(stderr, "TODO: wraparound support not fully implemented yet.\n");
-      wupper_dma_program_write(DMA_ID, buffer.phys_addr, BUFSIZE*nblocks, max_tlp, WUPPER_DMA_WRAPAROUND, &wupper);
+      wupper_dma_program_write(DMA_ID, buffer.phys_addr, BUFSIZE*nblocks, max_tlp, WUPPER_DMA_WRAPAROUND, &wupper, 1);
     }
 
   while(1)
@@ -156,7 +201,7 @@ main(int argc, char** argv)
 	}
       else
 	{
-	  wupper_dma_program_write(DMA_ID, buffer.phys_addr, BUFSIZE*nblocks, max_tlp, 0, &wupper);
+	  wupper_dma_program_write(DMA_ID, buffer.phys_addr, BUFSIZE*nblocks, max_tlp, 0, &wupper, 1);
 	  wupper_dma_wait(DMA_ID, &wupper);
 	  blocks_read += nblocks;
 	}
@@ -166,15 +211,24 @@ main(int argc, char** argv)
 	{
 	  printf("Blocks read:  %lld\n", blocks_read);
 	  printf("Blocks rate:  %f blocks/s\n", blocks_read/(t1-t0));
-	  printf("DMA Read:     %f GiB/s\n", blocks_read/(1024.*1024.)/(t1-t0));
+	  //printf("DMA Read:     %f GiB/s\n", blocks_read/((1024.*1024.)/(t1-t0)));
+	  printf("DMA Read:     %lf GiB/s\n", (double)blocks_read*BUFSIZE/((t1-t0)*1024*1024*1024));
 	  printf("\n");
 	  blocks_read = 0;
 	  t0 = t1;
+	  
 	}
     }
 
-
-  cmem_free(&buffer);
+  wupper_cfg_set_option(&wupper,"ENABLE_APPLICATION",00);
+  
+  if(cmem_free(&buffer))
+ {
+  fprintf(stderr, APPLICATION_NAME": error: could not free CMEM buffer\n");
+  return 1;
+ }
+  
+  cmem_close(&cmem);
 
   if(wupper_close(&wupper))
     {

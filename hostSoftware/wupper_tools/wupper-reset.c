@@ -63,6 +63,7 @@ enum cmd_mode {
   FLUSH,
   RESET,
   SOFT_RESET,
+  REGISTERMAP_RESET,
   ALL,
 };
 
@@ -71,17 +72,18 @@ void
 display_help()
 {
   printf("Usage: %s [OPTIONS]\n"
-	 "Tool to reset different aspects from the card.\n"
-	 "\nCommands:\n"
-	 "Options:\n"
-	 "  flush         Flushes (resets) the main output FIFO toward Wupper  .\n"
-	 "  reset         Resets the whole Wupper_core .\n"
-	 "  soft-reset    Global application soft reset .\n"
-   "  all           Do everything .\n"
-	 "Options:\n"
-	 "  -d NUMBER      Use card indicated by NUMBER. Default: 0.\n"
-	 "  -h             Display help.\n",
-	 APPLICATION_NAME);
+    "Tool to reset different aspects from the card.\n"
+    "\nCommands:\n"
+    "Options:\n"
+    "  flush         Flushes (resets) the main output FIFO toward Wupper  .\n"
+    "  reset         Resets the whole Wupper_core .\n"
+    "  soft-reset    Global application soft reset .\n"
+    "  registermap   Resets all registers to default .\n"
+    "  all           Do everything .\n"
+    "Options:\n"
+    "  -d NUMBER      Use card indicated by NUMBER. Default: 0.\n"
+    "  -h             Display help.\n",
+    APPLICATION_NAME);
 }
 
 
@@ -95,6 +97,7 @@ main(int argc, char** argv)
   int do_flush=0;
   int do_reset=0;
   int do_soft_reset=0;
+  int do_registermap_reset=0;
 
   if(argc < 2)
     {
@@ -128,6 +131,7 @@ main(int argc, char** argv)
   if(0 == strcasecmp(argv[optind], "flush"))  mode = FLUSH;
   if(0 == strcasecmp(argv[optind], "reset"))  mode = RESET;
   if(0 == strcasecmp(argv[optind], "soft-reset"))  mode = SOFT_RESET;
+  if(0 == strcasecmp(argv[optind], "registermap"))  mode = REGISTERMAP_RESET;
   if(0 == strcasecmp(argv[optind], "all"))  mode = ALL;
 
   if(mode == UNKNOWN)
@@ -156,10 +160,14 @@ main(int argc, char** argv)
     case SOFT_RESET:
       do_soft_reset=1;
       break;
+    case REGISTERMAP_RESET:
+      do_registermap_reset=1;
+      break;
     case ALL:
       do_soft_reset=1;
       do_reset=1;
       do_flush=1;
+      do_registermap_reset=1;
       break;
     }
 
@@ -171,6 +179,9 @@ main(int argc, char** argv)
   }
   if(do_soft_reset){
     wupper_dma_soft_reset(&wupper);
+  }
+  if(do_registermap_reset){
+    wupper_dma_registermap_reset(&wupper);
   }
 
   if(wupper_close(&wupper))

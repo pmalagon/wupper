@@ -121,11 +121,21 @@ main(int argc, char** argv)
   printf("Board ID: %x\n", board_id);
 
   cmem_buffer_t buffer;
-  if(cmem_alloc(BUFSIZE, &buffer))
-    {
-      fprintf(stderr, "Could not allocate memory\n");
-      exit(EXIT_FAILURE);
+  cmem_dev_t cmem;
+
+if(cmem_open(&cmem)!=0){printf("Could not open CMEM");} 
+	
+	if(cmem_alloc(&buffer, &cmem, BUFSIZE)!=0)
+	{
+		printf("Could not allocate CMEM for buffer 1");
     }
+  
+  
+  //if(cmem_alloc(BUFSIZE, &buffer))
+  //  {
+  //    fprintf(stderr, "Could not allocate memory\n");
+  //    exit(EXIT_FAILURE);
+  //  }
   printf("Allocated Memory Segment\n  Phys. Addr: 0x%016llx\n  Virt. Addr: 0x016%llx\n",
 	 buffer.phys_addr, buffer.virt_addr);
 
@@ -134,7 +144,8 @@ main(int argc, char** argv)
 
   int max_tlp = wupper_dma_max_tlp_bytes(&wupper);
 
-  wupper_dma_program_write(DMA_ID, buffer.phys_addr, BUFSIZE, max_tlp, WUPPER_DMA_WRAPAROUND, &wupper);
+  wupper_dma_program_write(DMA_ID, buffer.phys_addr, BUFSIZE, max_tlp, WUPPER_DMA_WRAPAROUND, &wupper, 1);
+  //wupper_dma_program_write(DMA_ID, phys_addr, BUFSIZE, max_tlp, 0, &wupper);
   wupper_dma_wait(DMA_ID, &wupper);
 
 
@@ -187,7 +198,13 @@ main(int argc, char** argv)
     }
 
 
-  cmem_free(&buffer);
+  if(cmem_free(&buffer))
+  {
+    fprintf(stderr, APPLICATION_NAME": error: could not free CMEM buffer\n");
+    return 1;
+  }
+  
+  cmem_close(&cmem);
 
   if(wupper_close(&wupper))
     {

@@ -80,7 +80,7 @@ display_help()
 	 "Displays information about a WUPPER device.\n\n"
 	 "Options:\n"
 	 "  -d NUMBER                       Use card indicated by NUMBER. Default: 0.\n"
-	 "  -h                              Display help.\n"
+	 "  -h                              Display help.\n", 
 	 APPLICATION_NAME);
   printf("\n");
 }

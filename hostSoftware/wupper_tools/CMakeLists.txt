@@ -13,7 +13,7 @@ add_executable(wupper-config wupper-config.c)
 target_link_libraries(wupper-config 	wupper)
 
 add_executable(wupper-dma-test wupper-dma-test.cpp)
-target_link_libraries(wupper-dma-test 	wupper)
+target_link_libraries(wupper-dma-test 	wupper rt)
 
 add_executable(wupper-info wupper-info.c)
 target_link_libraries(wupper-info 	wupper)
@@ -25,5 +25,15 @@ add_executable(wupper-throughput wupper-throughput.c)
 target_link_libraries(wupper-throughput 	wupper rt)
 
 add_executable(wupper-reset wupper-reset.c)
-target_link_libraries(wupper-reset 	wupper)
+target_link_libraries(wupper-reset 	wupper rt)
+
+add_executable(wupper-chaintest wupper-chaintest.c)
+target_link_libraries(wupper-chaintest 	wupper rt)
+
+add_executable(wupper-write wupper-write.c)
+target_link_libraries(wupper-write 	wupper rt)
+
+add_executable(wupper-dma-transfer wupper-dma-transfer.c)
+target_link_libraries(wupper-dma-transfer 	wupper rt)
+
 

@@ -51,9 +51,20 @@
 
 #include <assert.h>
 #include <sys/ioctl.h>
+//temp
+#include <unistd.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "../driver/include/wupper_common.h"
 
+double
+now()
+{
+  struct timespec tp;
+  clock_gettime(CLOCK_MONOTONIC, &tp);
+  return tp.tv_sec + 1e-9*tp.tv_nsec;
+}
 
 int
 wupper_dma_max_tlp_bytes(wupper_dev_t* wupper)
@@ -67,7 +78,7 @@ wupper_dma_max_tlp_bytes(wupper_dev_t* wupper)
 }
 
 void
-wupper_dma_program_write(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper)
+wupper_dma_program_write(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper, int do_enable)
 {
   wupper_dma_stop(dma_id, wupper);
 
@@ -80,12 +91,14 @@ wupper_dma_program_write(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int
 
   assert(wupper->dma_descriptors[dma_id].start_address != 0);
   assert(wupper->dma_descriptors[dma_id].end_address != 0);
-  
-  *(wupper->dma_enable) |= 1<<dma_id;  
+  //printf("dma write enable: %lX\n", *(wupper->dma_enable));
+  if(do_enable)
+	  *(wupper->dma_enable) |= 1<<dma_id;  
+  //printf("dma write enable: %lX #2\n", *(wupper->dma_enable));
 }
 
 void
-wupper_dma_program_read(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper)
+wupper_dma_program_read(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int flags, wupper_dev_t* wupper, int do_enable)
 {
   wupper_dma_stop(dma_id, wupper);
 
@@ -95,7 +108,16 @@ wupper_dma_program_read(u_int dma_id, u_long dst, size_t size, u_int tlp, u_int 
   wupper->dma_descriptors[dma_id].read = 1;
   wupper->dma_descriptors[dma_id].wrap_around = (flags & WUPPER_DMA_WRAPAROUND) ? 1 : 0;
   wupper->dma_descriptors[dma_id].read_ptr = dst;  
-  *(wupper->dma_enable) |= 1<<dma_id;  
+  //printf("dma read enable: %lX\n", *(wupper->dma_enable));
+  if(do_enable)
+		*(wupper->dma_enable) |= 1<<dma_id;  
+  //printf("dma read enable: %lX #2\n", *(wupper->dma_enable));
+}
+
+void
+wupper_dma_enable( wupper_dev_t* wupper, int enable)
+{
+		*(wupper->dma_enable) = enable;  
 }
 
 void
@@ -113,13 +135,42 @@ wupper_dma_stop(u_int dma_id, wupper_dev_t* wupper)
   *(wupper->dma_enable) &= ~(1<<dma_id);
 }
 
+//temp
+int inputAvailable()  
+{
+  struct timeval tv;
+  fd_set fds;
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
+  FD_ZERO(&fds);
+  FD_SET(STDIN_FILENO, &fds);
+  select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+  return (FD_ISSET(0, &fds));
+}
 
-
-void
+int
 wupper_dma_wait(u_int dma_id, wupper_dev_t* wupper)
 {
+  double timedelta = 2;
+  double t0 = now();
   while( (*(wupper->dma_enable)) & (1<<dma_id) )
-    ;
+  {
+      double t1 = now();
+      if(t1-t0 > timedelta)
+      {
+
+        t0 = t1;
+				printf("waited >2s for dma to complete\n  *Current address:\n  0x%08lX\n", wupper->dma_status[dma_id].current_address);
+        return 0;
+      }
+    //printf("dma ID 0: %lX\n",wupper->dma_status[0].current_address);
+    //printf("dma ID 1: %lX\n",wupper->dma_status[1].current_address);
+    //printf("Enable: %lX\n", *(wupper->dma_enable));
+   //if(inputAvailable()){wupper_dma_fifo_flush(wupper);}
+   ;   
+  }
+  return 1;
+
 }
 
 
@@ -132,11 +183,19 @@ wupper_dma_fifo_flush(wupper_dev_t* wupper)
 void
 wupper_dma_reset(wupper_dev_t* wupper)
 {
-  *((volatile u_long*) (wupper->bar0 + 0x420)) = 1;
+  *((volatile u_long*) (wupper->bar0 + 0x400)) = 0; //disable all transfers
+  *((volatile u_long*) (wupper->bar0 + 0x420)) = 1; //execute dma reset
+
 }
 
 void
 wupper_dma_soft_reset(wupper_dev_t* wupper)
 {
   *((volatile u_long*) (wupper->bar0 + 0x430)) = 1;
+}
+
+void
+wupper_dma_registermap_reset(wupper_dev_t* wupper)
+{
+  *((volatile u_long*) (wupper->bar0 + 0x440)) = 1;
 }

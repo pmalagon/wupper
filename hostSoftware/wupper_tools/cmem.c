@@ -20,8 +20,11 @@
   *  
   *  @version     1.0
   *  
-  *  @brief cmem.c allocates a chunk of memory by means of the cmem driver. 
-  * 
+  *  @brief Cmem allocates a chunk of the contiguous memory. This memory can
+  *  assigned to user applications. The address can be obtained and used for
+  *  DMA tranfers.
+  *  
+  *  
   *  @detail
   *  
   *  ----------------------------------------------------------------------------
@@ -44,6 +47,7 @@
   *  You should have received a copy of the GNU Lesser General Public
   *  License along with this library.
   */
+  
 #include "wupper.h"
 #include "../driver/include/cmem_common.h"
 
@@ -54,17 +58,6 @@
 #include <unistd.h>
 #include <stdio.h>
 
-static int 
-cmem_open()
-{
-  return open("/dev/cmem", O_RDWR);
-}
-
-static void
-cmem_close(int fd)
-{
-  close(fd);
-}
 
 static u_long
 cmem_get_phys_addr(int fd, u_int handle)
@@ -93,67 +86,74 @@ cmem_get_virt_addr(int fd, u_int handle)
 }
 
 
+int
+cmem_open(cmem_dev_t* cmem)
+{
+  cmem->fd = open("/dev/cmem", O_RDWR);
+  return cmem->fd ? 0 : 1;
+}
 
 
-int cmem_alloc(u_long size, cmem_buffer_t* buffer)
+int
+cmem_close(cmem_dev_t* cmem)
+{
+  close(cmem->fd);
+  return 0;
+}
+
+
+int cmem_alloc(cmem_buffer_t* buffer, cmem_dev_t* cmem, u_long size)
 {
   cmem_t descriptor;
   int result = 0;
   u_int handle;
-  int fd = cmem_open();
-
+  
   sprintf(descriptor.name, "wuppertools");
   descriptor.size = size;
   descriptor.order = 0;
   descriptor.type = TYPE_GFPBPA;
 
-  if(CMEM_SUCCESS != ioctl(fd, CMEM_GET, &descriptor))
+  if(CMEM_SUCCESS != ioctl(cmem->fd, CMEM_GET, &descriptor))
     {
       result = 1;
       goto failure;
     }
 
   descriptor.uaddr = (u_long)mmap(0, size, PROT_READ|PROT_WRITE,
-				  MAP_SHARED, fd, 
+				  MAP_SHARED, cmem->fd,
 				  (long)descriptor.paddr);
-  if(CMEM_SUCCESS != ioctl(fd, CMEM_SETUADDR, &descriptor))
+  if(CMEM_SUCCESS != ioctl(cmem->fd, CMEM_SETUADDR, &descriptor))
     {
       result = 2;
       goto failure;
     }
- 
+
   handle = descriptor.handle;
-  buffer->phys_addr = cmem_get_phys_addr(fd, handle);
-  buffer->virt_addr = cmem_get_virt_addr(fd, handle);
+  buffer->phys_addr = cmem_get_phys_addr(cmem->fd, handle);
+  buffer->virt_addr = cmem_get_virt_addr(cmem->fd, handle);
   buffer->size = size;
   buffer->handle = handle;
-  
+  buffer->cmem = cmem;
+
   if(buffer->phys_addr == 0 || buffer->virt_addr == 0)
     result = 3;
 
  failure:
-  cmem_close(fd);
   return result;
 }
 
+
 int cmem_free(cmem_buffer_t* buffer)
 {
-  cmem_t descriptor;
-  int result = 0;
-  int fd = cmem_open();
-  
   if(munmap((void*)buffer->virt_addr, buffer->size))
     {
-      result = 1;
-      goto failure;
+      return 1;
     }
 
-  if(CMEM_SUCCESS != ioctl(fd, CMEM_FREE, buffer->handle))
+  if(CMEM_SUCCESS != ioctl(buffer->cmem->fd, CMEM_FREE, &(buffer->handle)))
     {
-      result = 2;
+      return 2;
     }
 
- failure:
-  cmem_close(fd);
-  return result;
+  return 0;
 }

@@ -113,7 +113,7 @@ wupper_cfg_get_option(wupper_dev_t* wupper, const char* key, u_long* value)
    
   wupper_register_t* reg;
   int found = 0;
-
+  
   for(reg=wupper_registers; reg->name != NULL; reg++)
     {
       if(0 == strcmp(upper, reg->name))
@@ -170,6 +170,11 @@ wupper_register_t wupper_registers[] =
       0x0300,
       WUPPER_REG_READ,
     },
+    { "CORE_TEMPERATURE",
+      "Reads XADC temperature of the FPGA",
+      0x0310,
+      WUPPER_REG_READ,
+    },
     { "CARD_TYPE",
       "ID of the card model",
       0x0040,
@@ -184,6 +189,41 @@ wupper_register_t wupper_registers[] =
       "Fire a test MSIx interrupt #5",
       0x1070,
       WUPPER_REG_WRITE
+    },
+    { "LFSR_SEED_0A",
+      "LFSR register seed 1/4",
+      0x2000,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
+    },
+    { "LFSR_SEED_0B",
+      "LFSR register seed 2/4",
+      0x2008,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
+    },
+    { "LFSR_SEED_1A",
+      "LFSR register seed 3/4",
+      0x2010,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
+    },
+    { "LFSR_SEED_1B",
+      "LFSR register seed 4/4",
+      0x2018,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
+    },
+    { "APP_MUX",
+      "Multiplexer 0: select random generator. Multiplexer 1: select multiplier",
+      0x2020,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
+    },
+    { "LFSR_LOAD_SEED",
+      "reset the LFSR with seed value",
+      0x2030,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
+    },
+    { "ENABLE_APPLICATION",
+      "Enable application(2 bits) 00: disable.  01: Generate randomdata. 10: activate multiplier 11: not used.",
+      0x2040,
+      WUPPER_REG_READ|WUPPER_REG_WRITE
     },
     { NULL, NULL, 0, 0 }
   };
