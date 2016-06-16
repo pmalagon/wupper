@@ -64,7 +64,8 @@ use work.pcie_package.all;
 
 entity application is
   generic(
-    NUMBER_OF_INTERRUPTS : integer := 8);
+    NUMBER_OF_INTERRUPTS : integer := 8;
+    CARD_TYPE            : integer := 709);
   port (
     appreg_clk           : in     std_logic;
     upfifo_din           : in     std_logic_vector(255 downto 0);
@@ -88,24 +89,18 @@ end entity application;
 
 architecture rtl of application is
 
-COMPONENT xadc_wiz_0
-  PORT (
-    m_axis_tvalid : OUT STD_LOGIC;
-    m_axis_tready : IN STD_LOGIC;
-    m_axis_tdata : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-    m_axis_tid : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
-    m_axis_aclk : IN STD_LOGIC;
-    s_axis_aclk : IN STD_LOGIC;
-    m_axis_resetn : IN STD_LOGIC;
-    vp_in : IN STD_LOGIC;
-    vn_in : IN STD_LOGIC;
-    channel_out : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
-    eoc_out : OUT STD_LOGIC;
-    alarm_out : OUT STD_LOGIC;
-    eos_out : OUT STD_LOGIC;
-    busy_out : OUT STD_LOGIC;
-    temp_out : OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
-  );
+COMPONENT xadc_drp
+generic(
+    CARD_TYPE : integer := 711
+    );
+port(
+    clk40 : in std_logic;
+    reset : in std_logic;
+    temp  : out std_logic_vector(11 downto 0);
+    vccint   : out std_logic_vector(11 downto 0);
+    vccaux   : out std_logic_vector(11 downto 0);
+    vccbram  : out std_logic_vector(11 downto 0)
+    );
 END COMPONENT;
 
 COMPONENT fifo_256x256
@@ -230,23 +225,16 @@ begin
   leds                                  <= register_map_control_s.STATUS_LEDS(7 downto 0);
   
   
-   xadc : xadc_wiz_0
+   xadc : xadc_drp
+    GENERIC MAP (
+      CARD_TYPE => CARD_TYPE)
     PORT MAP (
-      m_axis_tvalid => open,
-      m_axis_tready => '1',
-      m_axis_tdata => open,
-      m_axis_tid => open,
-      m_axis_aclk => appreg_clk,
-      s_axis_aclk => appreg_clk,
-      m_axis_resetn => reset_n,
-      vp_in => vp_in,
-      vn_in => vn_in,
-      channel_out => open,
-      eoc_out => open,
-      alarm_out => open,
-      eos_out => open,
-      busy_out => open,
-      temp_out => register_map_monitor_s.CORE_TEMPERATURE
+      clk40 => appreg_clk, 
+      reset => reset, 
+      temp  => register_map_monitor_s.CORE_TEMPERATURE, 
+      vccint  => register_map_monitor_s.VCCINT,
+      vccaux  => register_map_monitor_s.VCCAUX,
+      vccbram => register_map_monitor_s.VCCBRAM
     ); 
   
   s_flush_fifo <= flush_fifo or reset;

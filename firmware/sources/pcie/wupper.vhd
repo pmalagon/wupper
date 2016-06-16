@@ -60,9 +60,10 @@ entity wupper is
   generic(
     NUMBER_OF_INTERRUPTS  : integer := 8;
     NUMBER_OF_DESCRIPTORS : integer := 8;
-    CARD_TYPE             : integer := 709;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
-    SVN_VERSION           : integer := 0);
+    SVN_VERSION           : integer := 0;
+    CARD_TYPE             : integer := 709;
+    DEVID                 : std_logic_vector(15 downto 0) := x"7038");
   port (
     appreg_clk            : out    std_logic;
     downfifo_dout         : in     std_logic_vector(255 downto 0);
@@ -73,6 +74,7 @@ entity wupper is
     fifo_wr_clk           : out    std_logic;
     flush_fifo            : out    std_logic;
     interrupt_call        : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+    lnk_up                : out    std_logic;
     pcie_rxn              : in     std_logic_vector(7 downto 0);
     pcie_rxp              : in     std_logic_vector(7 downto 0);
     pcie_txn              : out    std_logic_vector(7 downto 0);
@@ -97,7 +99,6 @@ architecture structure of wupper is
   signal s_axis_r_S2MM              : axis_r_type;
   signal m_axis_r_CNTRL             : axis_r_type;
   signal s_axis_r_STS               : axis_r_type;
-  signal user_lnk_up                : std_logic;
   signal cfg_interrupt_msix_sent    : std_logic;
   signal cfg_interrupt_msix_fail    : std_logic;
   signal cfg_interrupt_msix_int     : std_logic;
@@ -132,11 +133,12 @@ architecture structure of wupper is
   signal cfg_fc_cpld                : std_logic_vector(11 downto 0);
   signal cfg_fc_sel                 : std_logic_vector(2 downto 0);
   signal sys_rst_n                  : std_logic;
+  signal lnk_up_net                 : std_logic;
 
   component pcie_ep_wrap
     generic(
-      CARD_TYPE             : integer := 709
-    );
+      CARD_TYPE : integer := 709;
+      DEVID     : std_logic_vector(15 downto 0) := x"7038");
     port (
       cfg_fc_cpld                : out    std_logic_vector(11 downto 0);
       cfg_fc_cplh                : out    std_logic_vector(7 downto 0);
@@ -183,8 +185,8 @@ architecture structure of wupper is
       NUMBER_OF_DESCRIPTORS : integer := 8;
       NUMBER_OF_INTERRUPTS  : integer := 8;
       SVN_VERSION           : integer := 0;
-      CARD_TYPE             : integer := 709;
-      BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
+      BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
+      CARD_TYPE             : integer := 709);
     port (
       bar0                  : in     std_logic_vector(31 downto 0);
       bar1                  : in     std_logic_vector(31 downto 0);
@@ -277,10 +279,12 @@ begin
   fifo_wr_clk <= clk;
   appreg_clk <= clkDiv6;
   sys_rst_n <= sys_reset_n;
+  lnk_up <= lnk_up_net;
 
   u1: pcie_ep_wrap
     generic map(
-      CARD_TYPE                  => CARD_TYPE)
+      CARD_TYPE => CARD_TYPE,
+      DEVID     => DEVID)
     port map(
       cfg_fc_cpld                => cfg_fc_cpld,
       cfg_fc_cplh                => cfg_fc_cplh,
@@ -319,15 +323,15 @@ begin
       sys_clk_n                  => sys_clk_n,
       sys_clk_p                  => sys_clk_p,
       sys_rst_n                  => sys_rst_n,
-      user_lnk_up                => user_lnk_up);
+      user_lnk_up                => lnk_up_net);
 
   dma0: wupper_core
     generic map(
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
       SVN_VERSION           => SVN_VERSION,
-      CARD_TYPE				=> CARD_TYPE,
-      BUILD_DATETIME        => BUILD_DATETIME)
+      BUILD_DATETIME        => BUILD_DATETIME,
+      CARD_TYPE             => CARD_TYPE)
     port map(
       bar0                  => bar0,
       bar1                  => bar1,
@@ -357,7 +361,7 @@ begin
       upfifo_din            => upfifo_din,
       upfifo_prog_full      => upfifo_prog_full,
       upfifo_we             => upfifo_we,
-      user_lnk_up           => user_lnk_up);
+      user_lnk_up           => lnk_up_net);
 
   u2: intr_ctrl
     generic map(

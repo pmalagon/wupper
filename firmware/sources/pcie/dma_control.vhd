@@ -274,23 +274,19 @@ begin
           dma_descriptors_s(i).wrap_around     <= dma_descriptors_w_250_s(i).wrap_around;
 
           last_current_address_s(i) <= dma_descriptors_s(i).current_address;
-          if(last_current_address_s(i) > dma_descriptors_s(i).current_address) then
-            dma_descriptors_s(i).evencycle_dma <= not dma_descriptors_s(i).evencycle_dma; --Toggle on wrap around
-          end if;
+
 
           last_pc_pointer_s(i) <= dma_descriptors_s(i).pc_pointer;
-          if(last_pc_pointer_s(i) > dma_descriptors_s(i).pc_pointer) then
-            dma_descriptors_s(i).evencycle_pc <= not dma_descriptors_s(i).evencycle_pc; --Toggle on wrap around
-          end if;
+
 
           next_current_address_s(i) <= (dma_descriptors_s(i).current_address + (dma_descriptors_s(i).dword_count&"00"));
 
           --dma has wrapped around while PC still hasn't, check if we are smaller than write pointer.
           if(dma_descriptors_s(i).wrap_around = '1' and ((dma_descriptors_s(i).evencycle_dma xor dma_descriptors_s(i).read_not_write) /= dma_descriptors_s(i).evencycle_pc)) then
-            if(next_current_address_s(i)<dma_descriptors_s(i).pc_pointer) then
+            if(next_current_address_s(i)<last_pc_pointer_s(i)) then
               dma_wait(i) <= '0';
             else
-              dma_wait(i) <= '1';
+              dma_wait(i) <= '1'; --the PC is not ready to accept data, so we have to wait. dma_wait will clear the enable flag of the descriptors towards dma_read_write
             end if;
           else
               dma_wait(i) <= '0';
@@ -298,10 +294,16 @@ begin
 
 
           if(dma_descriptors_s(i).enable = '1') then
+            if(last_current_address_s(i) > dma_descriptors_s(i).current_address) then
+              dma_descriptors_s(i).evencycle_dma <= not dma_descriptors_s(i).evencycle_dma; --Toggle on wrap around
+            end if;
+            if(last_pc_pointer_s(i) > dma_descriptors_s(i).pc_pointer) then
+              dma_descriptors_s(i).evencycle_pc <= not dma_descriptors_s(i).evencycle_pc; --Toggle on wrap around
+            end if;
             if(dma_status_s(i).descriptor_done = '1') then
               --dma has wrapped around while PC still hasn't, check if we are smaller than write pointer.
               if(dma_descriptors_s(i).wrap_around = '1' and ((dma_descriptors_s(i).evencycle_dma xor dma_descriptors_s(i).read_not_write) /= dma_descriptors_s(i).evencycle_pc)) then
-                if(next_current_address_s(i)<dma_descriptors_s(i).pc_pointer) then
+                if(next_current_address_s(i)<last_pc_pointer_s(i)) then
                   dma_descriptors_s(i).current_address <= next_current_address_s(i);
                 else
                   dma_descriptors_s(i).current_address <= dma_descriptors_s(i).current_address;
@@ -327,6 +329,8 @@ begin
             end if;
           else
             dma_descriptors_s(i).current_address <= dma_descriptors_s(i).start_address;
+            dma_descriptors_s(i).evencycle_pc <= '0';
+            dma_descriptors_s(i).evencycle_dma <= '0';
           end if;
         end loop;
 
@@ -449,7 +453,7 @@ begin
             m_axis_cc.tdata(255 downto 96) <= (others => '0');
 
             poisoned_completion_v := '0';
-            dword_count_v := std_logic_vector(to_unsigned(1,11));
+            dword_count_v := std_logic_vector(to_unsigned(0,11));
             byte_count_v := dword_count_v&"00";
             completion_status_v := "000";
             locked_completion_v := '0';
@@ -507,7 +511,7 @@ begin
             end if;
 
             poisoned_completion_v := '0';
-            dword_count_v := std_logic_vector(to_unsigned(1,11));
+            dword_count_v := std_logic_vector(to_unsigned(0,11));
             byte_count_v := dword_count_v&"00";
             completion_status_v := "000";
             locked_completion_v := '0';
@@ -516,7 +520,7 @@ begin
           when SEND_UNKNOWN_REQUEST =>
             completer_state_slv <= SEND_UNKNOWN_REQUEST_SLV;
             poisoned_completion_v := '0';
-            dword_count_v         := std_logic_vector(to_unsigned(1,11));
+            dword_count_v         := std_logic_vector(to_unsigned(0,11));
             byte_count_v          := dword_count_v&"00";
             completion_status_v   := "001"; --unsupported request
             locked_completion_v   := '0';
@@ -597,7 +601,7 @@ begin
       bar0_v                       := bar0;
       bar1_v                       := bar1;
       bar2_v                       := bar2;
-      
+
       reset_register_map_40_s <= reset_register_map_s;
 
       read_interrupt_40_s <= read_interrupt_250_s;
@@ -864,6 +868,7 @@ begin
           end case;
         --Read registers in BAR2
         elsif(register_read_address_40_s(31 downto 20) = bar2_40_s(31 downto 20)) then
+          register_read_data_40_s  <= (others => '0'); --default value
           case (register_read_address_40_s(19 downto 4)&"0000") is
             ------------------------------------------------
             ---- Application specific registers BEGIN 🂱 ----
@@ -877,6 +882,9 @@ begin
             -- Monitor Registers
             when REG_PLL_LOCK          => register_read_data_40_s  <= x"0000000000000000000000000000000"&"000"&register_map_monitor_s.PLL_LOCK;
             when REG_CORE_TEMPERATURE  => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_0"&register_map_monitor_s.CORE_TEMPERATURE;
+            when REG_VCCINT            => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_0"&register_map_monitor_s.VCCINT;
+            when REG_VCCAUX            => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_0"&register_map_monitor_s.VCCAUX;
+            when REG_VCCBRAM           => register_read_data_40_s  <= x"0000_0000_0000_0000_0000_0000_0000_0"&register_map_monitor_s.VCCBRAM;
             
             -- Application Control Registers
             when REG_LFSR_SEED_0       => register_read_data_40_s  <= register_map_control_s.LFSR_SEED(127 downto 0);

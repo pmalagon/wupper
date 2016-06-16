@@ -104,9 +104,10 @@ architecture structure of wupper_oc_top is
     generic(
       NUMBER_OF_INTERRUPTS  : integer := 8;
       NUMBER_OF_DESCRIPTORS : integer := 8;
-      CARD_TYPE             : integer := 709;
       BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
-      SVN_VERSION           : integer := 0);
+      SVN_VERSION           : integer := 0;
+      CARD_TYPE             : integer := 709;
+      DEVID                 : std_logic_vector(15 downto 0) := x"7038");
     port (
       appreg_clk            : out    std_logic;
       downfifo_dout         : in     std_logic_vector(255 downto 0);
@@ -117,6 +118,7 @@ architecture structure of wupper_oc_top is
       fifo_wr_clk           : out    std_logic;
       flush_fifo            : out    std_logic;
       interrupt_call        : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+      lnk_up                : out    std_logic;
       pcie_rxn              : in     std_logic_vector(7 downto 0);
       pcie_rxp              : in     std_logic_vector(7 downto 0);
       pcie_txn              : out    std_logic_vector(7 downto 0);
@@ -136,7 +138,8 @@ architecture structure of wupper_oc_top is
 
   component application
     generic(
-      NUMBER_OF_INTERRUPTS : integer := 8);
+      NUMBER_OF_INTERRUPTS : integer := 8;
+      CARD_TYPE            : integer := 709);
     port (
       appreg_clk            : in     std_logic;
       downfifo_dout         : out    std_logic_vector(255 downto 0);
@@ -179,7 +182,8 @@ begin
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
       CARD_TYPE             => CARD_TYPE,
       BUILD_DATETIME        => BUILD_DATETIME,
-      SVN_VERSION           => SVN_VERSION)
+      SVN_VERSION           => SVN_VERSION,
+      DEVID                 => x"7038")
     port map(
       appreg_clk            => appreg_clk,
       downfifo_dout         => downfifo_dout,
@@ -190,6 +194,7 @@ begin
       fifo_wr_clk           => fifo_wr_clk,
       flush_fifo            => flush_fifo,
       interrupt_call        => interrupt_call,
+      lnk_up                => open,
       pcie_rxn              => pcie_rxn,
       pcie_rxp              => pcie_rxp,
       pcie_txn              => pcie_txn,
@@ -211,7 +216,8 @@ begin
   --! it fills it with some constants and a counter value.
   u0: application
     generic map(
-      NUMBER_OF_INTERRUPTS => NUMBER_OF_INTERRUPTS)
+      NUMBER_OF_INTERRUPTS => NUMBER_OF_INTERRUPTS,
+      CARD_TYPE            => CARD_TYPE)
     port map(
       appreg_clk            => appreg_clk,
       downfifo_dout         => downfifo_dout,

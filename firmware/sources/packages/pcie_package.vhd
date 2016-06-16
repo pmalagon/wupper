@@ -193,6 +193,9 @@ package pcie_package is
   -- Monitor Registers
   constant REG_PLL_LOCK            : std_logic_vector(19 downto 0) := x"00300";
   constant REG_CORE_TEMPERATURE    : std_logic_vector(19 downto 0) := x"00310";
+  constant REG_VCCINT              : std_logic_vector(19 downto 0) := x"00320";
+  constant REG_VCCAUX              : std_logic_vector(19 downto 0) := x"00330";
+  constant REG_VCCBRAM             : std_logic_vector(19 downto 0) := x"00340";
   -- Test interrupt registers.
   constant REG_INT_TEST_2          : std_logic_vector(19 downto 0) := x"01060";
   constant REG_INT_TEST_3          : std_logic_vector(19 downto 0) := x"01070";
@@ -255,6 +258,9 @@ package pcie_package is
     READ_ONLY             : std_logic_vector(0 downto  0);    
     PLL_LOCK              : std_logic_vector(0 downto  0);
     CORE_TEMPERATURE      : std_logic_vector(11 downto 0); 
+    VCCINT                : std_logic_vector(11 downto 0);
+    VCCAUX                : std_logic_vector(11 downto 0);
+    VCCBRAM               : std_logic_vector(11 downto 0);
   end record;
   ------------------------------------------------
   ---- Application specific registers END   🂱 ----

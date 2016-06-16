@@ -5,7 +5,7 @@
 
 #Script Configuration
 
-set proj_name wupper_oc_top
+set proj_name wupper_oc_top_virtex7
 # Set the supportfiles directory path
 set scriptdir [pwd]
 set proj_dir $scriptdir/../../
@@ -45,7 +45,8 @@ read_vhdl -library work $proj_dir/sources/pcie/pcie_slow_clock.vhd
 #for Virtex7 parts
 import_ip $proj_dir/sources/pcie/pcie_x8_gen3_3_0.xci
 #for Artix Ultrascale parts
-import_ip $proj_dir/sources/pcie/pcie3_x8_gen3.xci
+import_ip $proj_dir/sources/pcie/pcie3_ultrascale_7038.xci
+import_ip $proj_dir/sources/pcie/pcie3_ultrascale_7039.xci
 import_ip $proj_dir/sources/pcie/clk_wiz_40.xci
 
 # ----------------------------------------------------------
@@ -54,9 +55,11 @@ import_ip $proj_dir/sources/pcie/clk_wiz_40.xci
 
 read_vhdl -library work $proj_dir/sources/application/application.vhd
 read_vhdl -library work $proj_dir/sources/application/LFSR.vhd
+read_vhdl -library work $proj_dir/sources/application/xadc_drp.vhd
 import_ip $proj_dir/sources/application/fifo_256x256.xci
 import_ip $proj_dir/sources/application/fifo_256x512.xci
 import_ip $proj_dir/sources/application/xadc_wiz_0.xci
+import_ip $proj_dir/sources/application/system_management_wiz_0.xci
 import_ip $proj_dir/sources/application/multiplier.xci
 
 upgrade_ip [get_ips  {pcie_x8_gen3_3_0 clk_wiz_40 fifo_256x256}]
