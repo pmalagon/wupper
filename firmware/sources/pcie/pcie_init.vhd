@@ -114,33 +114,10 @@ architecture rtl of pcie_init is
     
     
     
-    --COMPONENT vio_0
-    --  PORT (
-    --    clk : IN STD_LOGIC;
-    --    probe_in0 : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
-    --    probe_in1 : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    --    probe_in2 : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
-    --    probe_in3 : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    --    probe_in4 : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
-    --    probe_in5 : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    --    probe_out0 : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
-    --    probe_out1 : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
-    --  );
-    --END COMPONENT;
+
 begin
 
-    --vio_inst : vio_0
-    --  PORT MAP (
-    --    clk => clk,
-    --    probe_in0 => s_cfg_fc_pd,
-    --    probe_in1 => s_cfg_fc_ph,
-    --    probe_in2 => s_cfg_fc_npd,
-    --    probe_in3 => s_cfg_fc_nph,
-    --    probe_in4 => s_cfg_fc_cpld,
-    --    probe_in5 => s_cfg_fc_cplh,
-    --    probe_out0(0) => vio_rst_n,
-    --    probe_out1    => cfg_fc_sel
-    --  );
+
 
     cfg_fc_sel <= "100";
 

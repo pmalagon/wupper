@@ -65,7 +65,7 @@ entity dma_read_write is
     dma_soft_reset        : in     std_logic;
     dma_status            : out    dma_statuses_type(0 to (NUMBER_OF_DESCRIPTORS-1));
     downfifo_dout         : in     std_logic_vector(255 downto 0);
-    downfifo_empty_thresh : out    std_logic_vector(7 downto 0);
+    downfifo_empty_thresh : out    std_logic_vector(6 downto 0);
     downfifo_prog_empty   : in     std_logic;
     downfifo_re           : out    std_logic;
     m_axis_r_rq           : in     axis_r_type;
@@ -114,6 +114,7 @@ architecture rtl of dma_read_write is
   signal s_axis_rc_tlast_pipe, s_axis_rc_tvalid_pipe, upfifo_prog_full_pipe: std_logic;
   signal receive_word_count: std_logic_vector(10 downto 0);
   signal active_descriptor_s: integer range 0 to (NUMBER_OF_DESCRIPTORS-1);
+  signal current_dword_count_s: std_logic_vector(10 downto 0);
   
   signal s_m_axis_rq : axis_type;
 
@@ -152,9 +153,9 @@ begin
     variable wc: std_logic_vector(10 downto 0);
     variable th: std_logic_vector(7 downto 0);
   begin
-    wc := current_descriptor.dword_count-1;
-    th := wc(10 downto 3)+1;
-    downfifo_empty_thresh <= th(7 downto 0);
+    wc := current_dword_count_s-1;
+    th := wc(10 downto 3);
+    downfifo_empty_thresh <= th(6 downto 0);
   end process;
   
   add_header: process(clk, reset, dma_soft_reset)
@@ -173,6 +174,7 @@ begin
                               evencycle_pc      => '0',
                               pc_pointer        => (others => '0'));
       active_descriptor_s <= 0;
+      current_dword_count_s <= "00001000000"; --256 bytes
       for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
         descriptor_done_s(i) <= '0'; --clear done flag, controller may load a new descriptor
       end loop;
@@ -194,14 +196,23 @@ begin
         for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
           next_active_descriptor_v := active_descriptor_s;
           if((i /= active_descriptor_s) and (dma_descriptors(i).enable='1')) then
-            next_active_descriptor_v := i; --find another active descriptor, else just continue with the current descriptor. 0 has priority above 1 and so on.
-            exit;
+            if(((dma_descriptors(i).read_not_write = '0') and (downfifo_prog_empty = '0'))) then
+              next_active_descriptor_v := i; --find another active descriptor, else just continue with the current descriptor. 0 has priority above 1 and so on.
+              exit;
+            end if;
+            if(((dma_descriptors(i).read_not_write = '1') and (upfifo_prog_full = '0'))) then
+              next_active_descriptor_v := i; --find another active descriptor, else just continue with the current descriptor. 0 has priority above 1 and so on.
+              exit;
+            end if;
           end if;
         end loop;
         case(rw_state) is
           when IDLE =>
             rw_state_slv <= IDLE_SLV;
             current_descriptor <= dma_descriptors(active_descriptor_s);
+            if(dma_descriptors(active_descriptor_s).read_not_write = '0' and dma_descriptors(active_descriptor_s).dword_count>0) then
+                current_dword_count_s <= dma_descriptors(active_descriptor_s).dword_count; --assign dword count to a signal to calculate the prog_empty threshold.
+            end if;
             active_descriptor_s <= next_active_descriptor_v;
             if((m_axis_r_rq.tready = '1') and (dma_descriptors(active_descriptor_s).enable = '1')) then
               if(((dma_descriptors(active_descriptor_s).read_not_write = '0') and (downfifo_prog_empty = '0'))) then

@@ -69,7 +69,7 @@ package pcie_package is
   end record;
 
   --
-  -- PCIe DMA core: descriptors 
+  -- PCIe DMA core: descriptors
   type dma_descriptor_type is record
     start_address   : std_logic_vector(63 downto 0);
     current_address : std_logic_vector(63 downto 0);
@@ -80,7 +80,7 @@ package pcie_package is
     wrap_around     : std_logic;     --1 means when end is reached, keep enabled and start over
     evencycle_dma   : std_logic;     --For every time the current_address overflows, this bit toggles
     evencycle_pc    : std_logic;     --For every time the pc pointer overflows, this bit toggles.
-    pc_pointer      : std_logic_vector(63 downto 0); --Last address that the PC has read / written. For write: overflow and read until this cycle. 
+    pc_pointer      : std_logic_vector(63 downto 0); --Last address that the PC has read / written. For write: overflow and read until this cycle.
   end record;
 
   type dma_descriptors_type is array (natural range <>) of dma_descriptor_type;
@@ -92,17 +92,17 @@ package pcie_package is
   type dma_statuses_type is array(natural range <>) of dma_status_type;
 
   --
-  -- PCIe DMA core: Interrupt Vectors 
+  -- PCIe DMA core: Interrupt Vectors
   type interrupt_vector_type is record
     int_vec_add  : std_logic_vector(63 downto 0);
     int_vec_data : std_logic_vector(31 downto 0);
     int_vec_ctrl : std_logic_vector(31 downto 0);
   end record;
 
-  type interrupt_vectors_type is array (natural range <>) of interrupt_vector_type;  
+  type interrupt_vectors_type is array (natural range <>) of interrupt_vector_type;
 
   --! Address Offset assignment
-  --! --> BAR0 User Application Registers Addresses  
+  --! --> BAR0 User Application Registers Addresses
   -- ### BAR0 registers: start
   constant REG_DESCRIPTOR_0        : std_logic_vector(19 downto 0) := x"00000";
   constant REG_DESCRIPTOR_0a       : std_logic_vector(19 downto 0) := x"00010";
@@ -154,16 +154,17 @@ package pcie_package is
   constant REG_STATUS_15           : std_logic_vector(19 downto 0) := x"002F0";
   constant REG_BAR0                : std_logic_vector(19 downto 0) := x"00300";
   constant REG_BAR1                : std_logic_vector(19 downto 0) := x"00310";
-  constant REG_BAR2                : std_logic_vector(19 downto 0) := x"00320";  
+  constant REG_BAR2                : std_logic_vector(19 downto 0) := x"00320";
   constant REG_DESCRIPTOR_ENABLE   : std_logic_vector(19 downto 0) := x"00400";
   constant REG_FIFO_FLUSH          : std_logic_vector(19 downto 0) := x"00410";
   constant REG_DMA_RESET           : std_logic_vector(19 downto 0) := x"00420";
   constant REG_SOFT_RESET          : std_logic_vector(19 downto 0) := x"00430";
   constant REG_REGISTER_RESET      : std_logic_vector(19 downto 0) := x"00440";
+  constant REG_FROMHOST_FULL_THRESH: std_logic_vector(19 downto 0) := x"00450";
   -- BAR0 registers: end
 
   --! Address Offset assignment
-  --! --> BAR1 User Application Registers Addresses  
+  --! --> BAR1 User Application Registers Addresses
   -- ### BAR1 registers: start
      -- interrupt vectors
   constant REG_INT_VEC_00          : std_logic_vector(19 downto 0) := x"00000";
@@ -176,7 +177,7 @@ package pcie_package is
   constant REG_INT_VEC_07          : std_logic_vector(19 downto 0) := x"00070";
   constant REG_INT_TAB_EN          : std_logic_vector(19 downto 0) := x"00100";
   -- BAR1 registers: end
-  
+
 
   --! Address Offset assignment
   --! --> BAR2 User Application Registers Addresses

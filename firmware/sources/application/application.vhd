@@ -71,8 +71,8 @@ entity application is
     upfifo_din           : in     std_logic_vector(255 downto 0);
     downfifo_dout        : out    std_logic_vector(255 downto 0);
     downfifo_prog_empty  : out    std_logic;
-    downfifo_empty_thresh: in     STD_LOGIC_VECTOR(7 downto 0);
-    upfifo_prog_full   : out    std_logic;
+    downfifo_empty_thresh: in     std_logic_vector(6 downto 0);
+    upfifo_prog_full     : out    std_logic;
     fifo_rd_clk          : in     std_logic;
     downfifo_re          : in     std_logic;
     upfifo_we            : in     std_logic;
@@ -252,7 +252,7 @@ begin
     empty             => open,
     prog_full         => s_downfifo_prog_full, 
     prog_empty        => downfifo_prog_empty,
-    prog_empty_thresh => downfifo_empty_thresh
+    prog_empty_thresh => "0"&downfifo_empty_thresh
     
   );
 

@@ -97,8 +97,7 @@ architecture structure of wupper_oc_top is
   signal u1_pll_locked         : std_logic;
   signal reset_soft            : std_logic;
   signal reset_hard            : std_logic;
-  signal downfifo_empty_thresh : STD_LOGIC_VECTOR(7 downto 0);
-  signal sys_reset_n_c        : std_logic;
+  signal downfifo_empty_thresh : std_logic_vector(6 downto 0);
 
   component wupper
     generic(
@@ -109,31 +108,33 @@ architecture structure of wupper_oc_top is
       CARD_TYPE             : integer := 709;
       DEVID                 : std_logic_vector(15 downto 0) := x"7038");
     port (
-      appreg_clk            : out    std_logic;
-      downfifo_dout         : in     std_logic_vector(255 downto 0);
-      downfifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
-      downfifo_prog_empty   : in     std_logic;
-      downfifo_re           : out    std_logic;
-      fifo_rd_clk           : out    std_logic;
-      fifo_wr_clk           : out    std_logic;
-      flush_fifo            : out    std_logic;
-      interrupt_call        : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-      lnk_up                : out    std_logic;
-      pcie_rxn              : in     std_logic_vector(7 downto 0);
-      pcie_rxp              : in     std_logic_vector(7 downto 0);
-      pcie_txn              : out    std_logic_vector(7 downto 0);
-      pcie_txp              : out    std_logic_vector(7 downto 0);
-      pll_locked            : out    std_logic;
-      register_map_control  : out    register_map_control_type;
-      register_map_monitor  : in     register_map_monitor_type;
-      reset_hard            : out    std_logic;
-      reset_soft            : out    std_logic;
-      sys_clk_n             : in     std_logic;
-      sys_clk_p             : in     std_logic;
-      sys_reset_n           : in     std_logic;
-      upfifo_din            : out    std_logic_vector(255 downto 0);
-      upfifo_prog_full      : in     std_logic;
-      upfifo_we             : out    std_logic);
+      appreg_clk             : out    std_logic;
+      downfifo_dout          : in     std_logic_vector(255 downto 0);
+      downfifo_empty_thresh  : out    std_logic_vector(6 downto 0);
+      downfifo_prog_empty    : in     std_logic;
+      downfifo_re            : out    std_logic;
+      fifo_rd_clk            : out    std_logic;
+      fifo_wr_clk            : out    std_logic;
+      flush_fifo             : out    std_logic;
+      interrupt_call         : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+      lnk_up                 : out    std_logic;
+      pcie_rxn               : in     std_logic_vector(7 downto 0);
+      pcie_rxp               : in     std_logic_vector(7 downto 0);
+      pcie_txn               : out    std_logic_vector(7 downto 0);
+      pcie_txp               : out    std_logic_vector(7 downto 0);
+      pfull_threshold_assert : out    std_logic_vector(6 downto 0);
+      pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+      pll_locked             : out    std_logic;
+      register_map_control   : out    register_map_control_type;
+      register_map_monitor   : in     register_map_monitor_type;
+      reset_hard             : out    std_logic;
+      reset_soft             : out    std_logic;
+      sys_clk_n              : in     std_logic;
+      sys_clk_p              : in     std_logic;
+      sys_reset_n            : in     std_logic;
+      upfifo_din             : out    std_logic_vector(255 downto 0);
+      upfifo_prog_full       : in     std_logic;
+      upfifo_we              : out    std_logic);
   end component wupper;
 
   component application
@@ -143,7 +144,7 @@ architecture structure of wupper_oc_top is
     port (
       appreg_clk            : in     std_logic;
       downfifo_dout         : out    std_logic_vector(255 downto 0);
-      downfifo_empty_thresh : in     STD_LOGIC_VECTOR(7 downto 0);
+      downfifo_empty_thresh : in     std_logic_vector(6 downto 0);
       downfifo_prog_empty   : out    std_logic;
       downfifo_re           : in     std_logic;
       fifo_rd_clk           : in     std_logic;
@@ -163,14 +164,6 @@ architecture structure of wupper_oc_top is
 
 begin
   emcclk_out <= emcclk;
-  
-  
-  -- This seems to be needed for ultrascale
-  ib1: IBUF 
-    port map (
-        I => sys_reset_n,
-        O => sys_reset_n_c);
-
 
 
   --! Instantiation of the actual PCI express core. Please note the 40MHz
@@ -185,31 +178,33 @@ begin
       SVN_VERSION           => SVN_VERSION,
       DEVID                 => x"7038")
     port map(
-      appreg_clk            => appreg_clk,
-      downfifo_dout         => downfifo_dout,
-      downfifo_empty_thresh => downfifo_empty_thresh,
-      downfifo_prog_empty   => downfifo_prog_empty,
-      downfifo_re           => downfifo_re,
-      fifo_rd_clk           => fifo_rd_clk,
-      fifo_wr_clk           => fifo_wr_clk,
-      flush_fifo            => flush_fifo,
-      interrupt_call        => interrupt_call,
-      lnk_up                => open,
-      pcie_rxn              => pcie_rxn,
-      pcie_rxp              => pcie_rxp,
-      pcie_txn              => pcie_txn,
-      pcie_txp              => pcie_txp,
-      pll_locked            => u1_pll_locked,
-      register_map_control  => register_map_control,
-      register_map_monitor  => register_map_monitor,
-      reset_hard            => reset_hard,
-      reset_soft            => reset_soft,
-      sys_clk_n             => sys_clk_n,
-      sys_clk_p             => sys_clk_p,
-      sys_reset_n           => sys_reset_n_c,
-      upfifo_din            => upfifo_din,
-      upfifo_prog_full      => upfifo_prog_full,
-      upfifo_we             => upfifo_we);
+      appreg_clk             => appreg_clk,
+      downfifo_dout          => downfifo_dout,
+      downfifo_empty_thresh  => downfifo_empty_thresh,
+      downfifo_prog_empty    => downfifo_prog_empty,
+      downfifo_re            => downfifo_re,
+      fifo_rd_clk            => fifo_rd_clk,
+      fifo_wr_clk            => fifo_wr_clk,
+      flush_fifo             => flush_fifo,
+      interrupt_call         => interrupt_call,
+      lnk_up                 => open,
+      pcie_rxn               => pcie_rxn,
+      pcie_rxp               => pcie_rxp,
+      pcie_txn               => pcie_txn,
+      pcie_txp               => pcie_txp,
+      pfull_threshold_assert => open,
+      pfull_threshold_negate => open,
+      pll_locked             => u1_pll_locked,
+      register_map_control   => register_map_control,
+      register_map_monitor   => register_map_monitor,
+      reset_hard             => reset_hard,
+      reset_soft             => reset_soft,
+      sys_clk_n              => sys_clk_n,
+      sys_clk_p              => sys_clk_p,
+      sys_reset_n            => sys_reset_n,
+      upfifo_din             => upfifo_din,
+      upfifo_prog_full       => upfifo_prog_full,
+      upfifo_we              => upfifo_we);
 
 
   --! The example application only instantiates one fifo (PC=>PCIe). 

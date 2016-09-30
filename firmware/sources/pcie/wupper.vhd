@@ -65,31 +65,33 @@ entity wupper is
     CARD_TYPE             : integer := 709;
     DEVID                 : std_logic_vector(15 downto 0) := x"7038");
   port (
-    appreg_clk            : out    std_logic;
-    downfifo_dout         : in     std_logic_vector(255 downto 0);
-    downfifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
-    downfifo_prog_empty   : in     std_logic;
-    downfifo_re           : out    std_logic;
-    fifo_rd_clk           : out    std_logic;
-    fifo_wr_clk           : out    std_logic;
-    flush_fifo            : out    std_logic;
-    interrupt_call        : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-    lnk_up                : out    std_logic;
-    pcie_rxn              : in     std_logic_vector(7 downto 0);
-    pcie_rxp              : in     std_logic_vector(7 downto 0);
-    pcie_txn              : out    std_logic_vector(7 downto 0);
-    pcie_txp              : out    std_logic_vector(7 downto 0);
-    pll_locked            : out    std_logic;
-    register_map_control  : out    register_map_control_type;
-    register_map_monitor  : in     register_map_monitor_type;
-    reset_hard            : out    std_logic;
-    reset_soft            : out    std_logic;
-    sys_clk_n             : in     std_logic;
-    sys_clk_p             : in     std_logic;
-    sys_reset_n           : in     std_logic;
-    upfifo_din            : out    std_logic_vector(255 downto 0);
-    upfifo_prog_full      : in     std_logic;
-    upfifo_we             : out    std_logic);
+    appreg_clk             : out    std_logic;
+    downfifo_dout          : in     std_logic_vector(255 downto 0);
+    downfifo_empty_thresh  : out    std_logic_vector(6 downto 0);
+    downfifo_prog_empty    : in     std_logic;
+    downfifo_re            : out    std_logic;
+    fifo_rd_clk            : out    std_logic;
+    fifo_wr_clk            : out    std_logic;
+    flush_fifo             : out    std_logic;
+    interrupt_call         : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+    lnk_up                 : out    std_logic;
+    pcie_rxn               : in     std_logic_vector(7 downto 0);
+    pcie_rxp               : in     std_logic_vector(7 downto 0);
+    pcie_txn               : out    std_logic_vector(7 downto 0);
+    pcie_txp               : out    std_logic_vector(7 downto 0);
+    pfull_threshold_assert : out    std_logic_vector(6 downto 0);
+    pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+    pll_locked             : out    std_logic;
+    register_map_control   : out    register_map_control_type;
+    register_map_monitor   : in     register_map_monitor_type;
+    reset_hard             : out    std_logic;
+    reset_soft             : out    std_logic;
+    sys_clk_n              : in     std_logic;
+    sys_clk_p              : in     std_logic;
+    sys_reset_n            : in     std_logic;
+    upfifo_din             : out    std_logic_vector(255 downto 0);
+    upfifo_prog_full       : in     std_logic;
+    upfifo_we              : out    std_logic);
 end entity wupper;
 
 
@@ -120,7 +122,7 @@ architecture structure of wupper is
   signal cfg_mgmt_read_data         : std_logic_vector(31 downto 0);
   signal interrupt_table_en         : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
   signal clkDiv6                    : std_logic;
-  signal dma_interrupt_call         : STD_LOGIC_VECTOR(3 downto 0);
+  signal dma_interrupt_call         : std_logic_vector(3 downto 0);
   signal m_axis_cq                  : axis_type;
   signal m_axis_cc                  : axis_type;
   signal m_axis_rc                  : axis_type;
@@ -188,35 +190,37 @@ architecture structure of wupper is
       BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
       CARD_TYPE             : integer := 709);
     port (
-      bar0                  : in     std_logic_vector(31 downto 0);
-      bar1                  : in     std_logic_vector(31 downto 0);
-      bar2                  : in     std_logic_vector(31 downto 0);
-      clk                   : in     std_logic;
-      clkDiv6               : in     std_logic;
-      dma_interrupt_call    : out    STD_LOGIC_VECTOR(3 downto 0);
-      downfifo_dout         : in     std_logic_vector(255 downto 0);
-      downfifo_empty_thresh : out    STD_LOGIC_VECTOR(7 downto 0);
-      downfifo_prog_empty   : in     std_logic;
-      downfifo_re           : out    std_logic;
-      flush_fifo            : out    std_logic;
-      interrupt_table_en    : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
-      interrupt_vector      : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
-      m_axis_cc             : out    axis_type;
-      m_axis_r_cc           : in     axis_r_type;
-      m_axis_r_rq           : in     axis_r_type;
-      m_axis_rq             : out    axis_type;
-      register_map_control  : out    register_map_control_type;
-      register_map_monitor  : in     register_map_monitor_type;
-      reset                 : in     std_logic;
-      reset_global_soft     : out    std_logic;
-      s_axis_cq             : in     axis_type;
-      s_axis_r_cq           : out    axis_r_type;
-      s_axis_r_rc           : out    axis_r_type;
-      s_axis_rc             : in     axis_type;
-      upfifo_din            : out    std_logic_vector(255 downto 0);
-      upfifo_prog_full      : in     std_logic;
-      upfifo_we             : out    std_logic;
-      user_lnk_up           : in     std_logic);
+      bar0                   : in     std_logic_vector(31 downto 0);
+      bar1                   : in     std_logic_vector(31 downto 0);
+      bar2                   : in     std_logic_vector(31 downto 0);
+      clk                    : in     std_logic;
+      clkDiv6                : in     std_logic;
+      dma_interrupt_call     : out    std_logic_vector(3 downto 0);
+      downfifo_dout          : in     std_logic_vector(255 downto 0);
+      downfifo_empty_thresh  : out    std_logic_vector(6 downto 0);
+      downfifo_prog_empty    : in     std_logic;
+      downfifo_re            : out    std_logic;
+      flush_fifo             : out    std_logic;
+      interrupt_table_en     : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
+      interrupt_vector       : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
+      m_axis_cc              : out    axis_type;
+      m_axis_r_cc            : in     axis_r_type;
+      m_axis_r_rq            : in     axis_r_type;
+      m_axis_rq              : out    axis_type;
+      pfull_threshold_assert : out    std_logic_vector(6 downto 0);
+      pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+      register_map_control   : out    register_map_control_type;
+      register_map_monitor   : in     register_map_monitor_type;
+      reset                  : in     std_logic;
+      reset_global_soft      : out    std_logic;
+      s_axis_cq              : in     axis_type;
+      s_axis_r_cq            : out    axis_r_type;
+      s_axis_r_rc            : out    axis_r_type;
+      s_axis_rc              : in     axis_type;
+      upfifo_din             : out    std_logic_vector(255 downto 0);
+      upfifo_prog_full       : in     std_logic;
+      upfifo_we              : out    std_logic;
+      user_lnk_up            : in     std_logic);
   end component wupper_core;
 
   component intr_ctrl
@@ -333,35 +337,37 @@ begin
       BUILD_DATETIME        => BUILD_DATETIME,
       CARD_TYPE             => CARD_TYPE)
     port map(
-      bar0                  => bar0,
-      bar1                  => bar1,
-      bar2                  => bar2,
-      clk                   => clk,
-      clkDiv6               => clkDiv6,
-      dma_interrupt_call    => dma_interrupt_call,
-      downfifo_dout         => downfifo_dout,
-      downfifo_empty_thresh => downfifo_empty_thresh,
-      downfifo_prog_empty   => downfifo_prog_empty,
-      downfifo_re           => downfifo_re,
-      flush_fifo            => flush_fifo,
-      interrupt_table_en    => interrupt_table_en,
-      interrupt_vector      => interrupt_vector,
-      m_axis_cc             => m_axis_cc,
-      m_axis_r_cc           => m_axis_r_CNTRL,
-      m_axis_r_rq           => m_axis_r_MM2S,
-      m_axis_rq             => m_axis_rq,
-      register_map_control  => register_map_control,
-      register_map_monitor  => register_map_monitor,
-      reset                 => reset,
-      reset_global_soft     => reset_soft,
-      s_axis_cq             => m_axis_cq,
-      s_axis_r_cq           => s_axis_r_STS,
-      s_axis_r_rc           => s_axis_r_S2MM,
-      s_axis_rc             => m_axis_rc,
-      upfifo_din            => upfifo_din,
-      upfifo_prog_full      => upfifo_prog_full,
-      upfifo_we             => upfifo_we,
-      user_lnk_up           => lnk_up_net);
+      bar0                   => bar0,
+      bar1                   => bar1,
+      bar2                   => bar2,
+      clk                    => clk,
+      clkDiv6                => clkDiv6,
+      dma_interrupt_call     => dma_interrupt_call,
+      downfifo_dout          => downfifo_dout,
+      downfifo_empty_thresh  => downfifo_empty_thresh,
+      downfifo_prog_empty    => downfifo_prog_empty,
+      downfifo_re            => downfifo_re,
+      flush_fifo             => flush_fifo,
+      interrupt_table_en     => interrupt_table_en,
+      interrupt_vector       => interrupt_vector,
+      m_axis_cc              => m_axis_cc,
+      m_axis_r_cc            => m_axis_r_CNTRL,
+      m_axis_r_rq            => m_axis_r_MM2S,
+      m_axis_rq              => m_axis_rq,
+      pfull_threshold_assert => pfull_threshold_assert,
+      pfull_threshold_negate => pfull_threshold_negate,
+      register_map_control   => register_map_control,
+      register_map_monitor   => register_map_monitor,
+      reset                  => reset,
+      reset_global_soft      => reset_soft,
+      s_axis_cq              => m_axis_cq,
+      s_axis_r_cq            => s_axis_r_STS,
+      s_axis_r_rc            => s_axis_r_S2MM,
+      s_axis_rc              => m_axis_rc,
+      upfifo_din             => upfifo_din,
+      upfifo_prog_full       => upfifo_prog_full,
+      upfifo_we              => upfifo_we,
+      user_lnk_up            => lnk_up_net);
 
   u2: intr_ctrl
     generic map(
