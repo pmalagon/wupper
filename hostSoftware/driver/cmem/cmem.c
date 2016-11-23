@@ -82,6 +82,7 @@
 #include <linux/interrupt.h>
 #include <linux/time.h>
 #include <linux/delay.h>
+#include <linux/vmalloc.h>
 
 #include "../include/cmem_common.h"
 

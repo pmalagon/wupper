@@ -2,10 +2,9 @@
 
 # script derived from drivers_tdaq script by Markus Joos, CERN
 
-export DRIVER_PATH=../drivers
+export DRIVER_PATH=$(dirname $0)/../drivers
 
-#export CMEM_PARAMS="gfpbpa_size=32 gfpbpa_quantum=1"
-export CMEM_PARAMS="gfpbpa_size=128 gfpbpa_quantum=4"
+export CMEM_PARAMS="gfpbpa_size=32 gfpbpa_quantum=1"
 #export CMEM_PARAMS="gfpbpa_size=1024 gfpbpa_quantum=1"
 
 # See how we were called.
@@ -13,7 +12,7 @@ case "$1" in
   start)
         echo "Starting cmem driver "
         # load the module
-        /sbin/insmod -f $DRIVER_PATH/cmem-`uname -r`.ko $CMEM_PARAMS
+        /sbin/insmod $DRIVER_PATH/cmem-`uname -r`.ko $CMEM_PARAMS
         # remove old device node
         rm -f /dev/cmem
         # get major number
@@ -30,7 +29,7 @@ case "$1" in
         if [ $WUPPERCARDS -gt 0 ]; then
           echo "Starting wupper driver "
           # load the module
-          /sbin/insmod -f $DRIVER_PATH/wupper-`uname -r`.ko
+          /sbin/insmod $DRIVER_PATH/wupper-`uname -r`.ko
           # remove old device node
           rm -f /dev/wupper
           # get major number

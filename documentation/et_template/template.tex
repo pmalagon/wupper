@@ -22,6 +22,9 @@
 %uses courier font in code listing
 \usepackage{courier}
 %A nicer way to create tables
+\usepackage{tabu}
+\usepackage{longtable}
+\let\oldlongtabu\longtabu \renewcommand{\longtabu}{\footnotesize\oldlongtabu}
 \usepackage{tabularx}
 \usepackage[table]{xcolor}
 %Headers on top and below page
@@ -38,8 +41,8 @@
 \usepackage{geometry}
 % to change a single page to landscape.
 \usepackage{lscape}
-
-\usepackage[toc,page]{appendix}
+\usepackage[titletoc, title]{appendix}
+%\usepackage[toc,page]{appendix}
 % for merging pdf pages
 \usepackage{pdfpages} % merging pdf files.....
 
