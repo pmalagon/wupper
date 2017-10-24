@@ -64,10 +64,18 @@ entity wupper_oc_top is
     NUMBER_OF_DESCRIPTORS : integer := 8;
     CARD_TYPE             : integer := 709;
     SVN_VERSION           : integer := 0;
-    BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE");
+    BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
+    REG_MAP_VERSION       : std_logic_vector := X"0300";
+    GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
+    COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
+    GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
+    GIT_COMMIT_NUMBER     : integer := 0);
   port (
     emcclk      : in     std_logic; --! emcclk is part of the JTAG high speed programming.
     emcclk_out  : out    std_logic; --! use emcclk_out in order to not optimize emcclk away
+    SCL         : inout  std_logic; --! I2C port
+    SDA         : inout  std_logic; --! I2C port
+    i2cmux_rst  : out    std_logic; --! I2C port
     leds        : out    std_logic_vector(7 downto 0); --! 8 status leds
     pcie_rxn    : in     std_logic_vector(7 downto 0);
     pcie_rxp    : in     std_logic_vector(7 downto 0);
@@ -81,23 +89,37 @@ end entity wupper_oc_top;
 
 architecture structure of wupper_oc_top is
 
-  signal register_map_monitor  : register_map_monitor_type; --! this signal contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
-  signal register_map_control  : register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
-  signal upfifo_din            : std_logic_vector(255 downto 0);
-  signal upfifo_we             : std_logic;
-  signal upfifo_prog_full      : std_logic;
-  signal fifo_wr_clk           : std_logic; --! High speed DMA fifo for the PC => PCIe transfers
-  signal downfifo_dout         : std_logic_vector(255 downto 0);
-  signal downfifo_re           : std_logic;
-  signal downfifo_prog_empty   : std_logic;
-  signal fifo_rd_clk           : std_logic; --! High speed DMA fifo for the PCIe => PC transfers
-  signal flush_fifo            : std_logic; --! Reset signal for the FIFOs
-  signal interrupt_call        : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-  signal appreg_clk            : std_logic;
-  signal u1_pll_locked         : std_logic;
-  signal reset_soft            : std_logic;
-  signal reset_hard            : std_logic;
-  signal downfifo_empty_thresh : std_logic_vector(6 downto 0);
+  signal register_map_monitor                : register_map_monitor_type; --! this signal contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
+  signal register_map_control                : register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
+  signal interrupt_call                      : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+  signal appreg_clk                          : std_logic;
+  signal pll_locked                       : std_logic;
+  signal reset_soft                          : std_logic;
+  signal reset_hard                          : std_logic;
+  signal flush_fifo                          : std_logic;
+  signal fromHostFifo_pfull_threshold_assert : std_logic_vector(6 downto 0);
+  signal fromHostFifo_pfull_threshold_negate : std_logic_vector(6 downto 0);
+  signal fromHostFifo_we                     : std_logic;
+  signal fromHostFifo_din                    : std_logic_vector(255 downto 0);
+  signal fromHostFifo_prog_full              : std_logic;
+  signal toHostFifo_dout                     : std_logic_vector(255 downto 0);
+  signal toHostFifo_re                       : std_logic;
+  signal toHostFifo_prog_empty               : std_logic;
+  signal toHostFifo_empty_thresh             : std_logic_vector(11 downto 0);
+  signal toHostFifo_rd_clk                   : std_logic;
+  signal toHostFifo_pfull_threshold_assert   : std_logic_vector(11 downto 0);
+  signal toHostFifo_pfull_threshold_negate   : std_logic_vector(11 downto 0);
+  signal fromHostFifo_dout                   : std_logic_vector(255 downto 0);
+  signal fromHostFifo_rd_en                  : std_logic;
+  signal fromHostFifo_empty                  : std_logic;
+  signal fromHostFifo_rd_clk                 : std_logic;
+  signal fromHostFifo_rst                    : std_logic;
+  signal toHostFifo_din                      : std_logic_vector(255 downto 0);
+  signal toHostFifo_wr_en                    : std_logic;
+  signal toHostFifo_prog_full                : std_logic;
+  signal toHostFifo_wr_clk                   : std_logic;
+  signal toHostFifo_rst                      : std_logic;
+  signal fromHostFifo_wr_clk                 : std_logic;
 
   component wupper
     generic(
@@ -106,35 +128,42 @@ architecture structure of wupper_oc_top is
       BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
       SVN_VERSION           : integer := 0;
       CARD_TYPE             : integer := 709;
-      DEVID                 : std_logic_vector(15 downto 0) := x"7038");
+      REG_MAP_VERSION       : std_logic_vector(15 downto 0) := X"0300";
+      DEVID                 : std_logic_vector(15 downto 0) := x"7038";
+      GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
+      COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
+      GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
+      GIT_COMMIT_NUMBER     : integer := 0);
     port (
-      appreg_clk             : out    std_logic;
-      downfifo_dout          : in     std_logic_vector(255 downto 0);
-      downfifo_empty_thresh  : out    std_logic_vector(6 downto 0);
-      downfifo_prog_empty    : in     std_logic;
-      downfifo_re            : out    std_logic;
-      fifo_rd_clk            : out    std_logic;
-      fifo_wr_clk            : out    std_logic;
-      flush_fifo             : out    std_logic;
-      interrupt_call         : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-      lnk_up                 : out    std_logic;
-      pcie_rxn               : in     std_logic_vector(7 downto 0);
-      pcie_rxp               : in     std_logic_vector(7 downto 0);
-      pcie_txn               : out    std_logic_vector(7 downto 0);
-      pcie_txp               : out    std_logic_vector(7 downto 0);
-      pfull_threshold_assert : out    std_logic_vector(6 downto 0);
-      pfull_threshold_negate : out    std_logic_vector(6 downto 0);
-      pll_locked             : out    std_logic;
-      register_map_control   : out    register_map_control_type;
-      register_map_monitor   : in     register_map_monitor_type;
-      reset_hard             : out    std_logic;
-      reset_soft             : out    std_logic;
-      sys_clk_n              : in     std_logic;
-      sys_clk_p              : in     std_logic;
-      sys_reset_n            : in     std_logic;
-      upfifo_din             : out    std_logic_vector(255 downto 0);
-      upfifo_prog_full       : in     std_logic;
-      upfifo_we              : out    std_logic);
+      appreg_clk                          : out    std_logic;
+      flush_fifo                          : out    std_logic;
+      fromHostFifo_din                    : out    std_logic_vector(255 downto 0);
+      fromHostFifo_pfull_threshold_assert : out    std_logic_vector(6 downto 0);
+      fromHostFifo_pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+      fromHostFifo_prog_full              : in     std_logic;
+      fromHostFifo_we                     : out    std_logic;
+      fromHostFifo_wr_clk                 : out    std_logic;
+      interrupt_call                      : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+      lnk_up                              : out    std_logic;
+      pcie_rxn                            : in     std_logic_vector(7 downto 0);
+      pcie_rxp                            : in     std_logic_vector(7 downto 0);
+      pcie_txn                            : out    std_logic_vector(7 downto 0);
+      pcie_txp                            : out    std_logic_vector(7 downto 0);
+      pll_locked                          : out    std_logic;
+      register_map_control                : out    register_map_control_type;
+      register_map_monitor                : in     register_map_monitor_type;
+      reset_hard                          : out    std_logic;
+      reset_soft                          : out    std_logic;
+      sys_clk_n                           : in     std_logic;
+      sys_clk_p                           : in     std_logic;
+      sys_reset_n                         : in     std_logic;
+      toHostFifo_dout                     : in     std_logic_vector(255 downto 0);
+      toHostFifo_empty_thresh             : out    std_logic_vector(11 downto 0);
+      toHostFifo_pfull_threshold_assert   : out    std_logic_vector(11 downto 0);
+      toHostFifo_pfull_threshold_negate   : out    std_logic_vector(11 downto 0);
+      toHostFifo_prog_empty               : in     std_logic;
+      toHostFifo_rd_clk                   : out    std_logic;
+      toHostFifo_re                       : out    std_logic);
   end component wupper;
 
   component application
@@ -142,25 +171,76 @@ architecture structure of wupper_oc_top is
       NUMBER_OF_INTERRUPTS : integer := 8;
       CARD_TYPE            : integer := 709);
     port (
-      appreg_clk            : in     std_logic;
-      downfifo_dout         : out    std_logic_vector(255 downto 0);
-      downfifo_empty_thresh : in     std_logic_vector(6 downto 0);
-      downfifo_prog_empty   : out    std_logic;
-      downfifo_re           : in     std_logic;
-      fifo_rd_clk           : in     std_logic;
-      fifo_wr_clk           : in     std_logic;
-      flush_fifo            : in     std_logic;
-      interrupt_call        : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
-      leds                  : out    std_logic_vector(7 downto 0);
-      pll_locked            : in     std_logic;
-      register_map_control  : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
-      register_map_monitor  : out    register_map_monitor_type; --! contains all status (read only) signals from the application. The record members are described in pcie_package.vhd
-      reset_hard            : in     std_logic;
-      reset_soft            : in     std_logic;
-      upfifo_din            : in     std_logic_vector(255 downto 0);
-      upfifo_prog_full      : out    std_logic;
-      upfifo_we             : in     std_logic);
+      appreg_clk           : in     std_logic;
+      clk250               : in     std_logic;
+      flush_fifo           : in     std_logic;
+      fromHostFifo_dout    : in     std_logic_vector(255 downto 0);
+      fromHostFifo_empty   : in     std_logic;
+      fromHostFifo_rd_clk  : out    std_logic;
+      fromHostFifo_rd_en   : out    std_logic;
+      fromHostFifo_rst     : out    std_logic;
+      interrupt_call       : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
+      register_map_control : in     register_map_control_type; --! contains all read/write registers that control the application. The record members are described in pcie_package.vhd
+      reset_hard           : in     std_logic;
+      reset_soft           : in     std_logic;
+      toHostFifo_din       : out    std_logic_vector(255 downto 0);
+      toHostFifo_prog_full : in     std_logic;
+      toHostFifo_rst       : out    std_logic;
+      toHostFifo_wr_clk    : out    std_logic;
+      toHostFifo_wr_en     : out    std_logic);
   end component application;
+  
+  component housekeeping
+    generic(
+      CARD_TYPE               : integer := 710
+      );
+    port (
+      MMCM_Locked_in              : in     std_logic;
+      SCL                         : inout  std_logic;
+      SDA                         : inout  std_logic;
+      appreg_clk                  : in     std_logic;
+      i2cmux_rst                  : out    std_logic;
+      leds                        : out    std_logic_vector(7 downto 0);
+      register_map_control        : in     register_map_control_type;
+      register_map_hk_monitor     : out    register_map_hk_monitor_type;
+      reset_hard                  : in     std_logic;
+      reset_soft                  : in     std_logic
+      );
+  end component housekeeping;
+
+  component fifo4KB_256bit
+    port (
+      rst                     : in     std_logic;
+      wr_clk                  : in     std_logic;
+      rd_clk                  : in     std_logic;
+      din                     : in     std_logic_vector(255 downto 0);
+      wr_en                   : in     std_logic;
+      rd_en                   : in     std_logic;
+      prog_full_thresh_assert : in     std_logic_vector(6 downto 0);
+      prog_full_thresh_negate : in     std_logic_vector(6 downto 0);
+      dout                    : out    std_logic_vector(255 downto 0);
+      full                    : out    std_logic;
+      empty                   : out    std_logic;
+      prog_full               : out    std_logic);
+  end component fifo4KB_256bit;
+
+  component fifo128KB_256bit
+    port (
+      rst                     : in     std_logic;
+      wr_clk                  : in     std_logic;
+      rd_clk                  : in     std_logic;
+      din                     : in     std_logic_vector(255 downto 0);
+      wr_en                   : in     std_logic;
+      rd_en                   : in     std_logic;
+      prog_empty_thresh       : in     std_logic_vector(11 downto 0);
+      prog_full_thresh_assert : in     std_logic_vector(11 downto 0);
+      prog_full_thresh_negate : in     std_logic_vector(11 downto 0);
+      dout                    : out    std_logic_vector(255 downto 0);
+      full                    : out    std_logic;
+      empty                   : out    std_logic;
+      prog_full               : out    std_logic;
+      prog_empty              : out    std_logic);
+  end component fifo128KB_256bit;
 
 begin
   emcclk_out <= emcclk;
@@ -169,68 +249,122 @@ begin
   --! Instantiation of the actual PCI express core. Please note the 40MHz
   --! clock required by the core, the 250MHz clock (fifo_rd_clk and fifo_wr_clk) 
   --! are generated from sys_clk_p and _n
-  u1: wupper
+  pcie0: wupper
     generic map(
       NUMBER_OF_INTERRUPTS  => NUMBER_OF_INTERRUPTS,
       NUMBER_OF_DESCRIPTORS => NUMBER_OF_DESCRIPTORS,
-      CARD_TYPE             => CARD_TYPE,
       BUILD_DATETIME        => BUILD_DATETIME,
       SVN_VERSION           => SVN_VERSION,
-      DEVID                 => x"7038")
+      CARD_TYPE             => CARD_TYPE,
+      REG_MAP_VERSION       => REG_MAP_VERSION,
+      DEVID                 => x"7039",
+      GIT_HASH              => GIT_HASH,
+      COMMIT_DATETIME       => COMMIT_DATETIME,
+      GIT_TAG               => GIT_TAG,
+      GIT_COMMIT_NUMBER     => GIT_COMMIT_NUMBER)
     port map(
-      appreg_clk             => appreg_clk,
-      downfifo_dout          => downfifo_dout,
-      downfifo_empty_thresh  => downfifo_empty_thresh,
-      downfifo_prog_empty    => downfifo_prog_empty,
-      downfifo_re            => downfifo_re,
-      fifo_rd_clk            => fifo_rd_clk,
-      fifo_wr_clk            => fifo_wr_clk,
-      flush_fifo             => flush_fifo,
-      interrupt_call         => interrupt_call,
-      lnk_up                 => open,
-      pcie_rxn               => pcie_rxn,
-      pcie_rxp               => pcie_rxp,
-      pcie_txn               => pcie_txn,
-      pcie_txp               => pcie_txp,
-      pfull_threshold_assert => open,
-      pfull_threshold_negate => open,
-      pll_locked             => u1_pll_locked,
-      register_map_control   => register_map_control,
-      register_map_monitor   => register_map_monitor,
-      reset_hard             => reset_hard,
-      reset_soft             => reset_soft,
-      sys_clk_n              => sys_clk_n,
-      sys_clk_p              => sys_clk_p,
-      sys_reset_n            => sys_reset_n,
-      upfifo_din             => upfifo_din,
-      upfifo_prog_full       => upfifo_prog_full,
-      upfifo_we              => upfifo_we);
+      appreg_clk                          => appreg_clk,
+      flush_fifo                          => flush_fifo,
+      fromHostFifo_din                    => fromHostFifo_din,
+      fromHostFifo_pfull_threshold_assert => fromHostFifo_pfull_threshold_assert,
+      fromHostFifo_pfull_threshold_negate => fromHostFifo_pfull_threshold_negate,
+      fromHostFifo_prog_full              => fromHostFifo_prog_full,
+      fromHostFifo_we                     => fromHostFifo_we,
+      fromHostFifo_wr_clk                 => fromHostFifo_wr_clk,
+      interrupt_call                      => interrupt_call,
+      lnk_up                              => open,
+      pcie_rxn                            => pcie_rxn,
+      pcie_rxp                            => pcie_rxp,
+      pcie_txn                            => pcie_txn,
+      pcie_txp                            => pcie_txp,
+      pll_locked                          => pll_locked,
+      register_map_control                => register_map_control,
+      register_map_monitor                => register_map_monitor,
+      reset_hard                          => reset_hard,
+      reset_soft                          => reset_soft,
+      sys_clk_n                           => sys_clk_n,
+      sys_clk_p                           => sys_clk_p,
+      sys_reset_n                         => sys_reset_n,
+      toHostFifo_dout                     => toHostFifo_dout,
+      toHostFifo_empty_thresh             => toHostFifo_empty_thresh,
+      toHostFifo_pfull_threshold_assert   => toHostFifo_pfull_threshold_assert,
+      toHostFifo_pfull_threshold_negate   => toHostFifo_pfull_threshold_negate,
+      toHostFifo_prog_empty               => toHostFifo_prog_empty,
+      toHostFifo_rd_clk                   => toHostFifo_rd_clk,
+      toHostFifo_re                       => toHostFifo_re);
 
 
   --! The example application only instantiates one fifo (PC=>PCIe). 
   --! it fills it with some constants and a counter value.
   u0: application
     generic map(
-      NUMBER_OF_INTERRUPTS => NUMBER_OF_INTERRUPTS,
-      CARD_TYPE            => CARD_TYPE)
+      NUMBER_OF_INTERRUPTS => NUMBER_OF_INTERRUPTS)
     port map(
-      appreg_clk            => appreg_clk,
-      downfifo_dout         => downfifo_dout,
-      downfifo_empty_thresh => downfifo_empty_thresh,
-      downfifo_prog_empty   => downfifo_prog_empty,
-      downfifo_re           => downfifo_re,
-      fifo_rd_clk           => fifo_rd_clk,
-      fifo_wr_clk           => fifo_wr_clk,
-      flush_fifo            => flush_fifo,
-      interrupt_call        => interrupt_call,
-      leds                  => leds,
-      pll_locked            => u1_pll_locked,
-      register_map_control  => register_map_control,
-      register_map_monitor  => register_map_monitor,
-      reset_hard            => reset_hard,
-      reset_soft            => reset_soft,
-      upfifo_din            => upfifo_din,
-      upfifo_prog_full      => upfifo_prog_full,
-      upfifo_we             => upfifo_we);
+      appreg_clk           => appreg_clk,
+      clk250               => fromHostFifo_wr_clk,
+      flush_fifo           => flush_fifo,
+      fromHostFifo_dout    => fromHostFifo_dout,
+      fromHostFifo_empty   => fromHostFifo_empty,
+      fromHostFifo_rd_clk  => fromHostFifo_rd_clk,
+      fromHostFifo_rd_en   => fromHostFifo_rd_en,
+      fromHostFifo_rst     => fromHostFifo_rst,
+      interrupt_call       => interrupt_call,
+      register_map_control => register_map_control,
+      reset_hard           => reset_hard,
+      reset_soft           => reset_soft,
+      toHostFifo_din       => toHostFifo_din,
+      toHostFifo_prog_full => toHostFifo_prog_full,
+      toHostFifo_rst       => toHostFifo_rst,
+      toHostFifo_wr_clk    => toHostFifo_wr_clk,
+      toHostFifo_wr_en     => toHostFifo_wr_en);
+      
+  hk0: housekeeping
+    generic map (
+      CARD_TYPE => CARD_TYPE
+    )
+    port map(
+      MMCM_Locked_in              => pll_locked,
+      SCL                         => SCL,
+      SDA                         => SDA,
+      appreg_clk                  => appreg_clk,
+      i2cmux_rst                  => i2cmux_rst,
+      leds                        => leds,
+      register_map_control        => register_map_control,
+      register_map_hk_monitor     => register_map_monitor.register_map_hk_monitor,
+      reset_hard                  => reset_hard,
+      reset_soft                  => reset_soft
+    );
+
+  fromHostFifo0: fifo4KB_256bit
+    port map(
+      rst                     => fromHostFifo_rst,
+      wr_clk                  => fromHostFifo_wr_clk,
+      rd_clk                  => fromHostFifo_rd_clk,
+      din                     => fromHostFifo_din,
+      wr_en                   => fromHostFifo_we,
+      rd_en                   => fromHostFifo_rd_en,
+      prog_full_thresh_assert => fromHostFifo_pfull_threshold_assert,
+      prog_full_thresh_negate => fromHostFifo_pfull_threshold_negate,
+      dout                    => fromHostFifo_dout,
+      full                    => open,
+      empty                   => fromHostFifo_empty,
+      prog_full               => fromHostFifo_prog_full);
+
+  toHostFifo0: fifo128KB_256bit
+    port map(
+      rst                     => toHostFifo_rst,
+      wr_clk                  => toHostFifo_wr_clk,
+      rd_clk                  => toHostFifo_rd_clk,
+      din                     => toHostFifo_din,
+      wr_en                   => toHostFifo_wr_en,
+      rd_en                   => toHostFifo_re,
+      prog_empty_thresh       => toHostFifo_empty_thresh,
+      prog_full_thresh_assert => toHostFifo_pfull_threshold_assert,
+      prog_full_thresh_negate => toHostFifo_pfull_threshold_negate,
+      dout                    => toHostFifo_dout,
+      full                    => open,
+      empty                   => open,
+      prog_full               => toHostFifo_prog_full,
+      prog_empty              => toHostFifo_prog_empty);
 end architecture structure ; -- of wupper_oc_top
 

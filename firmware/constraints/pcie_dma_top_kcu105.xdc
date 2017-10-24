@@ -52,56 +52,56 @@ set_property PACKAGE_PIN AB5 [get_ports sys_clk_n]
 set_property PACKAGE_PIN AB6 [get_ports sys_clk_p]
 
 
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y7 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[1].*gen_gthe3_channel_inst[3].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AC4 [get_ports {pcie_txp[0]}]
 set_property PACKAGE_PIN AB2 [get_ports {pcie_rxp[0]}]
 set_property PACKAGE_PIN AB1 [get_ports {pcie_rxn[0]}]
 set_property PACKAGE_PIN AC3 [get_ports {pcie_txn[0]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y6 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[1].*gen_gthe3_channel_inst[2].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AE4 [get_ports {pcie_txp[1]}]
 set_property PACKAGE_PIN AD2 [get_ports {pcie_rxp[1]}]
 set_property PACKAGE_PIN AD1 [get_ports {pcie_rxn[1]}]
 set_property PACKAGE_PIN AE3 [get_ports {pcie_txn[1]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y5 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[1].*gen_gthe3_channel_inst[1].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AG4 [get_ports {pcie_txp[2]}]
 set_property PACKAGE_PIN AF2 [get_ports {pcie_rxp[2]}]
 set_property PACKAGE_PIN AF1 [get_ports {pcie_rxn[2]}]
 set_property PACKAGE_PIN AG3 [get_ports {pcie_txn[2]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y4 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[1].*gen_gthe3_channel_inst[0].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AH6 [get_ports {pcie_txp[3]}]
 set_property PACKAGE_PIN AH2 [get_ports {pcie_rxp[3]}]
 set_property PACKAGE_PIN AH1 [get_ports {pcie_rxn[3]}]
 set_property PACKAGE_PIN AH5 [get_ports {pcie_txn[3]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y3 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[0].*gen_gthe3_channel_inst[3].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AK6 [get_ports {pcie_txp[4]}]
 set_property PACKAGE_PIN AJ4 [get_ports {pcie_rxp[4]}]
 set_property PACKAGE_PIN AJ3 [get_ports {pcie_rxn[4]}]
 set_property PACKAGE_PIN AK5 [get_ports {pcie_txn[4]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y2 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[0].*gen_gthe3_channel_inst[2].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AL4 [get_ports {pcie_txp[5]}]
 set_property PACKAGE_PIN AK2 [get_ports {pcie_rxp[5]}]
 set_property PACKAGE_PIN AK1 [get_ports {pcie_rxn[5]}]
 set_property PACKAGE_PIN AL3 [get_ports {pcie_txn[5]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y1 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[0].*gen_gthe3_channel_inst[1].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AM6 [get_ports {pcie_txp[6]}]
 set_property PACKAGE_PIN AM2 [get_ports {pcie_rxp[6]}]
 set_property PACKAGE_PIN AM1 [get_ports {pcie_rxn[6]}]
 set_property PACKAGE_PIN AM5 [get_ports {pcie_txn[6]}]
-current_instance u1/u1/g_ultrascale.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_x8_gen3_gt_i/inst
+current_instance pcie0/u1/g_ultrascale.g_devid_7039.u1/U0/gt_top_i/gt_wizard.gtwizard_top_i/pcie3_ultrascale_7039_gt_i/inst
 set_property LOC GTHE3_CHANNEL_X0Y0 [get_cells -hierarchical -filter {NAME =~ *gen_channel_container[0].*gen_gthe3_channel_inst[0].GTHE3_CHANNEL_PRIM_INST}]
 current_instance -quiet
 set_property PACKAGE_PIN AN4 [get_ports {pcie_txp[7]}]
@@ -118,6 +118,14 @@ set_property IOSTANDARD LVCMOS18 [get_ports {leds[4]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[5]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[6]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {leds[7]}]
+
+#IIC
+set_property PACKAGE_PIN J24 [get_ports "SCL"]
+set_property IOSTANDARD LVCMOS18 [get_ports "SCL"]
+set_property PACKAGE_PIN J25 [get_ports "SDA"]
+set_property IOSTANDARD LVCMOS18 [get_ports "SDA"]
+set_property PACKAGE_PIN AP10 [get_ports "i2cmux_rst"]
+set_property IOSTANDARD LVCMOS18 [get_ports "i2cmux_rst"]
 
 #########################################################################################################################
 # End User Constraints
@@ -159,7 +167,7 @@ set_property PULLUP true [get_ports sys_reset_n]
 # Please refer to the Virtex-7 GT Transceiver User Guide
 # (UG) for guidelines regarding clock resource selection.
 #
-create_clock -period 10.000 -name sys_clk [get_pins u1/u1/g_ultrascale.refclk_buff/O]
+create_clock -period 10.000 -name sys_clk [get_pins pcie0/u1/g_ultrascale.refclk_buff/O]
 create_clock -period 10.000 -name sys_clk_p -waveform {0.000 5.000} [get_ports sys_clk_p]
 
 ###############################################################################

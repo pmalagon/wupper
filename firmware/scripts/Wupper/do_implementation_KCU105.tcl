@@ -33,9 +33,9 @@ set build_date "40'h[clock format $systemTime -format %y%m%d%H%M]"
 puts "BUILD_DATE = $build_date"
 
 
-set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_HTG710.xdc]
+#set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_HTG710.xdc]
 set_property is_enabled true [get_files  $HDLDIR/constraints/pcie_dma_top_kcu105.xdc]
-set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_VC709.xdc]
+#set_property is_enabled false [get_files  $HDLDIR/constraints/pcie_dma_top_VC709.xdc]
 
 #set to true in order to generate the GBT links
 set NUMBER_OF_INTERRUPTS 8
