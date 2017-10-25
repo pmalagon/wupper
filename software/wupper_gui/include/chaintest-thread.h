@@ -3,6 +3,7 @@
 #include <QThread>
 #include "wupper/Wupper.h"
 #include "wupper/WupperException.h"
+#include <stdint.h>
 
 class ChaintestThread : public QThread
 {
