@@ -54,6 +54,11 @@ Monitorsections:
       bitfield: 
         - range: 0..0
           type: R
+    - name: Wishbone
+      record_name: wishbone_monitor
+      bitfield:
+        - range: 0..0
+          type: R
 
 #Bar0 contains the registers dedicated to Wupper. Please only edit registers in Bar2
 #Registers in this group will not be generated with WupperCodeGen
@@ -211,6 +216,8 @@ Bar2:
       offset: 0x1000
     - ref: HouseKeepingControlsAndMonitors
       offset: 0x2000
+    - ref: Wishbone
+      offset: 0x4000
 
 GenericBoardInformation:
   group: GEN
@@ -220,7 +227,7 @@ GenericBoardInformation:
     - name: REG_MAP_VERSION
       bitfield:
         - range: 15..0
-          value: REG_MAP_VERSION
+          value: std_logic_vector(to_unsigned({{ tree.version|version }},16))
           desc: Register Map Version, {{ tree.version }} formatted as {{ tree.version|version|xhex }}
 
     - name: BOARD_ID_TIMESTAMP
@@ -418,4 +425,66 @@ HouseKeepingControlsAndMonitors:
       bitfield:
         - range: any
           desc: Fire a test MSIx interrupt \#5
-
+          
+Wishbone:
+  desc: Wishbone
+  endpoints: 0
+  entries:
+    - name: WISHBONE_CONTROL
+      type: W
+      bitfield:
+        - range: 32
+          name: WRITE_NOT_READ
+          desc: wishbone write command wishbone read command
+        - range: 31..0
+          name: ADDRESS
+          desc: Slave address for Wishbone bus
+    - name: WISHBONE_WRITE
+      type: T
+      bitfield:
+        - range: any
+          type: T
+          value: 1
+          name: WRITE_ENABLE
+          desc: Any write to this register triggers a write to the Wupper to Wishbone fifo
+        - range: 32 
+          name: FULL
+          type: R
+        - range: 31..0      
+          name: DATA
+          type: W
+    - name: WISHBONE_READ
+      type: T
+      bitfield:
+        - range: any
+          type: T
+          value: 1
+          name: READ_ENABLE
+          desc: Any write to this register triggers a read from the Wishbone to Wupper fifo
+        - range: 32
+          name: EMPTY
+          type: R
+          desc: Indicates that the Wishbone to Wupper fifo is empty
+        - range: 31..0  
+          name: DATA
+          type: R
+          desc: Wishbone read data
+    - name: WISHBONE_STATUS
+      type: R
+      bitfield:
+        - range: 4
+          name:  INT
+          desc: interrupt
+        - range: 3
+          name: RETRY 
+          desc: Interface is not ready to accept data cycle should be retried
+        - range: 2
+          name: STALL  
+          desc: When pipelined mode slave can't accept additional transactions in its queue
+        - range: 1
+          name: ACKNOWLEDGE
+          desc: Indicates the termination of a normal bus cycle
+        - range: 0
+          name: ERROR
+          desc: Address not mapped by the crossbar
+  

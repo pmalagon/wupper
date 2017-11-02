@@ -63,7 +63,6 @@ entity wupper_core is
     SVN_VERSION           : integer := 0;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
     CARD_TYPE             : integer := 709;
-    REG_MAP_VERSION       : std_logic_vector(15 downto 0) := X"0300";
     GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
     COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
     GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
@@ -140,7 +139,6 @@ architecture structure of wupper_core is
       SVN_VERSION           : integer := 0;
       BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
       CARD_TYPE             : integer := 709;
-      REG_MAP_VERSION       : std_logic_vector(15 downto 0) := x"0340";
       GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
       COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
       GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
@@ -204,7 +202,6 @@ begin
       SVN_VERSION           => SVN_VERSION,
       BUILD_DATETIME        => BUILD_DATETIME,
       CARD_TYPE             => CARD_TYPE,
-      REG_MAP_VERSION       => REG_MAP_VERSION,
       GIT_HASH              => GIT_HASH,
       COMMIT_DATETIME       => COMMIT_DATETIME,
       GIT_TAG               => GIT_TAG,

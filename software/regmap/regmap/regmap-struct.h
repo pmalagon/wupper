@@ -60,6 +60,33 @@ typedef struct
   volatile u_long I2C_EMPTY                :  1;  /* bits   8: 8 */
 } flxcard_i2c_rd_t;
 
+typedef struct
+{
+  volatile u_long ADDRESS                  : 32;  /* bits  31: 0 */
+  volatile u_long WRITE_NOT_READ           :  1;  /* bits  32:32 */
+} flxcard_wishbone_control_t;
+
+typedef struct
+{
+  volatile u_long DATA                     : 32;  /* bits  31: 0 */
+  volatile u_long FULL                     :  1;  /* bits  32:32 */
+} flxcard_wishbone_write_t;
+
+typedef struct
+{
+  volatile u_long DATA                     : 32;  /* bits  31: 0 */
+  volatile u_long EMPTY                    :  1;  /* bits  32:32 */
+} flxcard_wishbone_read_t;
+
+typedef struct
+{
+  volatile u_long ERROR                    :  1;  /* bits   0: 0 */
+  volatile u_long ACKNOWLEDGE              :  1;  /* bits   1: 1 */
+  volatile u_long STALL                    :  1;  /* bits   2: 2 */
+  volatile u_long RETRY                    :  1;  /* bits   3: 3 */
+  volatile u_long INT                      :  1;  /* bits   4: 4 */
+} flxcard_wishbone_status_t;
+
 
 
 /**************************************/
@@ -155,6 +182,21 @@ typedef struct
 
   volatile u_long                INT_TEST_5;                    /* 0x2810 - 0x2817 (8) */
   u_char                         unused26[8];                   /* 0x2818 - 0x281F (8) */
+
+  u_char                         unused27[0x17E0];              /* 0x2820 - 0x3FFF (6112) */
+
+/* Wishbone */
+  flxcard_wishbone_control_t     WISHBONE_CONTROL;              /* 0x4000 - 0x4007 (8) */
+  u_char                         unused28[8];                   /* 0x4008 - 0x400F (8) */
+
+  flxcard_wishbone_write_t       WISHBONE_WRITE;                /* 0x4010 - 0x4017 (8) */
+  u_char                         unused29[8];                   /* 0x4018 - 0x401F (8) */
+
+  flxcard_wishbone_read_t        WISHBONE_READ;                 /* 0x4020 - 0x4027 (8) */
+  u_char                         unused30[8];                   /* 0x4028 - 0x402F (8) */
+
+  flxcard_wishbone_status_t      WISHBONE_STATUS;               /* 0x4030 - 0x4037 (8) */
+  u_char                         unused31[8];                   /* 0x4038 - 0x403F (8) */
 
 } flxcard_bar2_regs_t;
 

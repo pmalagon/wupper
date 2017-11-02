@@ -64,7 +64,6 @@ entity dma_control is
     SVN_VERSION           : integer := 0;
     CARD_TYPE             : integer := 710;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
-    REG_MAP_VERSION       : std_logic_vector(15 downto 0) := x"0340";
     GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
     GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
     GIT_COMMIT_NUMBER     : integer := 0;

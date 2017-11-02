@@ -243,6 +243,12 @@ package pcie_package is
   constant REG_FPGA_DNA                       : std_logic_vector(19 downto 0) := x"02370";
   constant REG_INT_TEST_4                     : std_logic_vector(19 downto 0) := x"02800";
   constant REG_INT_TEST_5                     : std_logic_vector(19 downto 0) := x"02810";
+
+  --** Wishbone
+  constant REG_WISHBONE_CONTROL               : std_logic_vector(19 downto 0) := x"04000";
+  constant REG_WISHBONE_WRITE                 : std_logic_vector(19 downto 0) := x"04010";
+  constant REG_WISHBONE_READ                  : std_logic_vector(19 downto 0) := x"04020";
+  constant REG_WISHBONE_STATUS                : std_logic_vector(19 downto 0) := x"04030";
   -----------------------------------
   ---- GENERATED code END #1 ##  ----
   -----------------------------------
@@ -266,6 +272,20 @@ package pcie_package is
     I2C_RDEN                       : std_logic_vector(64 downto 64);  -- Any write to this register pops the last I2C data from the FIFO
   end record;
 
+  type bitfield_wishbone_control_w_type is record
+    WRITE_NOT_READ                 : std_logic_vector(32 downto 32);  -- wishbone write command wishbone read command
+    ADDRESS                        : std_logic_vector(31 downto 0);   -- Slave address for Wishbone bus
+  end record;
+
+  type bitfield_wishbone_write_t_type is record
+    WRITE_ENABLE                   : std_logic_vector(64 downto 64);  -- Any write to this register triggers a write to the Wupper to Wishbone fifo
+    DATA                           : std_logic_vector(31 downto 0);   -- Wishbone
+  end record;
+
+  type bitfield_wishbone_read_t_type is record
+    READ_ENABLE                    : std_logic_vector(64 downto 64);  -- Any write to this register triggers a read from the Wishbone to Wupper fifo
+  end record;
+
 
   -- Control Record
   type register_map_control_type is record
@@ -286,6 +306,9 @@ package pcie_package is
     I2C_RD                         : bitfield_i2c_rd_t_type;       
     INT_TEST_4                     : std_logic_vector(64 downto 64);  -- Fire a test MSIx interrupt #4
     INT_TEST_5                     : std_logic_vector(64 downto 64);  -- Fire a test MSIx interrupt #5
+    WISHBONE_CONTROL               : bitfield_wishbone_control_w_type;
+    WISHBONE_WRITE                 : bitfield_wishbone_write_t_type;
+    WISHBONE_READ                  : bitfield_wishbone_read_t_type;
   end record;
   -----------------------------------
   ---- GENERATED code END #2 ##  ----
@@ -319,6 +342,11 @@ package pcie_package is
   constant REG_I2C_RD_I2C_RDEN_C                   : std_logic_vector(64 downto 64)   := "0";                   -- Any write to this register pops the last I2C data from the FIFO
   constant REG_INT_TEST_4_C                        : std_logic_vector(64 downto 64)   := "0";                   -- Fire a test MSIx interrupt #4
   constant REG_INT_TEST_5_C                        : std_logic_vector(64 downto 64)   := "0";                   -- Fire a test MSIx interrupt #5
+  constant REG_WISHBONE_CONTROL_WRITE_NOT_READ_C   : std_logic_vector(32 downto 32)   := "0";                   -- wishbone write command wishbone read command
+  constant REG_WISHBONE_CONTROL_ADDRESS_C          : std_logic_vector(31 downto 0)    := x"00000000";           -- Slave address for Wishbone bus
+  constant REG_WISHBONE_WRITE_WRITE_ENABLE_C       : std_logic_vector(64 downto 64)   := "0";                   -- Any write to this register triggers a write to the Wupper to Wishbone fifo
+  constant REG_WISHBONE_WRITE_DATA_C               : std_logic_vector(31 downto 0)    := x"00000000";           -- Wishbone
+  constant REG_WISHBONE_READ_READ_ENABLE_C         : std_logic_vector(64 downto 64)   := "0";                   -- Any write to this register triggers a read from the Wishbone to Wupper fifo
   -----------------------------------
   ---- GENERATED code END #3 ##  ----
   -----------------------------------
@@ -381,12 +409,41 @@ end record;
     FPGA_CORE_VCCBRAM              : std_logic_vector(11 downto 0);   -- XADC voltage measurement VCCBRAM = (FPGA_CORE_VCCBRAM *3.0)/4096
     FPGA_DNA                       : std_logic_vector(63 downto 0);   -- Unique identifier of the FPGA
 end record;
+--
+-- Wishbone
+--
+  -- Bitfields of Wishbone
+  type bitfield_wishbone_write_r_type is record
+    FULL                           : std_logic_vector(32 downto 32);  -- Wishbone
+  end record;
+
+  type bitfield_wishbone_read_r_type is record
+    EMPTY                          : std_logic_vector(32 downto 32);  -- Indicates that the Wishbone to Wupper fifo is empty
+    DATA                           : std_logic_vector(31 downto 0);   -- Wishbone read data
+  end record;
+
+  type bitfield_wishbone_status_r_type is record
+    INT                            : std_logic_vector(4 downto 4);    -- interrupt
+    RETRY                          : std_logic_vector(3 downto 3);    -- Interface is not ready to accept data cycle should be retried
+    STALL                          : std_logic_vector(2 downto 2);    -- When pipelined mode slave can't accept additional transactions in its queue
+    ACKNOWLEDGE                    : std_logic_vector(1 downto 1);    -- Indicates the termination of a normal bus cycle
+    ERROR                          : std_logic_vector(0 downto 0);    -- Address not mapped by the crossbar
+  end record;
+
+
+  -- Wishbone
+  type wishbone_monitor_type is record
+    WISHBONE_WRITE                 : bitfield_wishbone_write_r_type;
+    WISHBONE_READ                  : bitfield_wishbone_read_r_type;
+    WISHBONE_STATUS                : bitfield_wishbone_status_r_type;
+end record;
   
 
   -- Monitor interface toward the dma_control block
   type register_map_monitor_type is record
     register_map_gen_board_info  : register_map_gen_board_info_type;
     register_map_hk_monitor  : register_map_hk_monitor_type;
+    wishbone_monitor  : wishbone_monitor_type;
   end record;
   -----------------------------------
   ---- GENERATED code END #4 ##  ----

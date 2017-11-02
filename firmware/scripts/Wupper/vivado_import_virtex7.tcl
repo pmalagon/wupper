@@ -48,6 +48,24 @@ read_vhdl -library work $proj_dir/sources/pcie/dma_control.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_clocking.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_slow_clock.vhd
 
+# ----------------------------------------------------------
+# Wishbone
+# ----------------------------------------------------------
+
+read_vhdl -library work $proj_dir/sources/Wishbone/wb_intercon.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wb_memory.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wb_syscon.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wishbone_pkg.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/genram_pkg.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wupper_to_wb.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/xwb_crossbar.vhd
+
+import_ip $proj_dir/sources/ip_cores/virtex7/wishbone_memory.xci
+import_ip $proj_dir/sources/ip_cores/virtex7/wishbone_to_wupper_fifo.xci
+import_ip $proj_dir/sources/ip_cores/virtex7/wupper_to_wishbone_fifo.xci
+
+
+
 #for Virtex7 parts
 import_ip $proj_dir/sources/ip_cores/virtex7/pcie_x8_gen3_3_0.xci
 #for Artix Ultrascale parts

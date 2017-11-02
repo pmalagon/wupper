@@ -106,6 +106,10 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define REG_FPGA_DNA                          "FPGA_DNA"
 #define REG_INT_TEST_4                        "INT_TEST_4"
 #define REG_INT_TEST_5                        "INT_TEST_5"
+#define REG_WISHBONE_CONTROL                  "WISHBONE_CONTROL"
+#define REG_WISHBONE_WRITE                    "WISHBONE_WRITE"
+#define REG_WISHBONE_READ                     "WISHBONE_READ"
+#define REG_WISHBONE_STATUS                   "WISHBONE_STATUS"
 
 /* Bitfields */
 #define BF_REG_MAP_VERSION                    "REG_MAP_VERSION"
@@ -140,6 +144,19 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define BF_FPGA_DNA                           "FPGA_DNA"
 #define BF_INT_TEST_4                         "INT_TEST_4"
 #define BF_INT_TEST_5                         "INT_TEST_5"
+#define BF_WISHBONE_CONTROL_WRITE_NOT_READ    "WISHBONE_CONTROL_WRITE_NOT_READ"
+#define BF_WISHBONE_CONTROL_ADDRESS           "WISHBONE_CONTROL_ADDRESS"
+#define BF_WISHBONE_WRITE_WRITE_ENABLE        "WISHBONE_WRITE_WRITE_ENABLE"
+#define BF_WISHBONE_WRITE_FULL                "WISHBONE_WRITE_FULL"
+#define BF_WISHBONE_WRITE_DATA                "WISHBONE_WRITE_DATA"
+#define BF_WISHBONE_READ_READ_ENABLE          "WISHBONE_READ_READ_ENABLE"
+#define BF_WISHBONE_READ_EMPTY                "WISHBONE_READ_EMPTY"
+#define BF_WISHBONE_READ_DATA                 "WISHBONE_READ_DATA"
+#define BF_WISHBONE_STATUS_INT                "WISHBONE_STATUS_INT"
+#define BF_WISHBONE_STATUS_RETRY              "WISHBONE_STATUS_RETRY"
+#define BF_WISHBONE_STATUS_STALL              "WISHBONE_STATUS_STALL"
+#define BF_WISHBONE_STATUS_ACKNOWLEDGE        "WISHBONE_STATUS_ACKNOWLEDGE"
+#define BF_WISHBONE_STATUS_ERROR              "WISHBONE_STATUS_ERROR"
 
 /* Groups */
 #define GRP_GEN                               "GEN"

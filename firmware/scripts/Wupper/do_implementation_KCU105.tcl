@@ -4,7 +4,7 @@ set PROJECT_NAME "pcie_dma_top_KCU105"
 set scriptdir [pwd]
 set HDLDIR $scriptdir/../../
 
-set_property board_part xilinx.com:kcu105:part0:1.1 [current_project]
+
 
 foreach design [get_designs] {
    puts "Closing design: $design"
@@ -43,9 +43,16 @@ set NUMBER_OF_DESCRIPTORS 8
 
 set CARD_TYPE 105
 
-set_property generic "BUILD_DATETIME=$build_date SVN_VERSION=$svn_version NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS CARD_TYPE=$CARD_TYPE" [current_fileset]
-
+set_property generic "\
+BUILD_DATETIME=$build_date \
+SVN_VERSION=$svn_version \
+NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS \
+NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS \
+CARD_TYPE=$CARD_TYPE \
+" [current_fileset]
+set_property strategy Performance_ExplorePostRoutePhysOpt $IMPL_RUN
 launch_runs $SYNTH_RUN
+#return
 launch_runs $IMPL_RUN 
 #launch_runs $IMPL_RUN  -to_step write_bitstream
 #cd $HDLDIR/Synt/

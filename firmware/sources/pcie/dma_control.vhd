@@ -85,7 +85,6 @@ entity dma_control is
     SVN_VERSION           : integer := 0;
     CARD_TYPE             : integer := 710;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
-    REG_MAP_VERSION       : std_logic_vector(15 downto 0) := x"0340";
     GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
     GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
     GIT_COMMIT_NUMBER     : integer := 0;
@@ -786,6 +785,9 @@ begin
       register_map_control_s.I2C_WR.DATA_BYTE1              <= REG_I2C_WR_DATA_BYTE1_C;                 -- Data byte 1
       register_map_control_s.I2C_WR.SLAVE_ADDRESS           <= REG_I2C_WR_SLAVE_ADDRESS_C;              -- Slave address
       register_map_control_s.I2C_WR.READ_NOT_WRITE          <= REG_I2C_WR_READ_NOT_WRITE_C;             -- READ/<o>WRITE</o>
+      register_map_control_s.WISHBONE_CONTROL.WRITE_NOT_READ <= REG_WISHBONE_CONTROL_WRITE_NOT_READ_C;   -- wishbone write command wishbone read command
+      register_map_control_s.WISHBONE_CONTROL.ADDRESS       <= REG_WISHBONE_CONTROL_ADDRESS_C;          -- Slave address for Wishbone bus
+      register_map_control_s.WISHBONE_WRITE.DATA            <= REG_WISHBONE_WRITE_DATA_C;               -- Wishbone
       -----------------------------------
       ---- GENERATED code END #1 ##  ----
       -----------------------------------
@@ -810,6 +812,8 @@ begin
       register_map_control_s.I2C_RD.I2C_RDEN                <= REG_I2C_RD_I2C_RDEN_C;             -- Any write to this register pops the last I2C data from the FIFO
       register_map_control_s.INT_TEST_4                     <= REG_INT_TEST_4_C;                  -- Fire a test MSIx interrupt #4
       register_map_control_s.INT_TEST_5                     <= REG_INT_TEST_5_C;                  -- Fire a test MSIx interrupt #5
+      register_map_control_s.WISHBONE_WRITE.WRITE_ENABLE    <= REG_WISHBONE_WRITE_WRITE_ENABLE_C; -- Any write to this register triggers a write to the Wupper to Wishbone fifo
+      register_map_control_s.WISHBONE_READ.READ_ENABLE      <= REG_WISHBONE_READ_READ_ENABLE_C;   -- Any write to this register triggers a read from the Wishbone to Wupper fifo
       -----------------------------------
       ---- GENERATED code END #2 ##  ----
       -----------------------------------
@@ -1003,6 +1007,14 @@ begin
                                                        register_read_data_40_s(7 downto 0)     <= register_map_monitor_s.register_map_hk_monitor.I2C_RD.I2C_DOUT;               -- I2C READ Data
             when REG_INT_TEST_4                     => register_read_data_40_s(64 downto 64)   <= register_map_control_s.INT_TEST_4;                    -- Fire a test MSIx interrupt #4
             when REG_INT_TEST_5                     => register_read_data_40_s(64 downto 64)   <= register_map_control_s.INT_TEST_5;                    -- Fire a test MSIx interrupt #5
+            when REG_WISHBONE_CONTROL               => register_read_data_40_s(32 downto 32)   <= register_map_control_s.WISHBONE_CONTROL.WRITE_NOT_READ; -- wishbone write command wishbone read command
+                                                       register_read_data_40_s(31 downto 0)    <= register_map_control_s.WISHBONE_CONTROL.ADDRESS;      -- Slave address for Wishbone bus
+            when REG_WISHBONE_WRITE                 => register_read_data_40_s(64 downto 64)   <= register_map_control_s.WISHBONE_WRITE.WRITE_ENABLE;   -- Any write to this register triggers a write to the Wupper to Wishbone fifo
+                                                       register_read_data_40_s(32 downto 32)   <= register_map_monitor_s.wishbone_monitor.WISHBONE_WRITE.FULL;           -- Wishbone
+                                                       register_read_data_40_s(31 downto 0)    <= register_map_control_s.WISHBONE_WRITE.DATA;           -- Wishbone
+            when REG_WISHBONE_READ                  => register_read_data_40_s(64 downto 64)   <= register_map_control_s.WISHBONE_READ.READ_ENABLE;     -- Any write to this register triggers a read from the Wishbone to Wupper fifo
+                                                       register_read_data_40_s(32 downto 32)   <= register_map_monitor_s.wishbone_monitor.WISHBONE_READ.EMPTY;           -- Indicates that the Wishbone to Wupper fifo is empty
+                                                       register_read_data_40_s(31 downto 0)    <= register_map_monitor_s.wishbone_monitor.WISHBONE_READ.DATA;            -- Wishbone read data
 
             --
             -- Monitor registers
@@ -1010,7 +1022,7 @@ begin
 
 
 -- GenericBoardInformation
-            when REG_REG_MAP_VERSION                => register_read_data_40_s(15 downto 0)    <= REG_MAP_VERSION;                                                                  -- Register Map Version, 1.0 formatted as 0x0100
+            when REG_REG_MAP_VERSION                => register_read_data_40_s(15 downto 0)    <= std_logic_vector(to_unsigned(256,16));                     -- Register Map Version, 1.0 formatted as 0x0100
             when REG_BOARD_ID_TIMESTAMP             => register_read_data_40_s(39 downto 0)    <= BUILD_DATETIME;                                                                   -- Board ID Date / Time in BCD format YYMMDDhhmm
             when REG_BOARD_ID_SVN                   => register_read_data_40_s(15 downto 0)    <= std_logic_vector(to_unsigned(SVN_VERSION,16));                                    -- Board ID SVN Revision
             when REG_GENERIC_CONSTANTS              => register_read_data_40_s(15 downto 8)    <= std_logic_vector(to_unsigned(NUMBER_OF_INTERRUPTS,8));                            -- Number of Interrupts
@@ -1033,6 +1045,13 @@ begin
             when REG_FPGA_CORE_VCCAUX               => register_read_data_40_s(11 downto 0)    <= register_map_monitor_s.register_map_hk_monitor.FPGA_CORE_VCCAUX;              -- XADC voltage measurement VCCAUX = (FPGA_CORE_VCCAUX *3.0)/4096
             when REG_FPGA_CORE_VCCBRAM              => register_read_data_40_s(11 downto 0)    <= register_map_monitor_s.register_map_hk_monitor.FPGA_CORE_VCCBRAM;             -- XADC voltage measurement VCCBRAM = (FPGA_CORE_VCCBRAM *3.0)/4096
             when REG_FPGA_DNA                       => register_read_data_40_s(63 downto 0)    <= register_map_monitor_s.register_map_hk_monitor.FPGA_DNA;                      -- Unique identifier of the FPGA
+
+-- Wishbone
+            when REG_WISHBONE_STATUS                => register_read_data_40_s(4 downto 4)     <= register_map_monitor_s.wishbone_monitor.WISHBONE_STATUS.INT;           -- interrupt
+                                                       register_read_data_40_s(3 downto 3)     <= register_map_monitor_s.wishbone_monitor.WISHBONE_STATUS.RETRY;         -- Interface is not ready to accept data cycle should be retried
+                                                       register_read_data_40_s(2 downto 2)     <= register_map_monitor_s.wishbone_monitor.WISHBONE_STATUS.STALL;         -- When pipelined mode slave can't accept additional transactions in its queue
+                                                       register_read_data_40_s(1 downto 1)     <= register_map_monitor_s.wishbone_monitor.WISHBONE_STATUS.ACKNOWLEDGE;   -- Indicates the termination of a normal bus cycle
+                                                       register_read_data_40_s(0 downto 0)     <= register_map_monitor_s.wishbone_monitor.WISHBONE_STATUS.ERROR;         -- Address not mapped by the crossbar
             -----------------------------------
             ---- GENERATED code END #3 ##  ----
             -----------------------------------
@@ -1173,6 +1192,11 @@ begin
             when REG_I2C_RD                         => register_map_control_s.I2C_RD.I2C_RDEN                <= not register_map_monitor_s.register_map_hk_monitor.I2C_RD.I2C_EMPTY; -- Any write to this register pops the last I2C data from the FIFO
             when REG_INT_TEST_4                     => register_map_control_s.INT_TEST_4                     <= "1";                                     -- Fire a test MSIx interrupt #4
             when REG_INT_TEST_5                     => register_map_control_s.INT_TEST_5                     <= "1";                                     -- Fire a test MSIx interrupt #5
+            when REG_WISHBONE_CONTROL               => register_map_control_s.WISHBONE_CONTROL.WRITE_NOT_READ <= register_write_data_40_s(32 downto 32);  -- wishbone write command wishbone read command
+                                                       register_map_control_s.WISHBONE_CONTROL.ADDRESS       <= register_write_data_40_s(31 downto 0);   -- Slave address for Wishbone bus
+            when REG_WISHBONE_WRITE                 => register_map_control_s.WISHBONE_WRITE.WRITE_ENABLE    <= "1";                                     -- Any write to this register triggers a write to the Wupper to Wishbone fifo
+                                                       register_map_control_s.WISHBONE_WRITE.DATA            <= register_write_data_40_s(31 downto 0);   -- Wishbone
+            when REG_WISHBONE_READ                  => register_map_control_s.WISHBONE_READ.READ_ENABLE      <= "1";                                     -- Any write to this register triggers a read from the Wishbone to Wupper fifo
             -----------------------------------
             ---- GENERATED code END #4 ##  ----
             -----------------------------------

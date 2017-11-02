@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 2.8.12)
 project (wuppertools)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --pedantic -Wall -std=c++11 -fPIC ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --pedantic -Wall -fPIC ")
 
 
 # TODO: Remove dependency on libpacketformat
@@ -38,3 +38,6 @@ target_link_libraries (wupper-irq-test Wupper)
 
 add_executable(wupper-dma-stat src/wupper-dma-stat.cpp)
 target_link_libraries (wupper-dma-stat Wupper)
+
+add_executable(wupper-wishbone src/wupper-wishbone.cpp)
+target_link_libraries (wupper-wishbone Wupper)

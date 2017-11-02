@@ -14,7 +14,7 @@ set proj_dir $scriptdir/../../
 close_project -quiet
 
 
-create_project -force -part xcku115-flvf1924-2-e $proj_name $proj_dir/Projects/$proj_name
+create_project -force -part xcku040-ffva1156-2-e $proj_name $proj_dir/Projects/$proj_name
 
 
 set_property target_language VHDL [current_project]
@@ -49,6 +49,22 @@ read_vhdl -library work $proj_dir/sources/pcie/pcie_init.vhd
 read_vhdl -library work $proj_dir/sources/pcie/dma_control.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_clocking.vhd
 read_vhdl -library work $proj_dir/sources/pcie/pcie_slow_clock.vhd
+
+# ----------------------------------------------------------
+# Wishbone
+# ----------------------------------------------------------
+
+read_vhdl -library work $proj_dir/sources/Wishbone/wb_intercon.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wb_memory.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wb_syscon.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wishbone_pkg.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/genram_pkg.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/wupper_to_wb.vhd
+read_vhdl -library work $proj_dir/sources/Wishbone/xwb_crossbar.vhd
+
+import_ip $proj_dir/sources/ip_cores/ku/wishbone_memory.xci
+import_ip $proj_dir/sources/ip_cores/ku/wishbone_to_wupper_fifo.xci
+import_ip $proj_dir/sources/ip_cores/ku/wupper_to_wishbone_fifo.xci
 
 #for Virtex7 parts
 read_vhdl -library work $proj_dir/sources/ip_cores/ku/pcie_x8_gen3_3_0_stub.vhdl

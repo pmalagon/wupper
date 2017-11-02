@@ -249,6 +249,33 @@ any & T & Fire a test MSIx interrupt \#4 \\
 0x2810 & 0 & \multicolumn{2}{l|}{INT\_TEST\_5} &
 any & T & Fire a test MSIx interrupt \#5 \\
 \hline
+\multicolumn{7}{|c|}{Wishbone} \\
+\hline
+0x4000 & 0 & \multicolumn{5}{l|}{WISHBONE\_CONTROL} \\
+\cline{3-7}
+ & & & WRITE\_NOT\_READ & 32 & W & wishbone write command wishbone read command \\
+ & & & ADDRESS & 31:0 & W & Slave address for Wishbone bus \\
+\hline
+0x4010 & 0 & \multicolumn{5}{l|}{WISHBONE\_WRITE} \\
+\cline{3-7}
+ & & & WRITE\_ENABLE & any & T & Any write to this register triggers a write to the Wupper to Wishbone fifo \\
+ & & & FULL & 32 & R & Wishbone \\
+ & & & DATA & 31:0 & W & Wishbone \\
+\hline
+0x4020 & 0 & \multicolumn{5}{l|}{WISHBONE\_READ} \\
+\cline{3-7}
+ & & & READ\_ENABLE & any & T & Any write to this register triggers a read from the Wishbone to Wupper fifo \\
+ & & & EMPTY & 32 & R & Indicates that the Wishbone to Wupper fifo is empty \\
+ & & & DATA & 31:0 & R & Wishbone read data \\
+\hline
+0x4030 & 0 & \multicolumn{5}{l|}{WISHBONE\_STATUS} \\
+\cline{3-7}
+ & & & INT & 4 & R & interrupt \\
+ & & & RETRY & 3 & R & Interface is not ready to accept data cycle should be retried \\
+ & & & STALL & 2 & R & When pipelined mode slave can't accept additional transactions in its queue \\
+ & & & ACKNOWLEDGE & 1 & R & Indicates the termination of a normal bus cycle \\
+ & & & ERROR & 0 & R & Address not mapped by the crossbar \\
+\hline
 \caption{FELIX register map BAR2}\label{tab:dma_register_map_bar2} \\
 \end{longtabu}
 %\end{landscape}

@@ -65,7 +65,6 @@ entity wupper_oc_top is
     CARD_TYPE             : integer := 709;
     SVN_VERSION           : integer := 0;
     BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
-    REG_MAP_VERSION       : std_logic_vector := X"0300";
     GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
     COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
     GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
@@ -128,7 +127,6 @@ architecture structure of wupper_oc_top is
       BUILD_DATETIME        : std_logic_vector(39 downto 0) := x"0000FE71CE";
       SVN_VERSION           : integer := 0;
       CARD_TYPE             : integer := 709;
-      REG_MAP_VERSION       : std_logic_vector(15 downto 0) := X"0300";
       DEVID                 : std_logic_vector(15 downto 0) := x"7038";
       GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
       COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
@@ -256,7 +254,6 @@ begin
       BUILD_DATETIME        => BUILD_DATETIME,
       SVN_VERSION           => SVN_VERSION,
       CARD_TYPE             => CARD_TYPE,
-      REG_MAP_VERSION       => REG_MAP_VERSION,
       DEVID                 => x"7039",
       GIT_HASH              => GIT_HASH,
       COMMIT_DATETIME       => COMMIT_DATETIME,
@@ -366,5 +363,14 @@ begin
       empty                   => open,
       prog_full               => toHostFifo_prog_full,
       prog_empty              => toHostFifo_prog_empty);
+      
+  wb0: entity work.wb_intercon
+    port map(
+      control_in              => register_map_control,
+      monitor_out             => register_map_monitor.wishbone_monitor,     
+      wupper_clk_i            => appreg_clk,
+      rst_soft_i              => reset_soft,
+      rst_hard_i              => reset_hard);      
+            
 end architecture structure ; -- of wupper_oc_top
 

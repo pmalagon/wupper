@@ -43,9 +43,16 @@ set NUMBER_OF_DESCRIPTORS 8
 
 set CARD_TYPE 709
 
-set_property generic "BUILD_DATETIME=$build_date SVN_VERSION=$svn_version NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS CARD_TYPE=$CARD_TYPE" [current_fileset]
-
+set_property generic "\
+BUILD_DATETIME=$build_date \
+SVN_VERSION=$svn_version \
+NUMBER_OF_INTERRUPTS=$NUMBER_OF_INTERRUPTS \
+NUMBER_OF_DESCRIPTORS=$NUMBER_OF_DESCRIPTORS \
+CARD_TYPE=$CARD_TYPE \
+" [current_fileset]
+set_property strategy Performance_ExplorePostRoutePhysOpt $IMPL_RUN
 launch_runs $SYNTH_RUN
+#return
 launch_runs $IMPL_RUN 
 #launch_runs $IMPL_RUN  -to_step write_bitstream
 #cd $HDLDIR/Synt/
@@ -57,7 +64,7 @@ set TIMESTAMP [clock format $systemTime -format {%y%m%d_%H_%M}]
 open_run $IMPL_RUN
 current_run $IMPL_RUN
 
-write_bitstream $HDLDIR/output/${PROJECT_NAME}_${TIMESTAMP}.bit
+write_bitstream $HDLDIR/output/${PROJECT_NAME}_${TIMESTAMP}.bit -force
 
 cd $HDLDIR/output/
 

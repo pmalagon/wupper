@@ -652,6 +652,99 @@ th {
       <td class="desc">Fire a test MSIx interrupt #5</td>
     </tr>
     <tr>
+      <td colspan="7" class="group">Wishbone</td>
+    </tr>
+    <tr>
+      <td rowspan="2">0x4000</td>
+      <td rowspan="2">0</td>
+      <td rowspan="2">WISHBONE_CONTROL</td>
+      <td class="name">WRITE_NOT_READ</td>
+      <td class="range">32</td>
+      <td class="type">W</td>
+      <td class="desc">wishbone write command wishbone read command</td>
+    </tr>
+    <tr>
+      <td class="name">ADDRESS</td>
+      <td class="range">31..0</td>
+      <td class="type">W</td>
+      <td class="desc">Slave address for Wishbone bus</td>
+    </tr>
+    <tr>
+      <td rowspan="3">0x4010</td>
+      <td rowspan="3">0</td>
+      <td rowspan="3">WISHBONE_WRITE</td>
+      <td class="name">WRITE_ENABLE</td>
+      <td class="range">any</td>
+      <td class="type">T</td>
+      <td class="desc">Any write to this register triggers a write to the Wupper to Wishbone fifo</td>
+    </tr>
+    <tr>
+      <td class="name">FULL</td>
+      <td class="range">32</td>
+      <td class="type">R</td>
+      <td class="desc">Wishbone</td>
+    </tr>
+    <tr>
+      <td class="name">DATA</td>
+      <td class="range">31..0</td>
+      <td class="type">W</td>
+      <td class="desc">Wishbone</td>
+    </tr>
+    <tr>
+      <td rowspan="3">0x4020</td>
+      <td rowspan="3">0</td>
+      <td rowspan="3">WISHBONE_READ</td>
+      <td class="name">READ_ENABLE</td>
+      <td class="range">any</td>
+      <td class="type">T</td>
+      <td class="desc">Any write to this register triggers a read from the Wishbone to Wupper fifo</td>
+    </tr>
+    <tr>
+      <td class="name">EMPTY</td>
+      <td class="range">32</td>
+      <td class="type">R</td>
+      <td class="desc">Indicates that the Wishbone to Wupper fifo is empty</td>
+    </tr>
+    <tr>
+      <td class="name">DATA</td>
+      <td class="range">31..0</td>
+      <td class="type">R</td>
+      <td class="desc">Wishbone read data</td>
+    </tr>
+    <tr>
+      <td rowspan="5">0x4030</td>
+      <td rowspan="5">0</td>
+      <td rowspan="5">WISHBONE_STATUS</td>
+      <td class="name">INT</td>
+      <td class="range">4</td>
+      <td class="type">R</td>
+      <td class="desc">interrupt</td>
+    </tr>
+    <tr>
+      <td class="name">RETRY</td>
+      <td class="range">3</td>
+      <td class="type">R</td>
+      <td class="desc">Interface is not ready to accept data cycle should be retried</td>
+    </tr>
+    <tr>
+      <td class="name">STALL</td>
+      <td class="range">2</td>
+      <td class="type">R</td>
+      <td class="desc">When pipelined mode slave can't accept additional transactions in its queue</td>
+    </tr>
+    <tr>
+      <td class="name">ACKNOWLEDGE</td>
+      <td class="range">1</td>
+      <td class="type">R</td>
+      <td class="desc">Indicates the termination of a normal bus cycle</td>
+    </tr>
+    <tr>
+      <td class="name">ERROR</td>
+      <td class="range">0</td>
+      <td class="type">R</td>
+      <td class="desc">Address not mapped by the crossbar</td>
+    </tr>
+    <tr>
       <td colspan="7" class="group">Monitorsections</td>
     </tr>
     <tr>
@@ -667,6 +760,15 @@ th {
       <td rowspan="1">0x0010</td>
       <td rowspan="1">0,1</td>
       <td rowspan="1">HouseKeepingControlsAndMonitors</td>
+      <td class="name"></td>
+      <td class="range">0..0</td>
+      <td class="type">R</td>
+      <td class="desc">None</td>
+    </tr>
+    <tr>
+      <td rowspan="1">0x0020</td>
+      <td rowspan="1">0,1</td>
+      <td rowspan="1">Wishbone</td>
       <td class="name"></td>
       <td class="range">0..0</td>
       <td class="type">R</td>
