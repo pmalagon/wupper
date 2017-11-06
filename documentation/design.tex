@@ -222,5 +222,20 @@ The MSI-X Interrupt table contains 8 interrupts, this number can be extended by 
 \end{longtabu}
 
 %A description of how the software is initializing and handling the interrupts is described in Section~\ref{sec:controlling_interrupts}.
+\newpage
+\subsection{Wishbone}
+\begin{flushleft}
+The Wishbone protocol is a design method to connect IP cores with a common interface.
+The Wishbone can be used for soft, firm core or hard core IP and can be used with the VHDL language. The main purpose is to make an interconnection between IP cores and make it more compatible with each other. \newline
+The Wishbone bus is added because of a needed connection between the register map of the Wupper core and an external SLAVE. In this connection a Wishbone crossbar is added so that multiple SLAVEs can be attached. As a SLAVE example a 32 bits block memory was added. The memory has a data input to receive and a data output to send the data back to the crossbar. \newline
+The wupper\_to\_wb.vhd makes Wupper data Wishbone compatible. Also, two FIFOs are added to synchronize the Wupper clock  with an external clock. One FIFO is to send data from Wupper to the crossbar. And one FIFO is to receive  data from the crossbar to the Wupper. \newline
+The system controller makes the external clock and the external reset Wishbone compatible.
+\begin{figure}[H]
+	\centering
+	\input{figures/wupper_to_wishbone.tex}
+	\caption{Block diagram of Wupper to Wishbone}
+	\label{fig:wupper_to_wishbone}
+\end{figure}
+\end{flushleft}
 
 \newpage
