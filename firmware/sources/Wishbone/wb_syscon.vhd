@@ -1,29 +1,52 @@
-----------------------------------------------------------------------
--- Module name:     SYC0001a.VHD
---
--- Description:     A simple WISHBONE SYSCON for FPGA.  For more infor-
---                  mation, please refer to the WISHBONE Public Domain
---                  Library Technical Reference Manual.
---
--- History:         Project complete:           SEP 20, 2001
---                                              WD Peterson
---                                              Silicore Corporation
---
--- Release:         Notice is hereby given that this document is not
---                  copyrighted, and has been placed into the public
---                  domain.  It may be freely copied and distributed
---                  by any means.
---
--- Disclaimer:      In no event shall Silicore Corporation be liable
---                  for incidental, consequential, indirect or special
---                  damages resulting from the use of this file.  The
---                  user assumes all responsibility for its use.
---
-----------------------------------------------------------------------
 
-----------------------------------------------------------------------
--- Load the IEEE 1164 library and make it visible.
-----------------------------------------------------------------------
+--!------------------------------------------------------------------------------
+--!                                                             
+--!           NIKHEF - National Institute for Subatomic Physics 
+--!
+--!                       Electronics Department                
+--!                                                             
+--!-----------------------------------------------------------------------------
+--! @class wb_syscon
+--! 
+--!
+--! @author      Roel Blankers  (broel@nikhef.nl)
+--!
+--!
+--! @date        31/10/2017    created
+--!
+--! @version     1.0
+--!
+--! @brief 
+--! Systemcontroller for the Wishbone bus. 
+--!     
+--!    
+--!     
+--!                      
+--!          
+--! 
+--!
+--!-----------------------------------------------------------------------------
+--! @TODO
+--!  
+--!
+--! ------------------------------------------------------------------------------
+--! Wishbone interconnection
+--! 
+--! \copyright GNU LGPL License
+--! Copyright (c) Nikhef, Amsterdam, All rights reserved. <br>
+--! This library is free software; you can redistribute it and/or
+--! modify it under the terms of the GNU Lesser General Public
+--! License as published by the Free Software Foundation; either
+--! version 3.0 of the License, or (at your option) any later version.
+--! This library is distributed in the hope that it will be useful,
+--! but WITHOUT ANY WARRANTY; without even the implied warranty of
+--! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+--! Lesser General Public License for more details.<br>
+--! You should have received a copy of the GNU Lesser General Public
+--! License along with this library.
+--! 
+-- 
+--! @brief ieee
 
 library ieee;
 use ieee.std_logic_1164.all;
