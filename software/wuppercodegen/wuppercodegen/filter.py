@@ -34,6 +34,7 @@ def _setup(env):
     env.filters['version'] = version
 
     env.filters['vhdl_constant'] = vhdl_constant
+    env.filters['vhdl_string_or_constant'] = vhdl_string_or_constant
     env.filters['vhdl_logic_vector'] = vhdl_logic_vector
     env.filters['vhdl_downto'] = vhdl_downto
     env.filters['vhdl_value'] = vhdl_value
@@ -105,6 +106,8 @@ def vhdl_constant(value, bits=1):
         fmtstring = '"{0:0' + str(bits) + 'b}"'
         return fmtstring.format(value)
 
+def vhdl_string_or_constant(bitfield):
+    return vhdl_constant(bitfield.default, bitfield.bits) if isinstance(bitfield.default, (int, long)) else bitfield.default[bitfield.parent.index] if isinstance(bitfield.default, list) else bitfield.default
 
 def vhdl_logic_vector(bitfield):
     r"""Format the bitfield value as std_logic_vector(\ *hi* downto *lo*)."""
