@@ -1,6 +1,6 @@
 ## Block Diagram
 
-![Wupper_structure](/usercontent/img/1436869667)
+![Wupper_structure](/usercontent/img/1436869667 =x450)
 
 ## Description
 
