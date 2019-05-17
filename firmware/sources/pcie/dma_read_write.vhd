@@ -160,26 +160,29 @@ begin
   
   add_header: process(clk, reset, dma_soft_reset)
     variable next_active_descriptor_v: integer range 0 to (NUMBER_OF_DESCRIPTORS-1);
+    variable read_idle_counter: integer range 0 to 255;
   begin
-    if(reset = '1') or (dma_soft_reset = '1') then
-      rw_state <= IDLE;
-      current_descriptor <= ( start_address     => (others => '0'),
-                              dword_count => (others => '0'),
-                              read_not_write    => '1',
-                              enable            => '0',
-                              current_address   => (others => '0'),
-                              end_address       => (others => '0'),
-                              wrap_around       => '0',
-                              evencycle_dma     => '0',
-                              evencycle_pc      => '0',
-                              pc_pointer        => (others => '0'));
-      active_descriptor_s <= 0;
-      current_dword_count_s <= "00001000000"; --256 bytes
-      for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
-        descriptor_done_s(i) <= '0'; --clear done flag, controller may load a new descriptor
-      end loop;
-    else
-      if(rising_edge(clk)) then
+    if(rising_edge(clk)) then
+      if(reset = '1') or (dma_soft_reset = '1') then
+        rw_state <= IDLE;
+        current_descriptor <= ( start_address     => (others => '0'),
+                                  dword_count => (others => '0'),
+                                  read_not_write    => '1',
+                                  enable            => '0',
+                                  current_address   => (others => '0'),
+                                  end_address       => (others => '0'),
+                                  wrap_around       => '0',
+                                  evencycle_dma     => '0',
+                                  evencycle_pc      => '0',
+                                  pc_pointer        => (others => '0'));
+        active_descriptor_s <= 0;
+        current_dword_count_s <= "00001000000"; --256 bytes
+        for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
+          descriptor_done_s(i) <= '0'; --clear done flag, controller may load a new descriptor
+        end loop;
+        read_idle_counter := 0;
+      else
+        
         --defaults:
         current_descriptor  <= current_descriptor; --keep the same, only change if idle
         rw_state            <= IDLE;
@@ -189,6 +192,9 @@ begin
         s_m_axis_rq.tkeep   <= x"00";
         s_m_axis_rq.tlast   <= '0';
         active_descriptor_s <= active_descriptor_s;
+        if(read_idle_counter > 0) then
+            read_idle_counter := read_idle_counter -1;
+        end if;
         
         for i in 0 to (NUMBER_OF_DESCRIPTORS-1) loop
             descriptor_done_s(i) <= '0'; --clear done flag, controller may load a new descriptor
@@ -219,7 +225,7 @@ begin
                 rw_state <= START_WRITE;
                 descriptor_done_s(active_descriptor_s) <= '1'; --pulse only once
               end if;
-              if(((dma_descriptors(active_descriptor_s).read_not_write = '1') and (fromHostFifo_prog_full = '0'))) then
+              if(((dma_descriptors(active_descriptor_s).read_not_write = '1') and (fromHostFifo_prog_full = '0')) and (read_idle_counter = 0)) then
                 rw_state <= START_READ;
                 descriptor_done_s(active_descriptor_s) <= '1'; --pulse only once
               end if;
@@ -337,6 +343,7 @@ begin
               
               s_m_axis_rq.tkeep  <= x"0F";
               s_m_axis_rq.tvalid <= '1';
+              read_idle_counter := to_integer(unsigned(current_descriptor.dword_count(10 downto 3)));
             else
               s_m_axis_rq.tvalid <= '0';
               rw_state <= START_READ;
@@ -359,11 +366,10 @@ begin
   strip_hdr: process(clk, reset, dma_soft_reset)
     variable receive_word_count_v: std_logic_vector(10 downto 0);
   begin
-    if(reset = '1') or (dma_soft_reset = '1') then
-      strip_state <= IDLE;
-    else
-      if(rising_edge(clk)) then
-        
+    if(rising_edge(clk)) then
+      if(reset = '1') or (dma_soft_reset = '1') then
+        strip_state <= IDLE;
+      else
         --defaults:
         strip_state <= IDLE;
         fromHostFifo_we <= '0';

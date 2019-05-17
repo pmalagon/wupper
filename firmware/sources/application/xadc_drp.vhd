@@ -50,8 +50,6 @@ COMPONENT system_management_wiz_0
     do_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
     dclk_in : IN STD_LOGIC;
     reset_in : IN STD_LOGIC;
-    vp : IN STD_LOGIC;
-    vn : IN STD_LOGIC;
     channel_out : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
     eoc_out : OUT STD_LOGIC;
     alarm_out : OUT STD_LOGIC;
@@ -106,19 +104,21 @@ g0: if CARD_TYPE = 709 or CARD_TYPE = 710 generate
 end generate;
 
 g1: if CARD_TYPE = 105 or CARD_TYPE = 711 generate
+    signal daddr_in_s: std_logic_vector(7 downto 0);
+begin
+
+daddr_in_s <= "0" & daddr_in;
 
 xadc0 : system_management_wiz_0
   PORT MAP (
     di_in => di_in,
-    daddr_in => "0"&daddr_in,
+    daddr_in => daddr_in_s,
     den_in => den_in,
     dwe_in => dwe_in,
     drdy_out => drdy_out,
     do_out => do_out,
     dclk_in => clk40,
     reset_in => reset,
-    vp => vp_in,
-    vn => vn_in,
     channel_out => open,
     eoc_out => eoc_out,
     alarm_out => alarm_out,

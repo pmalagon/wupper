@@ -138,7 +138,7 @@ begin
 
   leds <= register_map_control.STATUS_LEDS;
   rst <= reset_soft or reset_hard;
-  i2cmux_rst <= rst;
+  i2cmux_rst <= not rst;
   
   i2c0: simple_i2c
     port map(

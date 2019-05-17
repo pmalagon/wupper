@@ -64,6 +64,7 @@ package pcie_package is
   type axis_type is record
     tdata   : std_logic_vector(255 downto 0);
     tkeep   : std_logic_vector(7 downto 0);
+    tuser   : std_logic_vector(84 downto 0);
     tlast   : std_logic;
     tvalid  : std_logic;
   end record;
@@ -166,6 +167,9 @@ package pcie_package is
   constant REG_REGISTER_RESET      : std_logic_vector(19 downto 0) := x"00440";
   constant REG_FROMHOST_FULL_THRESH: std_logic_vector(19 downto 0) := x"00450";
   constant REG_TOHOST_FULL_THRESH  : std_logic_vector(19 downto 0) := x"00460";
+  constant REG_BUSY_THRESH_ASSERT  : std_logic_vector(19 downto 0) := x"00470";
+  constant REG_BUSY_THRESH_NEGATE  : std_logic_vector(19 downto 0) := x"00480";
+  constant REG_BUSY_STATUS         : std_logic_vector(19 downto 0) := x"00490";
   
   -- BAR0 registers: end
 
@@ -181,6 +185,14 @@ package pcie_package is
   constant REG_INT_VEC_05          : std_logic_vector(19 downto 0) := x"00050";
   constant REG_INT_VEC_06          : std_logic_vector(19 downto 0) := x"00060";
   constant REG_INT_VEC_07          : std_logic_vector(19 downto 0) := x"00070";
+  constant REG_INT_VEC_08          : std_logic_vector(19 downto 0) := x"00080";
+  constant REG_INT_VEC_09          : std_logic_vector(19 downto 0) := x"00090";
+  constant REG_INT_VEC_10          : std_logic_vector(19 downto 0) := x"000A0";
+  constant REG_INT_VEC_11          : std_logic_vector(19 downto 0) := x"000B0";
+  constant REG_INT_VEC_12          : std_logic_vector(19 downto 0) := x"000C0";
+  constant REG_INT_VEC_13          : std_logic_vector(19 downto 0) := x"000D0";
+  constant REG_INT_VEC_14          : std_logic_vector(19 downto 0) := x"000E0";
+  constant REG_INT_VEC_15          : std_logic_vector(19 downto 0) := x"000F0";
   constant REG_INT_TAB_EN          : std_logic_vector(19 downto 0) := x"00100";
   -- BAR1 registers: end
 
@@ -254,6 +266,8 @@ package pcie_package is
   ---- GENERATED code END #2 ##  ----
   -----------------------------------
 
+  constant REG_BUSY_THRESH_ASSERT_C : std_logic_vector(63 downto 0) := x"0000_0000_0640_0000"; --100 MB busy threshold default value.
+  constant REG_BUSY_THRESH_NEGATE_C : std_logic_vector(63 downto 0) := x"0000_0000_06E0_0000"; --100 MB busy threshold default value.
 
   --!
   --! --> Read/Write User Application Registers DEFAULT values (Written by PCIe)

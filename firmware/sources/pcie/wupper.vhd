@@ -67,16 +67,18 @@ entity wupper is
     GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
     COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
     GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
-    GIT_COMMIT_NUMBER     : integer := 0);
+    GIT_COMMIT_NUMBER     : integer := 0;
+    PCIE_ENDPOINT         : integer := 0);
   port (
     appreg_clk                          : out    std_logic;
     flush_fifo                          : out    std_logic;
     fromHostFifo_din                    : out    std_logic_vector(255 downto 0);
-    fromHostFifo_pfull_threshold_assert : out    std_logic_vector(6 downto 0);
-    fromHostFifo_pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+    fromHostFifo_pfull_threshold_assert : out    std_logic_vector(8 downto 0);
+    fromHostFifo_pfull_threshold_negate : out    std_logic_vector(8 downto 0);
     fromHostFifo_prog_full              : in     std_logic;
     fromHostFifo_we                     : out    std_logic;
     fromHostFifo_wr_clk                 : out    std_logic;
+    fromhost_busy_out                   : out    std_logic;
     interrupt_call                      : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
     lnk_up                              : out    std_logic;
     pcie_rxn                            : in     std_logic_vector(7 downto 0);
@@ -97,7 +99,8 @@ entity wupper is
     toHostFifo_pfull_threshold_negate   : out    std_logic_vector(11 downto 0);
     toHostFifo_prog_empty               : in     std_logic;
     toHostFifo_rd_clk                   : out    std_logic;
-    toHostFifo_re                       : out    std_logic);
+    toHostFifo_re                       : out    std_logic;
+    tohost_busy_out                     : out    std_logic);
 end entity wupper;
 
 
@@ -127,7 +130,7 @@ architecture structure of wupper is
   signal cfg_mgmt_read_write_done   : std_logic;
   signal cfg_mgmt_read_data         : std_logic_vector(31 downto 0);
   signal interrupt_table_en         : std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
-  signal clkDiv6                    : std_logic;
+  signal regmap_clk                 : std_logic;
   signal dma_interrupt_call         : std_logic_vector(3 downto 0);
   signal m_axis_cq                  : axis_type;
   signal m_axis_cc                  : axis_type;
@@ -198,20 +201,22 @@ architecture structure of wupper is
       GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
       COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
       GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
-      GIT_COMMIT_NUMBER     : integer := 0);
+      GIT_COMMIT_NUMBER     : integer := 0;
+      PCIE_ENDPOINT         : integer := 0);
     port (
       bar0                            : in     std_logic_vector(31 downto 0);
       bar1                            : in     std_logic_vector(31 downto 0);
       bar2                            : in     std_logic_vector(31 downto 0);
       clk                             : in     std_logic;
-      clkDiv6                         : in     std_logic;
+      regmap_clk                      : in     std_logic;
       dma_interrupt_call              : out    std_logic_vector(3 downto 0);
       flush_fifo                      : out    std_logic;
       fromHostFifo_din                : out    std_logic_vector(255 downto 0);
       fromHostFifo_prog_full          : in     std_logic;
       fromHostFifo_we                 : out    std_logic;
-      fromhost_pfull_threshold_assert : out    std_logic_vector(6 downto 0);
-      fromhost_pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+      fromhost_busy_out               : out    std_logic;
+      fromhost_pfull_threshold_assert : out    std_logic_vector(8 downto 0);
+      fromhost_pfull_threshold_negate : out    std_logic_vector(8 downto 0);
       interrupt_table_en              : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
       interrupt_vector                : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
       m_axis_cc                       : out    axis_type;
@@ -230,6 +235,7 @@ architecture structure of wupper is
       toHostFifo_empty_thresh         : out    std_logic_vector(11 downto 0);
       toHostFifo_prog_empty           : in     std_logic;
       toHostFifo_re                   : out    std_logic;
+      tohost_busy_out                 : out    std_logic;
       tohost_pfull_threshold_assert   : out    std_logic_vector(11 downto 0);
       tohost_pfull_threshold_negate   : out    std_logic_vector(11 downto 0);
       user_lnk_up                     : in     std_logic);
@@ -246,7 +252,7 @@ architecture structure of wupper is
       cfg_interrupt_msix_int     : out    std_logic;
       cfg_interrupt_msix_sent    : in     std_logic;
       clk                        : in     std_logic;
-      clkDiv6                    : in     std_logic;
+      regmap_clk                 : in     std_logic;
       dma_interrupt_call         : in     std_logic_vector(3 downto 0);
       interrupt_call             : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 4);
       interrupt_table_en         : in     std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
@@ -284,7 +290,7 @@ architecture structure of wupper is
   component pcie_slow_clock
     port (
       clk        : in     std_logic;
-      clkDiv6    : out    std_logic;
+      regmap_clk : out    std_logic;
       pll_locked : out    std_logic;
       reset_n    : in     std_logic;
       reset_out  : out    std_logic);
@@ -293,7 +299,7 @@ architecture structure of wupper is
 begin
   toHostFifo_rd_clk <= clk;
   fromHostFifo_wr_clk <= clk;
-  appreg_clk <= clkDiv6;
+  appreg_clk <= regmap_clk;
   sys_rst_n <= sys_reset_n;
   lnk_up <= lnk_up_net;
 
@@ -351,18 +357,20 @@ begin
       GIT_HASH              => GIT_HASH,
       COMMIT_DATETIME       => COMMIT_DATETIME,
       GIT_TAG               => GIT_TAG,
-      GIT_COMMIT_NUMBER     => GIT_COMMIT_NUMBER)
+      GIT_COMMIT_NUMBER     => GIT_COMMIT_NUMBER,
+      PCIE_ENDPOINT         => PCIE_ENDPOINT)
     port map(
       bar0                            => bar0,
       bar1                            => bar1,
       bar2                            => bar2,
       clk                             => clk,
-      clkDiv6                         => clkDiv6,
+      regmap_clk                      => regmap_clk,
       dma_interrupt_call              => dma_interrupt_call,
       flush_fifo                      => flush_fifo,
       fromHostFifo_din                => fromHostFifo_din,
       fromHostFifo_prog_full          => fromHostFifo_prog_full,
       fromHostFifo_we                 => fromHostFifo_we,
+      fromhost_busy_out               => fromhost_busy_out,
       fromhost_pfull_threshold_assert => fromHostFifo_pfull_threshold_assert,
       fromhost_pfull_threshold_negate => fromHostFifo_pfull_threshold_negate,
       interrupt_table_en              => interrupt_table_en,
@@ -383,6 +391,7 @@ begin
       toHostFifo_empty_thresh         => toHostFifo_empty_thresh,
       toHostFifo_prog_empty           => toHostFifo_prog_empty,
       toHostFifo_re                   => toHostFifo_re,
+      tohost_busy_out                 => tohost_busy_out,
       tohost_pfull_threshold_assert   => toHostFifo_pfull_threshold_assert,
       tohost_pfull_threshold_negate   => toHostFifo_pfull_threshold_negate,
       user_lnk_up                     => lnk_up_net);
@@ -398,7 +407,7 @@ begin
       cfg_interrupt_msix_int     => cfg_interrupt_msix_int,
       cfg_interrupt_msix_sent    => cfg_interrupt_msix_sent,
       clk                        => clk,
-      clkDiv6                    => clkDiv6,
+      regmap_clk                 => regmap_clk,
       dma_interrupt_call         => dma_interrupt_call,
       interrupt_call             => interrupt_call,
       interrupt_table_en         => interrupt_table_en,
@@ -434,7 +443,7 @@ begin
   u3: pcie_slow_clock
     port map(
       clk        => clk,
-      clkDiv6    => clkDiv6,
+      regmap_clk => regmap_clk,
       pll_locked => pll_locked,
       reset_n    => sys_rst_n,
       reset_out  => reset_hard);

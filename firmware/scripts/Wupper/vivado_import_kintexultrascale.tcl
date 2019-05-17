@@ -71,7 +71,7 @@ read_vhdl -library work $proj_dir/sources/ip_cores/ku/pcie_x8_gen3_3_0_stub.vhdl
 #for Kintex Ultrascale parts
 import_ip $proj_dir/sources/ip_cores/ku/pcie3_ultrascale_7038.xci
 import_ip $proj_dir/sources/ip_cores/ku/pcie3_ultrascale_7039.xci
-import_ip $proj_dir/sources/ip_cores/ku/clk_wiz_40.xci
+import_ip $proj_dir/sources/ip_cores/ku/clk_wiz_regmap.xci
 
 # ----------------------------------------------------------
 # example application
@@ -84,7 +84,7 @@ read_vhdl -library work $proj_dir/sources/ip_cores/ku/xadc_wiz_0_stub.vhdl
 import_ip $proj_dir/sources/ip_cores/ku/system_management_wiz_0.xci
 
 import_ip $proj_dir/sources/ip_cores/ku/fifo128KB_256bit.xci  
-import_ip $proj_dir/sources/ip_cores/ku/fifo4KB_256bit.xci
+import_ip $proj_dir/sources/ip_cores/ku/fifo16KB_256bit.xci
 
 upgrade_ip [get_ips  {I2C_RDFifo I2C_WRFifo pcie3_ultrascale_7038 pcie3_ultrascale_7039 clk_wiz_40 fifo128KB_256bit fifo4KB_256bit}]
 

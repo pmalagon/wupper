@@ -1,5 +1,5 @@
 Registers:
-  version: '1.0'
+  version: '2.0'
   warning: |
     ***************************************************************************
     ***************************************************************************
@@ -126,6 +126,30 @@ Bar0:
           name: THRESHOLD_NEGATE
           desc: Negate value of the ToHost programmalbe full flag
 
+    - name: BUSY_THRESHOLD_ASSERT
+      type: W
+      desc: Tohost or Fromhost busy will be asserted in circular DMA mode when the server PC buffer gets full (space below ASSERT threshold)..
+      default: 0x6400000
+      bitfield:
+        - range: 63..0
+        
+    - name: BUSY_THRESHOLD_NEGATE
+      type: W
+      desc: Tohost or Fromhost busy will be negated in circular DMA mode when the server PC buffer gets less full (space above NEGATE threshold).
+      default: 0x6E00000
+      bitfield:
+        - range: 63..0
+
+    - name: BUSY_STATUS
+      type: R
+      bitfield:
+        - range: 1
+          name: FROMHOST_BUSY
+          desc: A fromhost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set
+        - range: 0
+          name: TOHOST_BUSY
+          desc: A tohost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set
+
 
 DMA_DESC:
   number: 8
@@ -142,13 +166,13 @@ DMA_DESC:
     - name: DMA_DESC_{index}a
       bitfield:
         - range: 127..64
-          name: RD_POINTER
-          desc: PC Read Pointer
+          name: SW_POINTER
+          desc: Pointer controlled by the software, indicating read or write status for circular DMA
         - range: 12
           name: WRAP_AROUND
           desc: Wrap around
         - range: 11
-          name: READ_WRITE
+          name: FROMHOST
           desc: "1: fromHost/ 0: toHost"
         - range: 10..0
           name: NUM_WORDS
@@ -169,8 +193,8 @@ DMA_DESC_STATUS:
           name: DESC_DONE
           desc: Descriptor Done
         - range: 63..0
-          name: CURRENT_ADDRESS
-          desc: Current Address
+          name: FW_POINTER
+          desc: Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing
 
 
 #Bar1 contains the registers dedicated to the Wupper interrupg controller.
@@ -190,7 +214,7 @@ Bar1:
             Selectively enable Interrupts
 
 INT_VEC:
-  number: 8
+  number: 16
   type: W
   entries:
     - name: INT_VEC_{index}
@@ -242,6 +266,30 @@ GenericBoardInformation:
           value: std_logic_vector(to_unsigned(SVN_VERSION,16))
           desc: Board ID SVN Revision
 
+    - name: GIT_COMMIT_TIME
+      bitfield:
+        - range: 39..0
+          value: COMMIT_DATETIME
+          desc: Board ID GIT Commit time of current revision, Date / Time in BCD format YYMMDDhhmm
+          
+    - name: GIT_TAG
+      bitfield:
+        - range: 63..0
+          value: GIT_TAG(63 downto 0)
+          desc: String containing the current GIT TAG
+
+    - name: GIT_COMMIT_NUMBER
+      bitfield:
+        - range: 31..0
+          value: std_logic_vector(to_unsigned(GIT_COMMIT_NUMBER,32))
+          desc: Number of GIT commits after current GIT_TAG
+          
+    - name: GIT_HASH
+      bitfield:
+        - range: 31..0
+          value: GIT_HASH(159 downto 128)
+          desc: Short GIT hash (32 bit)
+
     - name: STATUS_LEDS
       type: W
       bitfield:
@@ -266,9 +314,10 @@ GenericBoardInformation:
           value: std_logic_vector(to_unsigned(CARD_TYPE,64))
           desc: |
             Card Type:
-              * 709 (0x2c5) VC709
-              * 710 (0x2c6) HTG710
-              * 711 (0x2c7) BNL711
+              - 709 (0x2c5): VC-709
+              - 710 (0x2c6): HTG-710
+              - 711 (0x2c7): BNL-711
+              - 712 (0x2c8): BNL-712
     
     
 ApplicationSpecific:
@@ -425,6 +474,40 @@ HouseKeepingControlsAndMonitors:
       bitfield:
         - range: any
           desc: Fire a test MSIx interrupt \#5
+
+    - name: DMA_BUSY_STATUS
+      type: W
+      bitfield:
+        - range: any
+          type: T
+          value: 1
+          name: CLEAR_LATCH
+          desc: Any write to this register clears TOHOST_BUSY_LATCHED
+        - range: 4
+          type: W
+          name: ENABLE
+          desc: Enable the DMA buffer on the server as a source of busy
+          default: 0
+        - range: 3
+          type: R
+          name: TOHOST_BUSY_LATCHED
+          desc: A tohost descriptor has passed BUSY_THRESHOLD_ASSERT in the past, busy flag was set
+          value: (others => tohost_busy_latched_40_s) 
+        - range: 2
+          type: R
+          name: FROMHOST_BUSY_LATCHED
+          desc: A fromhost descriptor has passed BUSY_THRESHOLD_ASSERT in the past, busy flag was set
+          value: (others => fromhost_busy_latched_40_s) 
+        - range: 1
+          type: R
+          name: FROMHOST_BUSY
+          desc: A fromhost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set
+          value: (others => fromhost_busy_40_s)
+        - range: 0
+          type: R
+          name: TOHOST_BUSY
+          desc: A tohost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set
+          value: (others => tohost_busy_40_s)
           
 Wishbone:
   desc: Wishbone

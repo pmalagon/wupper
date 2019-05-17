@@ -49,12 +49,11 @@
 
 
 
-library ieee, UNISIM, work;
+library ieee, UNISIM;
 use ieee.numeric_std.all;
 use UNISIM.VCOMPONENTS.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
-use work.pcie_package.all;
 
 entity pcie_init is
   port (

@@ -66,20 +66,24 @@ entity wupper_core is
     GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
     COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
     GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
-    GIT_COMMIT_NUMBER     : integer := 0);
+    GIT_COMMIT_NUMBER     : integer := 0;
+    GBT_GENERATE_ALL_REGS : boolean :=false;
+    EMU_GENERATE_REGS     : boolean := false;
+    PCIE_ENDPOINT         : integer := 0);
   port (
     bar0                            : in     std_logic_vector(31 downto 0);
     bar1                            : in     std_logic_vector(31 downto 0);
     bar2                            : in     std_logic_vector(31 downto 0);
     clk                             : in     std_logic;
-    clkDiv6                         : in     std_logic;
+    regmap_clk                      : in     std_logic;
     dma_interrupt_call              : out    std_logic_vector(3 downto 0);
     flush_fifo                      : out    std_logic;
     fromHostFifo_din                : out    std_logic_vector(255 downto 0);
     fromHostFifo_prog_full          : in     std_logic;
     fromHostFifo_we                 : out    std_logic;
-    fromhost_pfull_threshold_assert : out    std_logic_vector(6 downto 0);
-    fromhost_pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+    fromhost_busy_out               : out    std_logic;
+    fromhost_pfull_threshold_assert : out    std_logic_vector(8 downto 0);
+    fromhost_pfull_threshold_negate : out    std_logic_vector(8 downto 0);
     interrupt_table_en              : out    std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
     interrupt_vector                : out    interrupt_vectors_type(0 to (NUMBER_OF_INTERRUPTS-1));
     m_axis_cc                       : out    axis_type;
@@ -98,6 +102,7 @@ entity wupper_core is
     toHostFifo_empty_thresh         : out    std_logic_vector(11 downto 0);
     toHostFifo_prog_empty           : in     std_logic;
     toHostFifo_re                   : out    std_logic;
+    tohost_busy_out                 : out    std_logic;
     tohost_pfull_threshold_assert   : out    std_logic_vector(11 downto 0);
     tohost_pfull_threshold_negate   : out    std_logic_vector(11 downto 0);
     user_lnk_up                     : in     std_logic);
@@ -142,13 +147,14 @@ architecture structure of wupper_core is
       GIT_HASH              : std_logic_vector(159 downto 0) := x"0000000000000000000000000000000000000000";
       COMMIT_DATETIME       : std_logic_vector(39 downto 0) := x"0000FE71CE";
       GIT_TAG               : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
-      GIT_COMMIT_NUMBER     : integer := 0);
+      GIT_COMMIT_NUMBER     : integer := 0;
+      PCIE_ENDPOINT         : integer := 0);
     port (
       bar0                            : in     std_logic_vector(31 downto 0);
       bar1                            : in     std_logic_vector(31 downto 0);
       bar2                            : in     std_logic_vector(31 downto 0);
       clk                             : in     std_logic;
-      clkDiv6                         : in     std_logic;
+      regmap_clk                      : in     std_logic;
       dma_descriptors                 : out    dma_descriptors_type(0 to (NUMBER_OF_DESCRIPTORS-1));
       dma_soft_reset                  : out    std_logic;
       dma_status                      : in     dma_statuses_type;
@@ -166,10 +172,12 @@ architecture structure of wupper_core is
       dma_interrupt_call              : out    std_logic_vector(3 downto 0);
       fifo_empty                      : in     std_logic;
       fifo_full                       : in     std_logic;
-      fromhost_pfull_threshold_assert : out    std_logic_vector(6 downto 0);
-      fromhost_pfull_threshold_negate : out    std_logic_vector(6 downto 0);
+      fromhost_pfull_threshold_assert : out    std_logic_vector(8 downto 0);
+      fromhost_pfull_threshold_negate : out    std_logic_vector(8 downto 0);
       tohost_pfull_threshold_assert   : out    std_logic_vector(11 downto 0);
-      tohost_pfull_threshold_negate   : out    std_logic_vector(11 downto 0));
+      tohost_pfull_threshold_negate   : out    std_logic_vector(11 downto 0);
+      tohost_busy_out                 : out    std_logic;
+      fromhost_busy_out               : out    std_logic);
   end component dma_control;
 
 begin
@@ -205,13 +213,14 @@ begin
       GIT_HASH              => GIT_HASH,
       COMMIT_DATETIME       => COMMIT_DATETIME,
       GIT_TAG               => GIT_TAG,
-      GIT_COMMIT_NUMBER     => GIT_COMMIT_NUMBER)
+      GIT_COMMIT_NUMBER     => GIT_COMMIT_NUMBER,
+      PCIE_ENDPOINT         => PCIE_ENDPOINT)
     port map(
       bar0                            => bar0,
       bar1                            => bar1,
       bar2                            => bar2,
       clk                             => clk,
-      clkDiv6                         => clkDiv6,
+      regmap_clk                      => regmap_clk,
       dma_descriptors                 => u1_dma_descriptors,
       dma_soft_reset                  => dma_soft_reset,
       dma_status                      => dma_status,
@@ -232,6 +241,8 @@ begin
       fromhost_pfull_threshold_assert => fromhost_pfull_threshold_assert,
       fromhost_pfull_threshold_negate => fromhost_pfull_threshold_negate,
       tohost_pfull_threshold_assert   => tohost_pfull_threshold_assert,
-      tohost_pfull_threshold_negate   => tohost_pfull_threshold_negate);
+      tohost_pfull_threshold_negate   => tohost_pfull_threshold_negate,
+      tohost_busy_out                 => tohost_busy_out,
+      fromhost_busy_out               => fromhost_busy_out);
 end architecture structure ; -- of wupper_core
 

@@ -1,33 +1,16 @@
 \section{Introduction}
-Wupper \footnote{A wupper is a person performing the act of bongelwuppen, the version from the Dutch province of Groningen of the Frisian sport Fierljeppen (canal pole vaulting). \href{https://www.youtube.com/watch?v=Bre8DsQZqSs}{https://www.youtube.com/watch?v=Bre8DsQZqSs}} was designed for the ATLAS / FELIX project \cite{atlas}, to provide a simple
-Direct Memory Access (DMA) interface for the Xilinx  Virtex-7 PCIe Gen3 hard block and the . The core is not meant to be flexible among different architectures, but especially designed for the 256 bit wide AXI4-Stream interface
-\cite{ug761}  of the Xilinx Virtex-7 and Ultrascale FPGA Gen3 Integrated Block for PCI Express (PCIe) \cite{xilinxcore}
-\cite{pg023} \cite{pg156}. 
+Wupper\footnote{The person performing the act of bongelwuppen, the Gronings version of the famous Frisian sport of the Fierljeppen (canal pole vaulting) \url{https://nds-nl.wikipedia.org/wiki/Nedersaksische_sp\%C3\%B6llegies\#Bongelwuppen}} is designed for the ATLAS / FELIX project \cite{felix}, to provide a simple
+Direct Memory Access (DMA) interface for the Xilinx Virtex-7 PCIe Gen3 hard block. The core is not meant to be flexible among different architectures, but especially designed for the 256 bit wide AXI4-Stream interface~\cite{ug761}  of the Xilinx Virtex-7 and Ultrascale FPGA Gen3 Integrated Block for PCI Express (PCIe)~\cite{xilinxcore} and~\cite{pg023}.
 
-The purpose of the PCIe Engine is to provide an interface to a standard FIFO. This FIFO has the same width as the Xilinx AXI4-Stream interface (256 bits) and runs at 250 MHz. The application side of the FPGA design can simply read or write to the FIFO; the PCIe Engine will handle the transfer into Host PC memory, according to the addresses specified in the DMA descriptors.
+The purpose of Wupper is therefore to provide an interface to a standard FIFO. This FIFO has the same width as the Xilinx AXI4-Stream interface (256 bits) and runs at 250 MHz. The user application side of the FPGA design can simply read or write to the FIFO; Wupper will handle the transfer into Host PC memory, according to the addresses specified in the DMA descriptors. Several descriptors can be queued, up to a maximum of 8, and they will be processed sequentially one after the other. 
 
-With the PCIe Gen3 standard it is possible to reach a theoretical line rate of 8 GT/s; by using 8 lanes, it is therefore possible to reach a theoretical throughput of 64 Gb/s.
-The main purpose of Wupper is to handle data transfers from a simple user interface, i.e a FIFO, to and from the host PC memory. The other functionality supported by Wupper is the access to control and monitor registers inside the FPGA, and the surrounding electronics, via a simple register map. Figure~\ref{fig:simplewupperpackage1} below shows a block diagram of the Wupper package.
+Another functionality of Wupper is to manage a set of DMA descriptors, with an $address$, a $read/\overline{write}$ flag, the $transfer size$ (number of 32 bit words) and an $enable$ line. These descriptors are mapped as normal PCIe memory or IO registers. Besides the descriptors and the enable line (one per descriptor), a status register for every descriptor is provided in the register map.
  
-\begin{figure}[h]
-	\centering
-	\includegraphics[width = .8 \textwidth]{figures/wupper_package_simple.pdf}	
-	\caption{Wupper package overview}
-	\label{fig:simplewupperpackage1}
-\end{figure}
-The Wupper core communicates to the host PC via the Wupper driver and is controlled by a set of, so called, Wupper tools. The Wupper driver through an Application Programming Interface (API) can also communicate to a Wupper Graphical User Interface (GUI). Wupper had been published under the LGPL license on Opencores.org~\cite{opencores}. As the developers firmly believe in the dissemination of knowledge through Open Source. Hence users can freely download, use and learn from the core and possibly provide feedback to further improve Wupper. The outcome of the development is the so called Wupper package: a suite of firmware and software components, which details will be given later in this report. On missing feature of the Wupper core published on OpenCores was a simple yet complete example application to study, test, and benchmark Wupper. To avoid confusion concerning name, a list is created to specify a name and description for all the parts of the Wupper project:
+The high level structure of the core has been designed in HDL Works Ease~\cite{ease}, however this program generates readable VHDL output. Design entry tools are useful to give a graphical view of the HDL project, however it can be more convenient to use the VHDL code itself. Therefore both the Ease project, as well as the output from Ease are supplied in the Wupper repository. In order to use Wupper it is not necessary to obtain a copy of Ease.
 
-\begin{itemize}
-	\item Wupper core: firmware PCIe engine
-	\item Wupper driver: software device driver
-	\item Wupper tools: software tools to operate the core
-	\item Wupper GUI: a simple control and monitor panel
-	\item Wupper package: the sum of the above packed for distribution on Open Cores.
-\end{itemize}
+For synthesis and implementation of the Xilinx specific IP cores, it is recommend to use the latest Xilinx Vivado release as listed in section~\ref{sec:supported_tools}. The cores (FIFO, clock wizard and PCIe) are provided in the Xilinx .xci format, as well as the constraints file (.xdc) is in the Vivado Format.
 
-For synthesis and implementation of the cores, it is recommend to use Xilinx Vivado 2015.4. The cores (FIFO, clock wizard and PCIe) are provided in the Xilinx .xci format, as well as the constraints file (.xdc) is in the Vivado 2015.4 Format.
-
-For portability reasons, no Xilinx project files will be supplied with the Engine, but a bundle of TCL scripts has been supplied to create a project and import all necessary files, as well as to do the synthesis and implementation. These scripts will be described later in this document.
+For portability reasons, no Xilinx project files will be supplied with the core, but a bundle of TCL scripts has been supplied to create a project and import all necessary files, as well as to do the synthesis and implementation. These scripts will be described later in this document.
 
 
 \newpage
