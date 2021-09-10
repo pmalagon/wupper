@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
   try
   {
-    wupperCard.card_open(device_number);
+    wupperCard.card_open(device_number,0);
 
     // save current state
     opt_emu_ena_to_host     = wupperCard.cfg_get_option(BF_GBT_EMU_ENA_TOHO);

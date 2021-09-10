@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+{{ tree.warning|html_comment }}
+<html>
+<head>
+<style>
+table {
+    width: 100%;
+}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    vertical-align: top;
+}
+th {
+    text-align: left;
+}
+.group {
+    text-align: left;
+    font-weight: bold;
+}
+.type, .range {
+    text-align: center;
+}
+.field {
+    text-align: right;
+}
+</style>
+</head>
+
+<body>
+  <table>
+    <tr>
+      <th>Address</th>
+      <th colspan="2">Name/Field</th>
+      <th>Bits</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+{% for item in tree|list_nodes_recursively(True) %}
+{% if item.is_group %}
+    <tr>
+      <td colspan="6" class="group">{{ item.full_name|camel_case_to_space }}</td>
+    </tr>
+{% endif %}
+{% if item.is_register %}
+    <tr>
+{% if item.bitfield|count == 1 %}
+      <td>{{item.address|c_hex}}</td>
+      <td colspan="2">{{item.full_name}}</td>
+{% else %}
+      <td class="address" rowspan="{{item.bitfield|count|inc}}">{{item.address|c_hex}}</td>
+      <td class="name" colspan="5">{{item.prefix_name}}</td>
+    </tr>
+{% endif %}
+{% for bf in item.bitfield %}
+{% if item.bitfield|count == 1 %}
+      <td class="range">{{bf.range}}</td>
+      <td class="type">{{bf.type}}</td>
+      <td class="desc">{{bf.desc|html_string}}</td>
+    </tr>
+{% else %}
+    <tr>
+{% if loop.first %}
+        <td rowspan="{{item.bitfield|count}}"></td>
+{% endif %}
+        <td class="field">{{bf.name}}</td>
+        <td class="range">{{bf.range}}</td>
+        <td class="type">{{bf.type}}</td>
+        <td class="desc">{{bf.desc|html_string}}</td>
+    </tr>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+  </table>
+
+</body>
+</html>

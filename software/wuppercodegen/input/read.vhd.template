@@ -1,0 +1,62 @@
+{{ tree.warning|vhdl_comment }}
+
+--
+-- Control Registers
+--
+{% for register in registers if register is in_group('Bar2') %}
+{% for bf in register.bitfield if not bf.is_trigger and bf.is_write %}
+{% if loop.first %}
+  when {{"%-34s"|format(register.prefix_name|prepend('REG_'))}} => register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_control_s.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% else %}
+       {{"%-37s"|format(" ")}} register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_control_s.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+--
+-- Monitor registers
+--
+
+-- General Board Info
+{% for register in registers if register is in_group('GenericBoardInformation') %}
+{% for bf in register.bitfield if not bf.is_trigger and not bf.is_write %}
+{% if loop.first %}
+  when {{"%-34s"|format(register.prefix_name|prepend('REG_'))}} => register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_gen_board_info.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% else %}
+       {{"%-37s"|format(" ")}} register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_gen_board_info.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+-- Housekeeping and global monitor
+{% for register in registers if register is in_group('HouseKeepingControlsAndMonitors') %}
+{% for bf in register.bitfield if not bf.is_trigger and not bf.is_write %}
+{% if loop.first %}
+  when {{"%-34s"|format(register.prefix_name|prepend('REG_'))}} => register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_hk_monitor.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% else %}
+       {{"%-37s"|format(" ")}} register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_hk_monitor.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+-- GBT monitor
+{% for register in registers if register is in_group('GBTWrapperMonitors') %}
+{% for bf in register.bitfield if not bf.is_trigger and not bf.is_write %}
+{% if loop.first %}
+  when {{"%-34s"|format(register.prefix_name|prepend('REG_'))}} => register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_gbt_monitor.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% else %}
+       {{"%-37s"|format(" ")}} register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_gbt_monitor.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+-- CentralRouter monitor
+{% for register in registers if register is in_group('CentralRouterMonitors') %}
+{% for bf in register.bitfield if not bf.is_trigger and not bf.is_write %}
+{% if loop.first %}
+  when {{"%-34s"|format(register.prefix_name|prepend('REG_'))}} => register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_cr_monitor.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% else %}
+       {{"%-37s"|format(" ")}} register_read_data_40_s{{"%-16s"|format(bf|vhdl_downto)}} <= register_map_monitor_s.register_map_cr_monitor.{{"%-30s"|format(bf.dot_name|semi)}} {{bf.desc|vhdl_comment(142)}}
+{% endif %}
+{% endfor %}
+{% endfor %}

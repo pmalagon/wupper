@@ -1,0 +1,12 @@
+{% for item in tree|list_nodes_recursively(True) %}
+{% if item.is_group %}
+{% if item.is_sequence %}
+  Sequence {{ item.full_name }}
+{% else %}
+  Group {{ item.full_name }}
+{% endif %}
+{% endif %}
+{% if item.is_register %}
+    Register {{ item.full_name }} {{ item.endpoints }}
+{% endif %}
+{% endfor %}

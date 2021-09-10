@@ -1,0 +1,8 @@
+{% for item in tree|list_nodes_recursively %}
+{% if item.is_group %}
+    Group {{ "%-39s"|format(item.name) }} is_write(): {{ item.is_write }}
+{% endif %}
+{% if item.is_register %}
+      Register {{ "%-34s"|format(item.name) }} is_write(): {{ item.is_write }}
+{% endif %}
+{% endfor %}

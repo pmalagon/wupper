@@ -1,0 +1,11 @@
+{{ tree.warning|vhdl_comment }}
+
+{% for register in registers if register is in_group('Bar2') %}
+{% for bf in register.bitfield if bf.is_write or bf.is_trigger %}
+{% if loop.first %}
+  when {{"%-34s"|format(register.prefix_name|prepend('REG_'))}} => register_map_control_s.{{"%-30s"|format(bf.dot_name)}} <= {{"%-40s"|format(bf|vhdl_value('register_write_data_40_s')|semi)}} {{bf.desc|vhdl_comment(143)}}
+{% else %}
+       {{"%-37s"|format(" ")}} register_map_control_s.{{"%-30s"|format(bf.dot_name)}} <= {{"%-40s"|format(bf|vhdl_value('register_write_data_40_s')|semi)}} {{bf.desc|vhdl_comment(143)}}
+{% endif %}
+{% endfor %}
+{% endfor %}

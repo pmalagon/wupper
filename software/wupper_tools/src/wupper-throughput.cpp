@@ -21,8 +21,8 @@
 #include "DFDebug/DFDebug.h"
 #include "cmem_rcc/cmem_rcc.h"
 #include "rcc_error/rcc_error.h"
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
 
 #define DMA_ID              0
 #define BLOCKSIZE           1024
@@ -54,7 +54,8 @@ void display_help()
   printf("Reads raw data from a WUPPER and writes them into a file.\n\n");
   printf("Options:\n");
   printf("  -d NUMBER      Use card indicated by NUMBER. Default: 0.\n");
-  printf("  -b NUM         Use a buffer of size NUM kiB. Default: 100 kiB.\n");
+  printf("  -b NUM         Use a buffer of size NUM blocks. Default: 100 blocks of 1 KB each.\n");
+  printf("  -o NUM         Terminate the program after NUM DMAs. Default: (0), run forever\n");
   printf("  -w             Use circular buffer wraparound mechanism.\n");
   printf("  -D level       Configure debug output at API level. 0=disabled, 5, 10, 20 progressively more verbose output. Default: 0.\n");
   printf("  -h             Display help.\n");
@@ -77,14 +78,14 @@ double now()
 int main(int argc, char **argv)
 /*****************************/
 {
-  int debuglevel, handle, ret, loop, device_number = 0, nblocks = 100, wraparound = 0, opt, max_tlp;
+  int debuglevel, handle, ret, loop, device_number = 0, nblocks = 100, wraparound = 0, opt, maxops = 0;
   double timedelta = 2, t0, t1;
-  u_long bsize, paddr, bytes_read = 0;
+  u_long bsize, paddr, blocks_read = 0;
   int sa_stat;
   static struct sigaction sa;
   
-  sigemptyset(&sa.sa_mask); 
-  sa.sa_flags = 0; 
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
   sa.sa_handler = SigQuitHandler;
   sa_stat = sigaction(SIGINT, &sa, NULL);
   if (sa_stat < 0)
@@ -92,8 +93,8 @@ int main(int argc, char **argv)
     printf("Cannot install signal handler (error = %d)\n", sa_stat);
     exit(0);
   }
-  
-  while((opt = getopt(argc, argv, "hd:b:wD:V")) != -1)
+
+  while((opt = getopt(argc, argv, "hd:b:wD:Vo:")) != -1)
   {
     switch (opt)
     {
@@ -103,6 +104,10 @@ int main(int argc, char **argv)
 
       case 'b':
 	nblocks = atoi(optarg);
+	break;
+
+      case 'o':
+	maxops = atoi(optarg);
 	break;
 
       case 'D':
@@ -130,7 +135,7 @@ int main(int argc, char **argv)
 
   try
   {
-    wupperCard.card_open(device_number);
+    wupperCard.card_open(device_number, LOCK_DMA0); //Note: if DMA_ID is changed the lock bit has to be adapted
 
     for(loop = 0; loop < 8; loop++)
       wupperCard.dma_stop(loop);
@@ -153,54 +158,64 @@ int main(int argc, char **argv)
       exit(-1);
     }
 
-    max_tlp = wupperCard.dma_max_tlp_bytes();
     t0 = now();
+    t1 = now();
     cont = 1;
-    
-    wupperCard.cfg_set_option("APP_ENABLE",1);
-    wupperCard.cfg_set_option("APP_MUX",0);
-    wupperCard.cfg_set_option("LFSR_LOAD_SEED",1);
 
     if(wraparound)
     {
       printf("Terminate the program with ctrl-c\n");
       wupperCard.irq_clear(1); // A function to init/reset an interrupt (not available yet)
       wupperCard.irq_enable(1); // ToHost wrap-around interrupt
-      wupperCard.dma_to_host(DMA_ID, paddr, bsize, max_tlp, WUPPER_DMA_WRAPAROUND);
+      wupperCard.dma_to_host(DMA_ID, paddr, bsize, WUPPER_DMA_WRAPAROUND);
     }
 
     while(cont)
     {
       if(wraparound)
       {
-        wupperCard.irq_wait(1); // Wait for ToHost wrap-around
-        wupperCard.dma_advance_from_host_ptr(DMA_ID, paddr, bsize, bsize);
-        bytes_read += bsize;
+	wupperCard.irq_wait(1); // Wait for ToHost wrap-around
+	wupperCard.dma_advance_ptr(DMA_ID, paddr, bsize, bsize);
+	blocks_read += nblocks;
       }
       else
       {
-        wupperCard.dma_to_host(DMA_ID, paddr, bsize, max_tlp, 0);
-        wupperCard.dma_wait(DMA_ID);
-        bytes_read += bsize;
+	wupperCard.dma_to_host(DMA_ID, paddr, bsize, 0);
+	wupperCard.dma_wait(DMA_ID);
+	blocks_read += nblocks;
       }
 
       t1 = now();
       if(t1 - t0 > timedelta)
       {
-        printf("Bytes read:  %lu\n", bytes_read);
-        printf("Bytes rate:  %.3f bytes/s\n", bytes_read / (t1 - t0));
+	printf("Blocks read:  %lu\n", blocks_read);
+	printf("Blocks rate:  %.3f blocks/s\n", blocks_read / (t1 - t0));
 
-        double dmaperformance =  (double)bytes_read  / ((t1 - t0) * 1024. * 1024. * 1024.);
-        printf("DMA Read:     %.3f GiB/s\n", dmaperformance);
+        double dmaperformance =  (double)blocks_read * (double)BLOCKSIZE / ((t1 - t0) * 1024. * 1024. * 1024.);
+	printf("DMA Read:     %.3f GiB/s\n", dmaperformance);
 
-        printf("\n");
-        bytes_read = 0;
-        t0 = t1;
+	printf("\n");
+	blocks_read = 0;
+	t0 = t1;
+      }
+
+      if(maxops)
+      {
+        maxops--;
+	 if(maxops == 0)
+	   cont = 0;
       }
     }
 
-    printf("Loop terminated with ctrl-c. Cleaning up....\n");
-    
+    printf("Loop terminated. Cleaning up....\n");
+    printf("Blocks read:  %lu\n", blocks_read);
+    printf("Blocks rate:  %.3f blocks/s\n", blocks_read / (t1 - t0));
+    double dmaperformance =  (double)blocks_read * (double)BLOCKSIZE / ((t1 - t0) * 1024. * 1024. * 1024.);
+    printf("DMA Read:     %.3f GiB/s\n", dmaperformance);
+
+
+
+
     wupperCard.irq_disable(1);                                                 // ToHost wrap-around interrupt
 
     ret = CMEM_SegmentFree(handle);
@@ -211,7 +226,7 @@ int main(int argc, char **argv)
 
     wupperCard.card_close();
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std:: endl;
     exit(-1);

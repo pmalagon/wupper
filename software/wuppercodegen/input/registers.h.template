@@ -1,0 +1,7 @@
+{{ tree.warning|c_comment }}
+
+{% for register in registers if register is in_group('Bar2') %}
+{% for bf in register.bitfield %}
+#define REG_{{ bf.full_name }} {{ "%35s"|format('"'+bf.full_name+'"') }}
+{% endfor %}
+{% endfor %}

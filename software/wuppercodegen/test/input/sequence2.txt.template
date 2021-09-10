@@ -1,0 +1,21 @@
+{% for item in nodes['Registers']|list_sequences %}
+
+{% if not open %}
+typedef struct
+{
+{% set open = True %}
+{% set count = 0 %}
+{% endif %}
+{% if item.is_sequence %}
+} {{ item.name|lower }}_t;
+{% set open = False %}
+{% else %}
+{% if item.is_register %}
+  volatile u_long {{ item.name }};
+  volatile u_long unused{{count}};
+{%- set count = count + 1 %}
+{% else %}
+  {{ item.name|lower }}_t {{item.name}}[{{item.number}}];
+{%- endif %}
+{% endif %}
+{% endfor %}

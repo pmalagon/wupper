@@ -1,6 +1,6 @@
 ## Block Diagram
 
-![Wupper_structure](/usercontent/img/1436869667 =x450)
+![Wupper_structure](documentation/figures/dma_core_structure.png)
 
 ## Description
 
@@ -13,7 +13,7 @@ Wupper has been also successfully ported to Xilinx Kintex UltraScale FPGAs.
 
 The main purpose of Wupper is therefore to provide an interface to standard FIFOs.
 This is the done by the _DMA\_read\_write_ block in the diagram above.
-The read/write FIFOs have the same width as the Xilinx AXI4-Stream interface (256 bits) and run at 250 MHz.
+The read/write FIFOs have the same width as the Xilinx AXI4-Stream interface (256 bits for PCIe Gen3 and 512 bits for PCIe Gen4 inter) and run at 250 MHz.
 The application side of the FPGA design can simply read or write the FIFOs.
 Wupper will handle the transfer to Host PC memory, according to the addresses specified in the _DMA descriptors_.
 
@@ -35,9 +35,10 @@ Wupper is provided with a generic MSI-X compatible interrupt controller.
 
 #### Implementation info
 
-For synthesis and implementation of the cores, it is recommend to use Xilinx Vivado 2014.2.
-Other IP cores (FIFO, clock wizard and PCIe) are provided in the Xilinx .xci format, as well as the constraints file (.xdc) is in the Vivado 2014.2 Format.
-Wupper is also known to work well with Vivado 2014.4, constraints will be updated.
+* For synthesis and implementation of the cores, it is recommend to use Xilinx Vivado 2020.1.
+* Other IP cores (clock wizard and PCIe) are provided in the Xilinx .xci format, as well as the constraints file (.xdc) is in the Vivado 2020.1 Format, FIFO cores are using XPM macros.
+* For Versal devices, Vivado 2020.1 is used as well, but there may be better support in later Vivado editions. We will upgrade later.
+* The Virtex Ultrascale+ VU9P works with PCIe Gen4 however this was officially dropped by Xilinx. To use these devices with Gen4, Vivado 2018.1 has to be used.
 
 For portability reasons, no Xilinx project files will be supplied with Wupper.
 Instead, a bundle of _TCL scripts_ has been supplied to create a project and import all necessary files, as well as to do the synthesis and implementation.

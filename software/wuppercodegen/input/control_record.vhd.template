@@ -1,0 +1,26 @@
+{{ tree.warning|vhdl_comment }}
+
+{% for register in registers if register is in_group('Bar2') and register.bitfield|count > 1 and (register.is_write or register.is_trigger) %}
+{% if loop.first %}
+  -- Bitfields of Control Record
+{% endif %}
+  type {{register.prefix_name|lower|prepend('register_map_')|append('_type')}} is record
+{% for bf in register.bitfield if bf.is_write or bf.is_trigger %}
+    {{"%-30s"|format(bf.name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+  end record;
+
+{% endfor %}
+
+  -- Control Record
+  type register_map_control_type is record
+{% for register in registers if register is in_group('Bar2') %}
+{% if register.bitfield|count > 1 and (register.is_write or register.is_trigger) %}
+    {{"%-30s"|format(register.prefix_name)}} : {{"%-30s"|format(register.prefix_name|lower|prepend('register_map_')|append('_type')|semi)}}
+{% else %}
+{% for bf in register.bitfield if bf.is_write or bf.is_trigger %}
+    {{"%-30s"|format(bf.full_name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+{% endif %}
+{% endfor %}
+  end record;

@@ -7,7 +7,7 @@
 /*  */
 /* This file was generated from template '../software/regmap/src/regmap-struct.h.template' */
 /* and register map registers-1.0.yaml, version 2.0 */
-/* by the script 'wuppercodegen', version: 0.8.0, */
+/* by the script 'wuppercodegen', version: 0.8.4, */
 /* using the following commandline: */
 /*  */
 /* ../software/wuppercodegen/wuppercodegen/cli.py registers-1.0.yaml ../software/regmap/src/regmap-struct.h.template ../software/regmap/regmap/regmap-struct.h */
@@ -24,7 +24,11 @@
 #ifndef REGMAP_STRUCT_H
 #define REGMAP_STRUCT_H
 
-#include <sys/types.h>
+#ifdef __KERNEL__
+  #include <linux/types.h>
+#else
+  #include <sys/types.h>
+#endif
 
 #include "regmap/regmap-common.h"
 
@@ -42,7 +46,7 @@ typedef struct
 {
   volatile u_long DESCRIPTORS              :  8;  /* bits   7: 0 */
   volatile u_long INTERRUPTS               :  8;  /* bits  15: 8 */
-} flxcard_generic_constants_t;
+} wuppercard_generic_constants_t;
 
 typedef struct
 {
@@ -52,13 +56,18 @@ typedef struct
   volatile u_long DATA_BYTE2               :  8;  /* bits  23:16 */
   volatile u_long WRITE_2BYTES             :  1;  /* bits  24:24 */
   volatile u_long I2C_FULL                 :  1;  /* bits  25:25 */
-} flxcard_i2c_wr_t;
+} wuppercard_i2c_wr_t;
 
 typedef struct
 {
   volatile u_long I2C_DOUT                 :  8;  /* bits   7: 0 */
   volatile u_long I2C_EMPTY                :  1;  /* bits   8: 8 */
-} flxcard_i2c_rd_t;
+} wuppercard_i2c_rd_t;
+
+typedef struct
+{
+  volatile u_long IRQ                      :  4;  /* bits   3: 0 */
+} wuppercard_int_test_t;
 
 typedef struct
 {
@@ -67,25 +76,25 @@ typedef struct
   volatile u_long FROMHOST_BUSY_LATCHED    :  1;  /* bits   2: 2 */
   volatile u_long TOHOST_BUSY_LATCHED      :  1;  /* bits   3: 3 */
   volatile u_long ENABLE                   :  1;  /* bits   4: 4 */
-} flxcard_dma_busy_status_t;
+} wuppercard_dma_busy_status_t;
 
 typedef struct
 {
   volatile u_long ADDRESS                  : 32;  /* bits  31: 0 */
   volatile u_long WRITE_NOT_READ           :  1;  /* bits  32:32 */
-} flxcard_wishbone_control_t;
+} wuppercard_wishbone_control_t;
 
 typedef struct
 {
   volatile u_long DATA                     : 32;  /* bits  31: 0 */
   volatile u_long FULL                     :  1;  /* bits  32:32 */
-} flxcard_wishbone_write_t;
+} wuppercard_wishbone_write_t;
 
 typedef struct
 {
   volatile u_long DATA                     : 32;  /* bits  31: 0 */
   volatile u_long EMPTY                    :  1;  /* bits  32:32 */
-} flxcard_wishbone_read_t;
+} wuppercard_wishbone_read_t;
 
 typedef struct
 {
@@ -94,7 +103,7 @@ typedef struct
   volatile u_long STALL                    :  1;  /* bits   2: 2 */
   volatile u_long RETRY                    :  1;  /* bits   3: 3 */
   volatile u_long INT                      :  1;  /* bits   4: 4 */
-} flxcard_wishbone_status_t;
+} wuppercard_wishbone_status_t;
 
 
 
@@ -119,110 +128,86 @@ typedef struct
   volatile u_long                BOARD_ID_TIMESTAMP;            /* 0x0010 - 0x0017 (8) */
   u_char                         unused1[8];                    /* 0x0018 - 0x001F (8) */
 
-  volatile u_long                BOARD_ID_SVN;                  /* 0x0020 - 0x0027 (8) */
+  volatile u_long                GIT_COMMIT_TIME;               /* 0x0020 - 0x0027 (8) */
   u_char                         unused2[8];                    /* 0x0028 - 0x002F (8) */
 
-  volatile u_long                GIT_COMMIT_TIME;               /* 0x0030 - 0x0037 (8) */
+  volatile u_long                GIT_TAG;                       /* 0x0030 - 0x0037 (8) */
   u_char                         unused3[8];                    /* 0x0038 - 0x003F (8) */
 
-  volatile u_long                GIT_TAG;                       /* 0x0040 - 0x0047 (8) */
+  volatile u_long                GIT_COMMIT_NUMBER;             /* 0x0040 - 0x0047 (8) */
   u_char                         unused4[8];                    /* 0x0048 - 0x004F (8) */
 
-  volatile u_long                GIT_COMMIT_NUMBER;             /* 0x0050 - 0x0057 (8) */
+  volatile u_long                GIT_HASH;                      /* 0x0050 - 0x0057 (8) */
   u_char                         unused5[8];                    /* 0x0058 - 0x005F (8) */
 
-  volatile u_long                GIT_HASH;                      /* 0x0060 - 0x0067 (8) */
+  volatile u_long                STATUS_LEDS;                   /* 0x0060 - 0x0067 (8) */
   u_char                         unused6[8];                    /* 0x0068 - 0x006F (8) */
 
-  volatile u_long                STATUS_LEDS;                   /* 0x0070 - 0x0077 (8) */
+  wuppercard_generic_constants_t  GENERIC_CONSTANTS;             /* 0x0070 - 0x0077 (8) */
   u_char                         unused7[8];                    /* 0x0078 - 0x007F (8) */
 
-  flxcard_generic_constants_t    GENERIC_CONSTANTS;             /* 0x0080 - 0x0087 (8) */
+  volatile u_long                CARD_TYPE;                     /* 0x0080 - 0x0087 (8) */
   u_char                         unused8[8];                    /* 0x0088 - 0x008F (8) */
 
-  volatile u_long                CARD_TYPE;                     /* 0x0090 - 0x0097 (8) */
+  volatile u_long                PCIE_ENDPOINT;                 /* 0x0090 - 0x0097 (8) */
   u_char                         unused9[8];                    /* 0x0098 - 0x009F (8) */
 
-  u_char                         unused10[0x0F60];              /* 0x00A0 - 0x0FFF (3936) */
+  volatile u_long                NUMBER_OF_PCIE_ENDPOINTS;      /* 0x00A0 - 0x00A7 (8) */
+  u_char                         unused10[8];                   /* 0x00A8 - 0x00AF (8) */
 
-/* ApplicationSpecific */
-  volatile u_long                LFSR_SEED_0;                   /* 0x1000 - 0x1007 (8) */
-  u_char                         unused11[8];                   /* 0x1008 - 0x100F (8) */
-
-  volatile u_long                LFSR_SEED_1;                   /* 0x1010 - 0x1017 (8) */
-  u_char                         unused12[8];                   /* 0x1018 - 0x101F (8) */
-
-  volatile u_long                LFSR_SEED_2;                   /* 0x1020 - 0x1027 (8) */
-  u_char                         unused13[8];                   /* 0x1028 - 0x102F (8) */
-
-  volatile u_long                LFSR_SEED_3;                   /* 0x1030 - 0x1037 (8) */
-  u_char                         unused14[8];                   /* 0x1038 - 0x103F (8) */
-
-  volatile u_long                APP_MUX;                       /* 0x1040 - 0x1047 (8) */
-  u_char                         unused15[8];                   /* 0x1048 - 0x104F (8) */
-
-  volatile u_long                LFSR_LOAD_SEED;                /* 0x1050 - 0x1057 (8) */
-  u_char                         unused16[8];                   /* 0x1058 - 0x105F (8) */
-
-  volatile u_long                APP_ENABLE;                    /* 0x1060 - 0x1067 (8) */
-  u_char                         unused17[8];                   /* 0x1068 - 0x106F (8) */
-
-  u_char                         unused18[0x0F90];              /* 0x1070 - 0x1FFF (3984) */
+  u_char                         unused11[0x0F50];              /* 0x00B0 - 0x0FFF (3920) */
 
 /* HouseKeepingControlsAndMonitors */
-  u_char                         unused19[0x0300];              /* 0x2000 - 0x22FF (768) */
+  u_char                         unused12[0x0300];              /* 0x1000 - 0x12FF (768) */
 
-  volatile u_long                MMCM_MAIN_PLL_LOCK;            /* 0x2300 - 0x2307 (8) */
-  u_char                         unused20[8];                   /* 0x2308 - 0x230F (8) */
+  volatile u_long                MMCM_MAIN_PLL_LOCK;            /* 0x1300 - 0x1307 (8) */
+  u_char                         unused13[8];                   /* 0x1308 - 0x130F (8) */
 
-  flxcard_i2c_wr_t               I2C_WR;                        /* 0x2310 - 0x2317 (8) */
-  u_char                         unused21[8];                   /* 0x2318 - 0x231F (8) */
+  wuppercard_i2c_wr_t            I2C_WR;                        /* 0x1310 - 0x1317 (8) */
+  u_char                         unused14[8];                   /* 0x1318 - 0x131F (8) */
 
-  flxcard_i2c_rd_t               I2C_RD;                        /* 0x2320 - 0x2327 (8) */
-  u_char                         unused22[8];                   /* 0x2328 - 0x232F (8) */
+  wuppercard_i2c_rd_t            I2C_RD;                        /* 0x1320 - 0x1327 (8) */
+  u_char                         unused15[8];                   /* 0x1328 - 0x132F (8) */
 
-  volatile u_long                FPGA_CORE_TEMP;                /* 0x2330 - 0x2337 (8) */
-  u_char                         unused23[8];                   /* 0x2338 - 0x233F (8) */
+  volatile u_long                FPGA_CORE_TEMP;                /* 0x1330 - 0x1337 (8) */
+  u_char                         unused16[8];                   /* 0x1338 - 0x133F (8) */
 
-  volatile u_long                FPGA_CORE_VCCINT;              /* 0x2340 - 0x2347 (8) */
-  u_char                         unused24[8];                   /* 0x2348 - 0x234F (8) */
+  volatile u_long                FPGA_CORE_VCCINT;              /* 0x1340 - 0x1347 (8) */
+  u_char                         unused17[8];                   /* 0x1348 - 0x134F (8) */
 
-  volatile u_long                FPGA_CORE_VCCAUX;              /* 0x2350 - 0x2357 (8) */
-  u_char                         unused25[8];                   /* 0x2358 - 0x235F (8) */
+  volatile u_long                FPGA_CORE_VCCAUX;              /* 0x1350 - 0x1357 (8) */
+  u_char                         unused18[8];                   /* 0x1358 - 0x135F (8) */
 
-  volatile u_long                FPGA_CORE_VCCBRAM;             /* 0x2360 - 0x2367 (8) */
-  u_char                         unused26[8];                   /* 0x2368 - 0x236F (8) */
+  volatile u_long                FPGA_CORE_VCCBRAM;             /* 0x1360 - 0x1367 (8) */
+  u_char                         unused19[8];                   /* 0x1368 - 0x136F (8) */
 
-  volatile u_long                FPGA_DNA;                      /* 0x2370 - 0x2377 (8) */
-  u_char                         unused27[8];                   /* 0x2378 - 0x237F (8) */
+  volatile u_long                FPGA_DNA;                      /* 0x1370 - 0x1377 (8) */
+  u_char                         unused20[8];                   /* 0x1378 - 0x137F (8) */
 
-  u_char                         unused28[0x0480];              /* 0x2380 - 0x27FF (1152) */
+  u_char                         unused21[0x0480];              /* 0x1380 - 0x17FF (1152) */
 
-  volatile u_long                INT_TEST_4;                    /* 0x2800 - 0x2807 (8) */
-  u_char                         unused29[8];                   /* 0x2808 - 0x280F (8) */
+  wuppercard_int_test_t          INT_TEST;                      /* 0x1800 - 0x1807 (8) */
+  u_char                         unused22[8];                   /* 0x1808 - 0x180F (8) */
 
-  volatile u_long                INT_TEST_5;                    /* 0x2810 - 0x2817 (8) */
-  u_char                         unused30[8];                   /* 0x2818 - 0x281F (8) */
+  wuppercard_dma_busy_status_t   DMA_BUSY_STATUS;               /* 0x1810 - 0x1817 (8) */
+  u_char                         unused23[8];                   /* 0x1818 - 0x181F (8) */
 
-  flxcard_dma_busy_status_t      DMA_BUSY_STATUS;               /* 0x2820 - 0x2827 (8) */
-  u_char                         unused31[8];                   /* 0x2828 - 0x282F (8) */
-
-  u_char                         unused32[0x17D0];              /* 0x2830 - 0x3FFF (6096) */
+  u_char                         unused24[0x07E0];              /* 0x1820 - 0x1FFF (2016) */
 
 /* Wishbone */
-  flxcard_wishbone_control_t     WISHBONE_CONTROL;              /* 0x4000 - 0x4007 (8) */
-  u_char                         unused33[8];                   /* 0x4008 - 0x400F (8) */
+  wuppercard_wishbone_control_t  WISHBONE_CONTROL;              /* 0x2000 - 0x2007 (8) */
+  u_char                         unused25[8];                   /* 0x2008 - 0x200F (8) */
 
-  flxcard_wishbone_write_t       WISHBONE_WRITE;                /* 0x4010 - 0x4017 (8) */
-  u_char                         unused34[8];                   /* 0x4018 - 0x401F (8) */
+  wuppercard_wishbone_write_t    WISHBONE_WRITE;                /* 0x2010 - 0x2017 (8) */
+  u_char                         unused26[8];                   /* 0x2018 - 0x201F (8) */
 
-  flxcard_wishbone_read_t        WISHBONE_READ;                 /* 0x4020 - 0x4027 (8) */
-  u_char                         unused35[8];                   /* 0x4028 - 0x402F (8) */
+  wuppercard_wishbone_read_t     WISHBONE_READ;                 /* 0x2020 - 0x2027 (8) */
+  u_char                         unused27[8];                   /* 0x2028 - 0x202F (8) */
 
-  flxcard_wishbone_status_t      WISHBONE_STATUS;               /* 0x4030 - 0x4037 (8) */
-  u_char                         unused36[8];                   /* 0x4038 - 0x403F (8) */
+  wuppercard_wishbone_status_t   WISHBONE_STATUS;               /* 0x2030 - 0x2037 (8) */
+  u_char                         unused28[8];                   /* 0x2038 - 0x203F (8) */
 
-} flxcard_bar2_regs_t;
+} wuppercard_bar2_regs_t;
 
 
 #pragma GCC diagnostic pop

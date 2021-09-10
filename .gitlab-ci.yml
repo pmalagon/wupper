@@ -1,0 +1,55 @@
+variables:
+    GIT_DEPTH: 0
+    parallel: 2
+    GIT_SUBMODULE_STRATEGY: recursive
+    PROJECT_NAME: wupper
+
+stages:
+#Every commit
+    - sim
+    - build_drivers
+    - build_wupper_tools
+
+.sim_template:
+    stage: sim
+    tags: 
+        - questasim
+    artifacts: 
+        paths:
+        - simulation/UVVMtests/transcript*
+        expire_in: 2 weeks
+    only: 
+        - pushes
+        - merge_requests
+
+
+sim:Wupper:
+    extends: .sim_template
+    script:
+        - cd firmware/simulation/Wupper
+        - ./ci.sh Wupper
+        
+build_drivers:
+    stage: build_drivers
+    only:
+        - pushes
+        - merge_requests
+    tags: 
+        - ubuntu
+    script:
+        - cd software/drivers/src
+        - make
+        
+build_wupper_tools:
+    stage: build_wupper_tools
+    only:
+        - pushes
+        - merge_requests
+    tags: 
+        - ubuntu
+    script:
+        - cd software/wupper_tools
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make

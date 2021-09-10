@@ -24,14 +24,10 @@ current_registers=registers-${current_version}.yaml
 #next_registers=$template_dir/registers-${next_version}.yaml
 $wuppercodegen --version
 echo "Current  version: $current_version"
-echo "Generating pcie_package.vhd and dma_control.vhd for current version..."
+echo "Generating pcie_package.vhd, dma_control.vhd, wupper.vhd and register_map_sync.vhd for current version..."
 $wuppercodegen $current_registers $template_dir/dma_control.vhd.template $sources_dir/pcie/dma_control.vhd
-$wuppercodegen $current_registers $template_dir/pcie_package.vhd.template $sources_dir/packages/pcie_package.vhd
+$wuppercodegen $current_registers $template_dir/pcie_package.vhd.template $sources_dir/pcie/pcie_package.vhd
+$wuppercodegen $current_registers $template_dir/wupper.vhd.template $sources_dir/pcie/wupper.vhd
+$wuppercodegen $current_registers $template_dir/register_map_sync.vhd.template $sources_dir/pcie/register_map_sync.vhd
 echo "Generating html documentation for current version..."
-#$wuppercodegen $prev_registers $wuppercodegen_dir/input/registers.html.template registers-${prev_version}.html
 $wuppercodegen $current_registers ../documentation/registers.html.template ../documentation/registers-${current_version}.html
-#$wuppercodegen $next_registers $wuppercodegen_dir/input/registers.html.template registers-${next_version}.html
-#echo "Generating diff between previous and current version..."
-#$wuppercodegen --diff $prev_registers $current_registers $wuppercodegen_dir/input/registers-diff.html.template registers-diff-${prev_version}-${current_version}.html
-#echo "Generating diff between current and next version..."
-#$wuppercodegen --diff $current_registers $next_registers $wuppercodegen_dir/input/registers-diff.html.template registers-diff-${current_version}-${next_version}.html

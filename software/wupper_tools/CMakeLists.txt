@@ -12,7 +12,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG_LEVEL=1")
 add_subdirectory(../drivers ./drivers)
 add_subdirectory(../regmap ./regmap)
 
-add_library(Wupper STATIC src/Wupper.cpp src/WupperException.cpp )
+add_library(Wupper STATIC src/WupperCard.cpp src/WupperException.cpp )
 target_link_libraries (Wupper regmap rt cmem_rcc DFDebug rcc_error)
 
 add_executable(wupper-reset src/wupper-reset.cpp)
@@ -34,7 +34,7 @@ add_executable(wupper-info src/wupper-info.cpp)
 target_link_libraries (wupper-info Wupper)
 
 add_executable(wupper-irq-test src/wupper-irq-test.cpp)
-target_link_libraries (wupper-irq-test Wupper)
+target_link_libraries (wupper-irq-test Wupper pthread)
 
 add_executable(wupper-dma-stat src/wupper-dma-stat.cpp)
 target_link_libraries (wupper-dma-stat Wupper)

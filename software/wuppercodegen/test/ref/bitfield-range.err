@@ -1,0 +1,1 @@
+ERROR register/bitfield WrongBitField has wrong order for bitfield spec: 0..15 , should be: 15 .. 0

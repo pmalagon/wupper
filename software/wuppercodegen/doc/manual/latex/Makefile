@@ -6,7 +6,7 @@ ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
 ALLPS  = $(addsuffix .ps,$(ALLDOCS))
 
 # Prefix for archive names
-ARCHIVEPREFIX =
+ARCHIVEPRREFIX =
 # Additional LaTeX options
 LATEXOPTS =
 # format: pdf or dvi

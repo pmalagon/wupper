@@ -1,0 +1,12 @@
+{% for item in tree|list_nodes_recursively %}
+{% if item.is_group %}
+  Group {{ "%-37s"|format(item.full_name) }} lo: {{ item.lo }} hi: {{ item.hi }} is_write(): {{ item.is_write }}
+{% endif %}
+{% if item.is_register %}
+    Register {{ "%-32s"|format(item.prefix_name) }} lo: {{ item.lo }} hi: {{ item.hi }} is_write(): {{ item.is_write }}
+    Register {{ "%-32s"|format(item.prefix_name) }} lo: {{ item.lo }} hi: {{ item.hi }} has_write_bitfields(): {{ item.has_write_bitfields }}
+{% for bf in item.bitfield %}
+      BitField {{ "%-30s"|format(bf.full_name) }} lo: {{ bf.lo }} hi: {{ bf.hi }} is_write(): {{ bf.is_write }}
+{% endfor %}
+{% endif %}
+{% endfor %}

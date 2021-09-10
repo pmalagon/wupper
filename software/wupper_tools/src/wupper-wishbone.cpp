@@ -58,8 +58,9 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
+
 
 #define APPLICATION_NAME "wupper-wishbone"
 #define device_number     0
@@ -90,7 +91,7 @@ main(int argc, char** argv)
   sscanf(argv[1], "%lX", &address);
   if(write)
     sscanf(argv[2], "%lX", &data);
-  wupperCard.card_open(0);
+  wupperCard.card_open(0,0);
   
   wupperCard.cfg_set_option("WISHBONE_CONTROL_ADDRESS",address);
   if(write)

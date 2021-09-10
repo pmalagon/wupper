@@ -1,0 +1,12 @@
+Registers:
+  type: R
+  default: 0
+  entries:
+    - name: WrongOrder{bitfield}
+      desc: Hi following Lo
+      default: 0xCD
+      bitfield:
+        - name: SecondBitField
+          range: 15..0
+        - name: FirstBitField
+          range: 31..16

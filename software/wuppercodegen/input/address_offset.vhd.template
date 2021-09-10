@@ -1,0 +1,11 @@
+{{ tree.warning|vhdl_comment }}
+
+{% for item in nodes['Bar2']|list_nodes_recursively %}
+{% if item.is_group %}
+
+  --** {{ item.full_name|e }}
+{% endif %}
+{% if item.is_register %}
+    constant {{ "%-34s"|format(item.prefix_name|prepend('REG_')) }} : std_logic_vector(19 downto 0) := {{ item.address|vhdl_constant(20)}};
+{% endif %}
+{% endfor %}

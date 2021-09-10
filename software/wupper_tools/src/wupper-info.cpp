@@ -14,8 +14,9 @@
 #include "version.h"
 
 #include "DFDebug/DFDebug.h"
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
+
 
 #define APPLICATION_NAME    "wupper-info"
 
@@ -89,19 +90,6 @@ static void display_FW_date(void)
   printf("FW version date: %02x/%02x/%02x %02x:%02x\n", version_day, version_month, version_year, version_hour, version_minute);
 }
 
-
-/***********************************/
-static void display_SVN_version(void)
-/***********************************/
-{
-  u_long value = 0;
-  
-  value = wupperCard.cfg_get_option(BF_BOARD_ID_SVN);
-  printf("SVN version:     %lu\n", value);
-}
-
-
-
 /**********************************************/
 static void display_interrupts_descriptors(void)
 /**********************************************/
@@ -142,7 +130,7 @@ static void display_si5324(void)
     printf("Decoding register 130 (raw data = 0x%02x)\n", result);
     printf("LOL_INT:  %s\n", (result & 0x1)?"PLL unlocked":"PLL locked");
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std::endl;
     exit(-1);
@@ -270,7 +258,7 @@ static void display_sfp(int verbose)
     }
     printf("\n\n");
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std::endl;
     exit(-1);
@@ -355,10 +343,10 @@ int main(int argc, char **argv)
   
   try
   {
-    wupperCard.card_open(device_number);
+    wupperCard.card_open(device_number, 0);
     baraddr2 = wupperCard.openBackDoor(2);
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std::endl;
     exit(-1);
@@ -379,7 +367,6 @@ int main(int argc, char **argv)
     printf("-------------------\n");
     display_card_id();
     display_FW_date();
-    display_SVN_version();
     printf("\nOutput of lspci | grep Xil: \n");
     system("lspci | grep Xil");
     printf("\n");
@@ -403,7 +390,7 @@ int main(int argc, char **argv)
   {
     wupperCard.card_close();
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std::endl;
     exit(-1);

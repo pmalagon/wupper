@@ -55,8 +55,9 @@
 #include <iomanip>
 #include "version.h"
 #include "DFDebug/DFDebug.h"
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
+
 
 
 #define APPLICATION_NAME    "wupper-config"
@@ -216,7 +217,7 @@ static void cmd_list(void)
 
   print_header();
 
-  for(bf = regmap_bitfields; bf->name != NULL; bf++)
+  for(bf = regmap_bar2_bitfields; bf->name != NULL; bf++)
   {
     if(bf->flags & REGMAP_REG_READ)
     {
@@ -241,7 +242,7 @@ static void cmd_register(char **groups, int num_groups)
 
   print_header();
 
-  for(grp = regmap_groups; grp->name != NULL; grp++)
+  for(grp = regmap_bar2_groups; grp->name != NULL; grp++)
   {
     for (loop = 0; loop < num_groups; loop++)
     {
@@ -252,13 +253,13 @@ static void cmd_register(char **groups, int num_groups)
         for (index = 0; grp->index[index] != -1; index++)
 	{
          groupIndex = grp->index[index];
-	 if(regmap_registers[groupIndex].flags & REGMAP_REG_READ)
+	 if(regmap_bar2_registers[groupIndex].flags & REGMAP_REG_READ)
 	 {
-	   value = wupperCard.cfg_get_reg(regmap_registers[groupIndex].name);
-           print_register(regmap_registers[groupIndex].address, regmap_registers[groupIndex].flags, 0, 63, regmap_registers[groupIndex].name, value, regmap_registers[groupIndex].description);
+	   value = wupperCard.cfg_get_reg(regmap_bar2_registers[groupIndex].name);
+           print_register(regmap_bar2_registers[groupIndex].address, regmap_bar2_registers[groupIndex].flags, 0, 63, regmap_bar2_registers[groupIndex].name, value, regmap_bar2_registers[groupIndex].description);
 	 }
 	 else
-           print_register(regmap_registers[groupIndex].address, regmap_registers[groupIndex].flags, 0, 63, regmap_registers[groupIndex].name, 0, regmap_registers[groupIndex].description);
+           print_register(regmap_bar2_registers[groupIndex].address, regmap_bar2_registers[groupIndex].flags, 0, 63, regmap_bar2_registers[groupIndex].name, 0, regmap_bar2_registers[groupIndex].description);
 	}
       }
     }
@@ -266,20 +267,20 @@ static void cmd_register(char **groups, int num_groups)
 
   if (num_groups == 0)
   {
-    for(grp = regmap_groups; grp->name != NULL; grp++)
+    for(grp = regmap_bar2_groups; grp->name != NULL; grp++)
     {
       printf("\nListing registers for group %s (%s)\n", grp->name, grp->description);
 
       for (index = 0; grp->index[index] != -1; index++)
       {
        groupIndex = grp->index[index];
-       if(regmap_registers[groupIndex].flags & REGMAP_REG_READ)
+       if(regmap_bar2_registers[groupIndex].flags & REGMAP_REG_READ)
        {
-	 value = wupperCard.cfg_get_reg(regmap_registers[groupIndex].name);
-	 print_register(regmap_registers[groupIndex].address, regmap_registers[groupIndex].flags, 0, 63, regmap_registers[groupIndex].name, value, regmap_registers[groupIndex].description);
+	 value = wupperCard.cfg_get_reg(regmap_bar2_registers[groupIndex].name);
+	 print_register(regmap_bar2_registers[groupIndex].address, regmap_bar2_registers[groupIndex].flags, 0, 63, regmap_bar2_registers[groupIndex].name, value, regmap_bar2_registers[groupIndex].description);
        }
        else
-	 print_register(regmap_registers[groupIndex].address, regmap_registers[groupIndex].flags, 0, 63, regmap_registers[groupIndex].name, 0, regmap_registers[groupIndex].description);
+	 print_register(regmap_bar2_registers[groupIndex].address, regmap_bar2_registers[groupIndex].flags, 0, 63, regmap_bar2_registers[groupIndex].name, 0, regmap_bar2_registers[groupIndex].description);
       }
     }
   }
@@ -363,7 +364,7 @@ static void cmd_store(char *filename)
     exit(-1);
   }
 
-  for(bf = regmap_bitfields; bf->name != NULL; bf++)
+  for(bf = regmap_bar2_bitfields; bf->name != NULL; bf++)
   {
     if(bf->flags & REGMAP_REG_WRITE && bf->flags & REGMAP_REG_READ)
     {
@@ -462,9 +463,9 @@ int main(int argc, char **argv)
 
   try
   {
-    wupperCard.card_open(device_number);
+    wupperCard.card_open(device_number,0);
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std:: endl;
     exit(-1);
@@ -599,7 +600,7 @@ int main(int argc, char **argv)
   {
     wupperCard.card_close();
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std:: endl;
     exit(-1);

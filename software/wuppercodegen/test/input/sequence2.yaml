@@ -1,0 +1,40 @@
+Registers:
+  bitfield:
+    - range: 63..0
+  entries:
+    - name: START_PLAIN
+    - ref: CR_GBT_CTRL
+    - ref: CR_GBT_MON
+    - name: END_PLAIN
+
+CR_GBT_CTRL:
+  number: 3
+  bitfield:
+    - range: 63..0
+  entries:
+    - ref: EGROUP_TH
+    - ref: EGROUP_FH
+
+EGROUP_TH:
+  number: 7
+  format_name: GBT{index:02}
+  entries:
+    - name: TH
+      format_name: CR_{name}_{parent}_EGROUP{index:1}_CTRL
+
+EGROUP_FH:
+  number: 5
+  format_name: GBT{index:02}
+  entries:
+    - name: FH
+      format_name: CR_{name}_{parent}_EGROUP{index:1}_CTRL
+
+CR_GBT_MON:
+  number: 3
+  bitfield:
+    - range: 63..0
+  entries:
+    - name: TH
+      format_name: CR_{name}_GBT{index:02}_MON
+    - name: FH
+      format_name: CR_{name}_GBT{index:02}_MON

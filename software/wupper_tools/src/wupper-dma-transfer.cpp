@@ -68,8 +68,9 @@
 
 #include "cmem_rcc/cmem_rcc.h"
 #include "rcc_error/rcc_error.h"
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
+
 
 #define APPLICATION_NAME "wupper-dma-transfer"
 #define DMA_ID     0
@@ -185,10 +186,10 @@ start_application2pc()
   wupperCard.cfg_set_option("APP_MUX",0);
   wupperCard.cfg_set_option("APP_ENABLE",1);
 
-  int max_tlp = wupperCard.dma_max_tlp_bytes();
+  //int max_tlp = wupperCard.dma_max_tlp_bytes();
   printf("Starting DMA write\n");
-  wupperCard.dma_to_host(DMA_ID, paddr1, 1024*1024, max_tlp, 0);
-  wupperCard.dma_wait(DMA_ID);
+  wupperCard.dma_to_host(DMA_ID, paddr1, 1024*1024, 0);
+    wupperCard.dma_wait(DMA_ID);
   printf("done DMA write \n");
   
   printf("Buffer 1 addresses:\n");
@@ -212,8 +213,8 @@ start_application2PCIe()
   
   printf("Reading data from buffer 1...\n");
   wupperCard.cfg_set_option("APP_MUX",1);
-  wupperCard.dma_to_host(0, paddr1, 1024*1024, max_tlp, 0);
-  wupperCard.dma_from_host(1, paddr2, 1024*1024, max_tlp, 0);
+  wupperCard.dma_to_host(0, paddr1, 1024*1024, max_tlp);
+  wupperCard.dma_from_host(1, paddr2, 1024*1024, max_tlp);
   wupperCard.cfg_set_option("APP_ENABLE",1);
   wupperCard.dma_wait(0);
   wupperCard.dma_wait(1);
@@ -290,37 +291,37 @@ main(int argc, char** argv)
     switch (opt) {
     case 'l':
 // load pre-seed
-      wupperCard.card_open(0);
+      wupperCard.card_open(0,0);
       load_stdseed(0xDEADBEEFABCD0123, 0x87613472FEDCABCD, 0xDEADFACEABCD0123, 0x12313472FEDCFFFF);
       wupperCard.card_close();  
       break;
     case 'q':
 // load unique seed
-      wupperCard.card_open(0);
+      wupperCard.card_open(0,0);
       load_unqseed();
       wupperCard.card_close();  
       break;
     case 'g':
 // generate data from PCIe->PC
-      wupperCard.card_open(0);
+      wupperCard.card_open(0,0);
       start_application2pc();
       wupperCard.card_close();  
       break;
     case 'b':
 // read data from PC memory, multiplies the data and write back to PC memory.
-      wupperCard.card_open(0);
+      wupperCard.card_open(0,0);
       start_application2PCIe();
       wupperCard.card_close();  
       break;
     case 's':
 // show app registers
-      wupperCard.card_open(0);     
+      wupperCard.card_open(0,0);     
       show_appreg();
       wupperCard.card_close();  
       break;
     case 'r':
 // Reset the application
-      wupperCard.card_open(0);     
+      wupperCard.card_open(0,0);     
       printf("resetting application...");
       application_reset();
       printf("DONE! \n");
@@ -328,7 +329,7 @@ main(int argc, char** argv)
       break;
       case 'f':
 // Flush the FIFO's
-      wupperCard.card_open(0);     
+      wupperCard.card_open(0,0);     
       printf("Flushing the FIFO's...");
       fifo_flush();
 
@@ -337,7 +338,7 @@ main(int argc, char** argv)
       break;
       case 'd':
 // Disable and reset the DMA controller
-      wupperCard.card_open(0);     
+      wupperCard.card_open(0,0);     
       printf("Resetting the DMA controller...");
       dma_reset();
 

@@ -1,0 +1,116 @@
+Registers:
+  entries:
+    - ref: Channel
+      offset: 0x0000
+    - ref: Egroup
+      offset: 0x1000
+    - ref: GBT
+      offset: 0x2000
+
+
+Channel:
+  type: W
+  default: 0
+  number: 8
+  entries:
+    - name: Dir
+      desc: null
+      bitfield:
+        - range: 0
+    - name: ChWidth
+      desc: '2,4,8,16,or 112, 120 bits'
+      bitfield:
+        - range: 6..0
+    - name: ChStart
+      desc: first bit of the channel in the GBT word
+      bitfield:
+        - range: 6..0
+    - name: Ewidth
+      desc: width of the E-link comprising the channel
+      bitfield:
+        - range: 3..0
+    - name: hasStreams
+      desc: null
+      bitfield:
+        - range: 0
+    - name: hasChnkLen
+      desc: null
+      bitfield:
+        - range: 0
+    - name: MaxChnkLen
+      desc: null
+      bitfield:
+        - range: 15..0
+    - name: hasChkSum
+      desc: "a 16-bit 1's-complement checksum is at the end of the packet"
+      bitfield:
+        - range: 0
+    - name: FromSCA
+      desc: Decode HDLC
+      bitfield:
+        - range: 0
+    - name: DOLL
+      desc: Direct Output Low Latency Link
+      bitfield:
+        - range: 0
+    - name: Busy
+      desc: BUSY commands may be sent on this channel
+      bitfield:
+        - range: 0
+    - name: TTCin
+      desc: source of raw TTC infor
+      bitfield:
+        - range: 0
+    - name: chk8b10b
+      desc: use commas and check 8b/10b encoding is valid
+      bitfield:
+        - range: 0
+    - name: dec8b10
+      desc: forward decoded 8b/10 data
+      bitfield:
+        - range: 0
+    - name: SOPEOP
+      desc: Start-of-Packet and End-of-Packet symbols define packet boundaries
+      bitfield:
+        - range: 0
+    - name: ToSCA
+      desc: encode HDLC
+      bitfield:
+        - range: 0
+    - name: TTCopt
+      desc: 'if >0, destination of TTC info: 0, 2 (A&B ch), 4, 8 bits'
+      bitfield:
+        - range: 1..0
+    - name: DILL
+      desc: Direct Input Low Latency Link
+      bitfield:
+        - range: 0
+    - name: TDAT
+      desc: destination for scheduled data transfers
+      bitfield:
+        - range: 0
+
+
+Egroup:
+  type: W
+  default: 0
+  number: 7
+  entries:
+    - name: EprocEnable
+      desc: Enables for the E-procs in the group
+      bitfield:
+        - range: 14..0
+    - name: EclockRate
+      desc: 40,80,160, 320, (640)
+      bitfield:
+        - range: 2..0
+
+GBT:
+  number: 24
+  entries:
+    - name: gbt_format
+      desc: Wide or Normal
+      bitfield:
+        - range: 0
+          type: W
+          default: 0

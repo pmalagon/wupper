@@ -1,0 +1,45 @@
+((( tree.warning|tex_yaml_encode|tex_comment )))
+\title{\large Wupper \small a PCIe DMA Engine for FELIX}
+\input{../et_template/template.tex}
+\date{\SetDocumentDate}
+\def\DocVer{Rev 3.3}
+\def\SetDocumentDate{24-08-2015}
+\begin{document}
+
+\section{FELIX register map}
+
+BAR2 stores registers for the control and monitor of HDL modules inside the FPGA other than Wupper. A portion of this register map's section is dedicated for control and monitor of devices outside the FPGA; as for example simple SPI and I2C devices. The offset for BAR2 is usually 0xFB900000.
+
+%\begin{landscape}
+\begin{longtabu} to \textwidth {|X[1.2,l]|X[6,l]|X[3,l]|X[1,l]|X[0.9,l]|X[4.5,l]|}
+\hline
+\textbf{Address} & \textbf{Name} &\textbf{Field} &\textbf{Bits} &{\textbf{Type}} &\textbf{Description} \\
+\hline
+\endhead
+
+((* for item in nodes['Bar2']|list_nodes_recursively(True) *))
+((* if item.is_group *))
+\multicolumn{6}{|c|}{(((item.full_name|camel_case_to_space|tex_escape )))} \\
+\hline
+((* endif *))
+((* if item.is_register *))
+((* for bf in item.bitfield *))
+((* if loop.first *))
+(((item.address|c_hex))) & (((item.prefix_name|tex_escape))) &
+((* else *))
+ & &
+((* endif *))
+(((bf.name|tex_escape))) & (((bf.range|replace('..',':')))) & (((bf.type))) & (((bf.desc|tex_string))) \\
+((* if loop.last *))
+\hline
+((* endif *))
+((* endfor *))
+((* endif *))
+((* endfor *))
+\caption{FELIX register map BAR2}\label{tab:dma_register_map_bar2} \\
+\end{longtabu}
+%\end{landscape}
+
+\newpage
+
+\end{document}

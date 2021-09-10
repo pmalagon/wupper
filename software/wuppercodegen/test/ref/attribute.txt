@@ -1,0 +1,4 @@
+    Register Status                             type: R default: 0x0000
+    Register Multi-BitField                     type: R default: 0x00CD
+    Register Command                            type: W default: 0x00AB
+    Register Trigger                            type: T default: 0x0000

@@ -67,39 +67,46 @@
 #define RESET_IRQ_COUNTERS  _IOW(WUPPER_MAGIC, 7, u_int)
 #define MASK_IRQ            _IOW(WUPPER_MAGIC, 8, int)
 #define UNMASK_IRQ          _IOW(WUPPER_MAGIC, 9, int)
-    
-    
-typedef struct
-{
-  u_int handle;
-  u_int offs;
-  u_int func;
-  u_int data;
-  u_int size;
-} IO_PCI_CONF_t;
+#define GETLOCK             _IOW(WUPPER_MAGIC, 10, u_int)
+#define RELEASELOCK         _IOW(WUPPER_MAGIC, 11, u_int)
+//#define WRITE_REGISTER      _IOW(WUPPER_MAGIC, 10, wupper_register_t*)
+//#define READ_REGISTER       _IOW(WUPPER_MAGIC, 11, wupper_register_t*)
 
-#define MAXCARDS				4   // Max. number of WUPPER cards
+//typedef struct
+//{
+//  u_int handle;
+//  u_int offs;
+//  u_int func;
+//  u_int data;
+//  u_int size;
+//} IO_PCI_CONF_t;
+
+#define MAXCARDS	8   // Max. number of WUPPER cards
+#define MAXLOCKBITS     32  // Max. number of lockable resources. NOTE: do not increase to more than 32 because global_locks in the driver is an int
 
 typedef struct
 {
     struct pci_dev *pciDevice;
     unsigned int slot;
-    unsigned int baseAddressBAR0;
-    unsigned int sizeBAR0;
-    unsigned int baseAddressBAR1;
-    unsigned int sizeBAR1;
-    unsigned int baseAddressBAR2;
-    unsigned int sizeBAR2;
-    unsigned int baseAddressBAR3;
-    unsigned int sizeBAR3;
-
-    /* void* writeIndexBuffer;
-    uint64_t writeIndexHandle;
-    int nDmaPages; //number of pre-allocated DMA buffers - can be modified when running insmod - defaults to MAXDMABUF
-    int dmaPageSize;
-    void* primaryDmaBuffer[MAXDMABUF];
-    uint64_t primaryDmaHandle[MAXDMABUF]; */
+    unsigned long int baseAddressBAR0;
+    unsigned long int sizeBAR0;
+    unsigned long int baseAddressBAR1;
+    unsigned long int sizeBAR1;
+    unsigned long int baseAddressBAR2;
+    unsigned long int sizeBAR2;
+    unsigned long int baseAddressBAR3;
+    unsigned long int sizeBAR3;
+    u_int lock_mask;          //used in the SETCARD ioctl to receive the lock bits form the user application
+    u_int lock_tag;           //used to separate the locks of different WupperCard objects in the same thread
+    u_int lock_error;         //used in the SETCARD ioctl to return locking related errors to the user code
 } card_params_t;
+
+typedef struct
+{
+    u_int slot;
+    u_int lock_tag;           //used to separate the locks of different WupperCard objects in the same thread
+} lock_params_t;
+
 
 #endif
 

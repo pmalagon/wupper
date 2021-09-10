@@ -1,0 +1,29 @@
+{{ tree.warning|c_comment }}
+
+flx_register_t flx_registers[] =
+  {
+{% for item in nodes['Bar2']|list_nodes_recursively %}
+{% if item.is_group %}
+    // {{ item.full_name|e }}
+{% endif %}
+{% if item.is_register %}
+{% for bf in item.bitfield %}
+    { "{{ bf.full_name }}",
+      "{{ bf.desc|c_string }}",
+      {{ item.address|c_hex(5) }},
+      {{ bf|c_mask|c_hex(16) }},
+      {{ bf.lo }}
+      FLX_REG_READ{% if bf.is_write %}|FLX_REG_WRITE{% endif %}
+
+    },
+{% endfor %}
+{% endif %}
+{% endfor %}
+    { NULL,
+      NULL,
+      0,
+      0,
+      0,
+      0
+    }
+  };

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+    width: 100%;
+}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    vertical-align: top;
+}
+th {
+    text-align: left;
+}
+.group {
+    text-align: center;
+    font-weight: bold;
+}
+.changedAdded {
+    color: green;
+    font-weight: bold;
+}
+.changedRemoved {
+    color: purple;
+    font-weight: bold;
+}
+.changedTrue {
+    color: red;
+    font-weight: bold;
+}
+.changedChanged {
+    color: blue;
+    font-weight: bold;
+}
+.changedInto {
+    color: magenta;
+    font-weight: bold;
+}
+.type, .range {
+    text-align: center;
+}
+.field {
+    text-align: right;
+}
+</style>
+</head>
+
+<body>
+  <h1>Changes between {{diff_tree.version}} and {{tree.version}}</h1>
+  <h2>Changes marked with '*' are backward incompatible</h2>
+  <table>
+    <tr>
+      <th>#</th>
+      <th>State</th>
+      <th>Address</th>
+      <th>Name</th>
+      <th>State</th>
+      <th>Field</th>
+      <th>Bits</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+{% for register in changed_registers %}
+{% if register.changed != 'Into' %}
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+{% endif %}
+    <tr>
+{% if register.bitfield|count == 1 %}
+      <td class="sequence">{{ register.sequence|inc }}{{'*' if register.incompatible else ''}}</td>
+      <td class="state changed{{register.changed}}">{{register.changed}}</td>
+      <td class="address changed{{register.address_changed}}">{{register.address|c_hex}}</td>
+      <td class="name changed{{register.name_changed}}" colspan="3">{{register.prefix_name}}</td>
+{% else %}
+      <td class="sequence" rowspan="{{register.bitfield|count|inc}}">{{ register.sequence|inc }}{{'*' if register.incompatible else ''}}</td>
+      <td class="state changed{{register.changed}}" rowspan="{{register.bitfield|count|inc}}">{{register.changed}}</td>
+      <td class="address changed{{register.address_changed}}" rowspan="{{register.bitfield|count|inc}}">{{register.address|c_hex}}</td>
+      <td class="name changed{{register.name_changed}}" colspan="7">{{register.prefix_name}}</td>
+    </tr>
+{% endif %}
+
+{% for bf in register.bitfield %}
+{% if register.bitfield|count == 1 %}
+      <td class="range changed{{bf.range_changed}}">{{bf.range}}</td>
+      <td class="type changed{{bf.type_changed}}">{{bf.type}}</td>
+      <td class="desc changed{{bf.desc_changed}}">{{bf.desc|html_string}}</td>
+      <td class="value changed{{bf.value_changed}}">{{bf.value|html_string}}</td>
+    </tr>
+{% else %}
+    <tr>
+      {% if loop.first %}
+            <td rowspan="{{register.bitfield|count}}"></td>
+      {% endif %}
+      <td class="state changed{{bf.changed}}">{{bf.changed}}</td>
+      <td class="field changed{{bf.name_changed}}">{{bf.name}}</td>
+      <td class="range changed{{bf.range_changed}}">{{bf.range}}</td>
+      <td class="type changed{{bf.type_changed}}">{{bf.type}}</td>
+      <td class="desc changed{{bf.desc_changed}}">{{bf.desc|html_string}}</td>
+      <td class="value changed{{bf.value_changed}}">{{bf.value|html_string}}</td>
+    </tr>
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+  </table>
+
+</body>
+</html>

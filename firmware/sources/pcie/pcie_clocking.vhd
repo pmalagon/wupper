@@ -28,27 +28,27 @@
 --!  
 --!
 --! ------------------------------------------------------------------------------
---! Virtex7 PCIe Gen3 DMA Core
+--! Wupper: PCIe Gen3 and Gen4 DMA Core for Xilinx FPGAs
 --! 
---! \copyright GNU LGPL License
---! Copyright (c) Nikhef, Amsterdam, All rights reserved. <br>
---! This library is free software; you can redistribute it and/or
---! modify it under the terms of the GNU Lesser General Public
---! License as published by the Free Software Foundation; either
---! version 3.0 of the License, or (at your option) any later version.
---! This library is distributed in the hope that it will be useful,
---! but WITHOUT ANY WARRANTY; without even the implied warranty of
---! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
---! Lesser General Public License for more details.<br>
---! You should have received a copy of the GNU Lesser General Public
---! License along with this library.
+--! Copyright (C) 2021 Nikhef, Amsterdam (f.schreuder@nikhef.nl)
 --! 
-
+--! Licensed under the Apache License, Version 2.0 (the "License");
+--! you may not use this file except in compliance with the License.
+--! You may obtain a copy of the License at
+--! 
+--!         http://www.apache.org/licenses/LICENSE-2.0
+--! 
+--! Unless required by applicable law or agreed to in writing, software
+--! distributed under the License is distributed on an "AS IS" BASIS,
+--! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--! See the License for the specific language governing permissions and
+--! limitations under the License.
+-- 
 --! @brief ieee
 
-library work, ieee, UNISIM;
+library ieee, UNISIM;
 use UNISIM.VCOMPONENTS.all;
-use ieee.std_logic_unsigned.all;
+--use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 
 
@@ -57,7 +57,7 @@ entity pcie_clocking is
 generic
 (
     PCIE_ASYNC_EN      : string  := "FALSE";                 -- PCIe async enable
-    PCIE_TXBUF_EN      : string  := "FALSE";                 -- PCIe TX buffer enable for Gen1/Gen2 only
+    --PCIE_TXBUF_EN      : string  := "FALSE";                 -- PCIe TX buffer enable for Gen1/Gen2 only
     PCIE_CLK_SHARING_EN: string  := "FALSE";                 -- Enable Clock Sharing
     PCIE_LANE          : integer := 8;                       -- PCIe number of lanes
     PCIE_LINK_SPEED    : integer := 3;                       -- PCIe link speed 
@@ -69,13 +69,13 @@ generic
 );
 port
 (
-    CLK_CLK            : in std_logic;
+    --CLK_CLK            : in std_logic;
     CLK_TXOUTCLK       : in std_logic;
     CLK_RXOUTCLK_IN    : in std_logic_vector(PCIE_LANE-1 downto 0);
     CLK_RST_N          : in std_logic;
     CLK_PCLK_SEL       : in std_logic_vector(PCIE_LANE-1 downto 0);
     CLK_PCLK_SEL_SLAVE : in std_logic_vector(PCIE_LANE-1 downto 0);
-    CLK_GEN3           : in std_logic;
+    --CLK_GEN3           : in std_logic;
     
     CLK_PCLK           : out std_logic;
     CLK_PCLK_SLAVE     : out std_logic;
@@ -131,31 +131,31 @@ architecture rtl of pcie_clocking is
     ---------- Input Registers ---------------------------
     signal           pclk_sel_reg1       : std_logic_vector(PCIE_LANE-1 downto 0) := (others => '0');
     signal           pclk_sel_slave_reg1 : std_logic_vector(PCIE_LANE-1 downto 0) := (others => '0');
-    signal           gen3_reg1           : std_logic := '0';
+    --signal           gen3_reg1           : std_logic := '0';
 
     signal           pclk_sel_reg2       : std_logic_vector(PCIE_LANE-1 downto 0) := (others => '0');
     signal           pclk_sel_slave_reg2 : std_logic_vector(PCIE_LANE-1 downto 0) := (others => '0');
-    signal           gen3_reg2           : std_logic := '0';
+    --signal           gen3_reg2           : std_logic := '0';
     
     attribute ASYNC_REG : string;
     attribute SHIFT_EXTRACT : string;
     attribute ASYNC_REG of pclk_sel_reg1: signal is "TRUE";
     attribute ASYNC_REG of pclk_sel_slave_reg1: signal is "TRUE";
-    attribute ASYNC_REG of gen3_reg1: signal is "TRUE";
+    --attribute ASYNC_REG of gen3_reg1: signal is "TRUE";
     attribute ASYNC_REG of pclk_sel_reg2: signal is "TRUE";
     attribute ASYNC_REG of pclk_sel_slave_reg2: signal is "TRUE";
-    attribute ASYNC_REG of gen3_reg2: signal is "TRUE";
+    --attribute ASYNC_REG of gen3_reg2: signal is "TRUE";
     attribute SHIFT_EXTRACT of pclk_sel_reg1: signal is "NO";
     attribute SHIFT_EXTRACT of pclk_sel_slave_reg1: signal is "NO";
-    attribute SHIFT_EXTRACT of gen3_reg1: signal is "NO";
+    ---attribute SHIFT_EXTRACT of gen3_reg1: signal is "NO";
     attribute SHIFT_EXTRACT of pclk_sel_reg2: signal is "NO";
     attribute SHIFT_EXTRACT of pclk_sel_slave_reg2: signal is "NO";
-    attribute SHIFT_EXTRACT of gen3_reg2: signal is "NO";
+    --attribute SHIFT_EXTRACT of gen3_reg2: signal is "NO";
     
     
        
     ---------- Internal Signals -------------------------- 
-    signal    refclk         : std_logic;
+    --signal    refclk         : std_logic;
     signal    mmcm_fb        : std_logic;
     signal    clk_125mhz     : std_logic;
     signal    clk_125mhz_buf : std_logic;
@@ -185,20 +185,20 @@ begin
         ---------- 1st Stage FF --------------------------
         pclk_sel_reg1       <= (others => '0');
         pclk_sel_slave_reg1 <= (others => '0');
-        gen3_reg1           <= '0';
+        --gen3_reg1           <= '0';
         ---------- 2nd Stage FF --------------------------
         pclk_sel_reg2       <= (others => '0');
         pclk_sel_slave_reg2 <= (others => '0');
-        gen3_reg2           <= '0';
+        --gen3_reg2           <= '0';
     elsif(rising_edge(pclk)) then
         ---------- 1st Stage FF --------------------------
         pclk_sel_reg1 <= CLK_PCLK_SEL;
         pclk_sel_slave_reg1 <= CLK_PCLK_SEL_SLAVE;
-        gen3_reg1     <= CLK_GEN3;
+        --gen3_reg1     <= CLK_GEN3;
         ---------- 2nd Stage FF --------------------------
         pclk_sel_reg2 <= pclk_sel_reg1;
         pclk_sel_slave_reg2 <= pclk_sel_slave_reg1;
-        gen3_reg2     <= gen3_reg1;
+        --gen3_reg2     <= gen3_reg1;
     end if;
 end process;
 
@@ -207,7 +207,7 @@ CLK_RST <= not CLK_RST_N;
 
 ---------- MMCM --------------------------------------------------------------
 mmcm0: MMCME2_ADV 
-generic map
+generic map -- @suppress "Generic map uses default values. Missing optional actuals: CLKIN2_PERIOD, CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE, CLKOUT5_USE_FINE_PS, CLKOUT6_DIVIDE, CLKOUT6_DUTY_CYCLE, CLKOUT6_PHASE, CLKOUT6_USE_FINE_PS, IS_CLKINSEL_INVERTED, IS_PSEN_INVERTED, IS_PSINCDEC_INVERTED, IS_PWRDWN_INVERTED, IS_RST_INVERTED, REF_JITTER2, SS_EN, SS_MODE, SS_MOD_PERIOD"
 (
 
     BANDWIDTH                  => ("OPTIMIZED"),
@@ -242,7 +242,7 @@ generic map
     REF_JITTER1                => (0.010)
     
 )
-port map
+port map -- @suppress "The order of the associations is different from the declaration order"
 (
 
      ---------- Input ------------------------------------
@@ -294,8 +294,8 @@ port map
 pclk_sel_n <= not pclk_sel;
 ---------- Select PCLK MUX ---------------------------------------------------
 g0: if (PCIE_LINK_SPEED /= 1) generate
-    pclk_i1: BUFGCTRL 
-    port map
+    pclk_i1: BUFGCTRL  -- @suppress "Generic map uses default values. Missing optional actuals: CE_TYPE_CE0, CE_TYPE_CE1, INIT_OUT, IS_CE0_INVERTED, IS_CE1_INVERTED, IS_I0_INVERTED, IS_I1_INVERTED, IS_IGNORE0_INVERTED, IS_IGNORE1_INVERTED, IS_S0_INVERTED, IS_S1_INVERTED, PRESELECT_I0, PRESELECT_I1, SIM_DEVICE, STARTUP_SYNC"
+    port map -- @suppress "The order of the associations is different from the declaration order"
     (
         ---------- Input ---------------------------------
         CE0                      => '1',
@@ -317,8 +317,8 @@ g1: if (PCIE_LINK_SPEED = 1) generate
     pclk_i1: BUFG 
     port map
     (
-        I                       =>   clk_125mhz,
-        O                       =>   clk_125mhz_buf
+        O => clk_125mhz_buf,
+        I => clk_125mhz
     );
     pclk_1 <= clk_125mhz_buf;
 end generate;
@@ -334,8 +334,8 @@ pclk_sel_slave_n <= not pclk_sel_slave;
 g3: if(PCIE_CLK_SHARING_EN /= "FALSE") generate
   g3a: if (PCIE_LINK_SPEED /= 1) generate
     ---------- PCLK Mux ----------------------------------
-    pclk_slave: BUFGCTRL 
-    port map
+    pclk_slave: BUFGCTRL  -- @suppress "Generic map uses default values. Missing optional actuals: CE_TYPE_CE0, CE_TYPE_CE1, INIT_OUT, IS_CE0_INVERTED, IS_CE1_INVERTED, IS_I0_INVERTED, IS_I1_INVERTED, IS_IGNORE0_INVERTED, IS_IGNORE1_INVERTED, IS_S0_INVERTED, IS_S1_INVERTED, PRESELECT_I0, PRESELECT_I1, SIM_DEVICE, STARTUP_SYNC"
+    port map -- @suppress "The order of the associations is different from the declaration order"
     (
         ---------- Input ---------------------------------
         CE0                       =>  '1',         
@@ -357,8 +357,8 @@ g3: if(PCIE_CLK_SHARING_EN /= "FALSE") generate
     pclk_slave: BUFG 
     port map
     (
-        I                        =>  clk_125mhz, 
-        O                        =>  CLK_PCLK_SLAVE
+        O => CLK_PCLK_SLAVE,
+        I => clk_125mhz
     );
   end generate;
 end generate;
@@ -371,8 +371,8 @@ g4: if ((PCIE_DEBUG_MODE = 1) or (PCIE_ASYNC_EN = "TRUE")) generate
         bufg0: BUFG 
         port map
         (
-            I                       =>  CLK_RXOUTCLK_IN(i), 
-            O                       =>  CLK_RXOUTCLK_OUT(i)
+            O => CLK_RXOUTCLK_OUT(i),
+            I => CLK_RXOUTCLK_IN(i)
         );
     end generate;
 end generate;
@@ -394,8 +394,8 @@ g7: if (PCIE_USERCLK2_FREQ > 3) generate
     dclk_i: BUFG 
     port map
     (
-        I                    =>    clk_125mhz, 
-        O                    =>    CLK_DCLK
+        O => CLK_DCLK,
+        I => clk_125mhz
     );
 
 end generate;
@@ -413,8 +413,8 @@ g9: if (not((PCIE_GEN1_MODE = 1) and (PCIE_USERCLK1_FREQ = 3))) generate
     usrclk1_i1: BUFG 
     port map
     (
-        I                    =>     (userclk1),
-        O                    =>     (userclk1_1)
+        O => (userclk1_1),
+        I => (userclk1)
     );
 end generate;
 
@@ -436,8 +436,8 @@ g12: if not ((not ((PCIE_GEN1_MODE = 1) and (PCIE_USERCLK2_FREQ = 3 ))) and (PCI
     usrclk2_i1: BUFG 
     port map
     (
-        I                       =>   userclk2,
-        O                       =>   userclk2_1
+        O => userclk2_1,
+        I => userclk2
     );
 end generate;
 
@@ -448,8 +448,8 @@ g13: if (PCIE_OOBCLK_MODE = 2) generate
     oobclk_i1: BUFG
     port map
     (
-        I                   =>      oobclk,
-        O                   =>      CLK_OOBCLK
+        O => CLK_OOBCLK,
+        I => oobclk
     );
 end generate;
 

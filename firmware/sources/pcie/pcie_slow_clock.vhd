@@ -27,21 +27,21 @@
 --!  
 --!
 --! ------------------------------------------------------------------------------
---! Virtex7 PCIe Gen3 DMA Core
+--! Wupper: PCIe Gen3 and Gen4 DMA Core for Xilinx FPGAs
 --! 
---! \copyright GNU LGPL License
---! Copyright (c) Nikhef, Amsterdam, All rights reserved. <br>
---! This library is free software; you can redistribute it and/or
---! modify it under the terms of the GNU Lesser General Public
---! License as published by the Free Software Foundation; either
---! version 3.0 of the License, or (at your option) any later version.
---! This library is distributed in the hope that it will be useful,
---! but WITHOUT ANY WARRANTY; without even the implied warranty of
---! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
---! Lesser General Public License for more details.<br>
---! You should have received a copy of the GNU Lesser General Public
---! License along with this library.
+--! Copyright (C) 2021 Nikhef, Amsterdam (f.schreuder@nikhef.nl)
 --! 
+--! Licensed under the Apache License, Version 2.0 (the "License");
+--! you may not use this file except in compliance with the License.
+--! You may obtain a copy of the License at
+--! 
+--!         http://www.apache.org/licenses/LICENSE-2.0
+--! 
+--! Unless required by applicable law or agreed to in writing, software
+--! distributed under the License is distributed on an "AS IS" BASIS,
+--! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--! See the License for the specific language governing permissions and
+--! limitations under the License.
 -- 
 --! @brief ieee
 
@@ -50,7 +50,7 @@
 library ieee, UNISIM;
 use ieee.numeric_std.all;
 use UNISIM.VCOMPONENTS.all;
-use ieee.std_logic_unsigned.all;
+use ieee.std_logic_unsigned.all;-- @suppress "Deprecated package"
 use ieee.std_logic_1164.all;
 
 entity pcie_slow_clock is
@@ -66,16 +66,13 @@ end entity pcie_slow_clock;
 
 architecture rtl of pcie_slow_clock is
 component clk_wiz_regmap
-port
- (-- Clock in ports
-  clk_in1           : in     std_logic;
-  -- Clock out ports
-  clk_out25          : out    std_logic;
-  -- Status and control signals
-  reset             : in     std_logic;
-  locked            : out    std_logic
- );
-end component;
+    port(
+        clk_out25 : out STD_LOGIC;
+        reset     : in  STD_LOGIC;
+        locked    : out STD_LOGIC;
+        clk_in1   : in  STD_LOGIC
+    );
+end component clk_wiz_regmap;
 
 
 
@@ -93,14 +90,10 @@ regmap_clk <= regmap_clk_s;
 
 clk0 : clk_wiz_regmap
     port map ( 
- 
-    -- Clock in ports
-    clk_in1 => clk,
-   -- Clock out ports  
     clk_out25 => regmap_clk_s,
-   -- Status and control signals                
     reset => reset_s,
-    locked => locked_s            
+    locked => locked_s,
+    clk_in1 => clk            
   );
 
  

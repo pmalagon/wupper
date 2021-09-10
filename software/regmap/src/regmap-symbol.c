@@ -7,7 +7,7 @@
 /*  */
 /* This file was generated from template '../software/regmap/src/regmap-symbol.c.template' */
 /* and register map registers-1.0.yaml, version 2.0 */
-/* by the script 'wuppercodegen', version: 0.8.0, */
+/* by the script 'wuppercodegen', version: 0.8.4, */
 /* using the following commandline: */
 /*  */
 /* ../software/wuppercodegen/wuppercodegen/cli.py registers-1.0.yaml ../software/regmap/src/regmap-symbol.c.template ../software/regmap/src/regmap-symbol.c */
@@ -39,186 +39,367 @@ void regmap_str_upper(char *str)
     } while (*str++);
 }
 
-
-int
-regmap_cfg_set_option(u_long offset, const char* key, u_long value)
-{
-  int result, found;
-  char* upper;
-
-  regmap_bitfield_t* bf;
-  u_long* address;
-  u_long mask;
-  u_int shift;
-
-  result = 0;
-
-  upper = strdup(key);
-  regmap_str_upper(upper);
-
-  found = 0;
-
-  for(bf=regmap_bitfields; bf->name != NULL; bf++) {
-    if(0 == strcmp(upper, bf->name)) {
-      found = 1;
-
-      if(!(bf->flags & REGMAP_REG_WRITE)) {
-        result = REGMAP_CFG_ERROR_NOT_WRITABLE;
-        printf("Bitfield not writable!\n");
-        break;
-      }
-
-      address = (u_long*)(offset + bf->address);
-      mask = bf->mask;
-      shift = bf->shift;
-      /* zero the bits we're writing to... */
-      *address &=~ mask;
-      /* then OR the previous address with the value we're writing */
-      *address |= (value << shift) & mask;
-      break;
-    }
-  }
-
-  if(!found) {
-    result = REGMAP_CFG_ERROR_NO_EXIST;
-    printf("Bitfield %s does not exist!\n", key);
-  }
-
-  free(upper);
-  return result;
-}
-
-int
-regmap_cfg_get_option(u_long offset, const char* key, u_long* value)
-{
-  int result, found;
-  char* upper;
-
-  regmap_bitfield_t* bf;
-  u_long* address;
-  u_long mask;
-  u_int shift;
-
-  result = 0;
-
-  upper = strdup(key);
-  regmap_str_upper(upper);
-
-  found = 0;
-
-  for(bf=regmap_bitfields; bf->name != NULL; bf++) {
-    if(0 == strcmp(upper, bf->name)) {
-      found = 1;
-
-      if(!(bf->flags & REGMAP_REG_READ)) {
-        result = REGMAP_CFG_ERROR_NOT_READABLE;
-        printf("Bitfield not readable!\n");
-        break;
-      }
-
-      address = (u_long*)(offset + bf->address);
-      mask = bf->mask;
-      shift = bf->shift;
-      *value = (*address & mask) >> shift;
-      break;
-    }
-  }
-
-  if(!found) {
-    result = REGMAP_CFG_ERROR_NO_EXIST;
-    printf("Bitfield does not exist!\n");
-  }
-
-  free(upper);
-  return result;
-}
-
-int
-regmap_cfg_set_reg(u_long offset, const char* key, u_long value)
-{
-  int result, found;
-  char* upper;
-
-  regmap_register_t* reg;
-  u_long* address;
-
-  result = 0;
-
-  upper = strdup(key);
-  regmap_str_upper(upper);
-
-  found = 0;
-
-  for(reg=regmap_registers; reg->name != NULL; reg++) {
-    if(0 == strcmp(upper, reg->name)) {
-      found = 1;
-
-      if(!(reg->flags & REGMAP_REG_WRITE)) {
-        result = REGMAP_CFG_ERROR_NOT_WRITABLE;
-        printf("Register not writable!\n");
-        break;
-      }
-
-      address = (u_long*)(offset + reg->address);
-      *address = value;
-      break;
-    }
-  }
-
-  if(!found) {
-    result = REGMAP_CFG_ERROR_NO_EXIST;
-    printf("Register %s does not exist!\n", key);
-  }
-
-  free(upper);
-  return result;
-}
-
-int
-regmap_cfg_get_reg(u_long offset, const char* key, u_long* value)
-{
-  int result, found;
-  char* upper;
-
-  regmap_register_t* reg;
-  u_long* address;
-
-  result = 0;
-
-  upper = strdup(key);
-  regmap_str_upper(upper);
-
-  found = 0;
-
-  for(reg=regmap_registers; reg->name != NULL; reg++) {
-    if(0 == strcmp(upper, reg->name)) {
-      found = 1;
-
-      if(!(reg->flags & REGMAP_REG_READ)) {
-        result = REGMAP_CFG_ERROR_NOT_READABLE;
-        printf("Register not readable!\n");
-        break;
-      }
-
-      address = (u_long*)(offset + reg->address);
-      *value = *address;
-      break;
-    }
-  }
-
-  if(!found) {
-    result = REGMAP_CFG_ERROR_NO_EXIST;
-    printf("Register does not exist!\n");
-  }
-
-  free(upper);
-  return result;
-}
-
 /* ================================ */
 /* BELOW is ONLY generated CODE !   */
 /* ================================ */
-regmap_register_t regmap_registers[] =
+regmap_register_t regmap_bar0_registers[] =
+  {
+    /* Bar0 */
+    /* DMA_DESC */
+    { REG_DMA_DESC_0,
+      "Full Register",
+      0x00000,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_0a,
+      "Full Register",
+      0x00010,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_1,
+      "Full Register",
+      0x00020,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_1a,
+      "Full Register",
+      0x00030,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_2,
+      "Full Register",
+      0x00040,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_2a,
+      "Full Register",
+      0x00050,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_3,
+      "Full Register",
+      0x00060,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_3a,
+      "Full Register",
+      0x00070,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_4,
+      "Full Register",
+      0x00080,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_4a,
+      "Full Register",
+      0x00090,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_5,
+      "Full Register",
+      0x000A0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_5a,
+      "Full Register",
+      0x000B0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_6,
+      "Full Register",
+      0x000C0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_6a,
+      "Full Register",
+      0x000D0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_7,
+      "Full Register",
+      0x000E0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_7a,
+      "Full Register",
+      0x000F0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    /* DMA_DESC_STATUS */
+    { REG_DMA_DESC_STATUS_0,
+      "Full Register",
+      0x00200,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_1,
+      "Full Register",
+      0x00210,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_2,
+      "Full Register",
+      0x00220,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_3,
+      "Full Register",
+      0x00230,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_4,
+      "Full Register",
+      0x00240,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_5,
+      "Full Register",
+      0x00250,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_6,
+      "Full Register",
+      0x00260,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_STATUS_7,
+      "Full Register",
+      0x00270,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_BAR0_VALUE,
+      "Full Register",
+      0x00300,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_BAR1_VALUE,
+      "Full Register",
+      0x00310,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_BAR2_VALUE,
+      "Full Register",
+      0x00320,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_DESC_ENABLE,
+      "Full Register",
+      0x00400,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_FIFO_FLUSH,
+      "Full Register",
+      0x00410,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_DMA_RESET,
+      "Full Register",
+      0x00420,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_SOFT_RESET,
+      "Full Register",
+      0x00430,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_REGISTER_RESET,
+      "Full Register",
+      0x00440,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_FROMHOST_FULL_THRESH,
+      "Full Register",
+      0x00450,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_TOHOST_FULL_THRESH,
+      "Full Register",
+      0x00460,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_BUSY_THRESHOLD_ASSERT,
+      "Full Register",
+      0x00470,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_BUSY_THRESHOLD_NEGATE,
+      "Full Register",
+      0x00480,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_BUSY_STATUS,
+      "Full Register",
+      0x00490,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_PC_PTR_GAP,
+      "Full Register",
+      0x004A0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { NULL,
+      NULL,
+      0,
+      0,
+      0
+    }
+  };
+
+
+regmap_register_t regmap_bar1_registers[] =
+  {
+    /* Bar1 */
+    /* INT_VEC */
+    { REG_INT_VEC_0,
+      "Full Register",
+      0x00000,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_1,
+      "Full Register",
+      0x00010,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_2,
+      "Full Register",
+      0x00020,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_3,
+      "Full Register",
+      0x00030,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_4,
+      "Full Register",
+      0x00040,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_5,
+      "Full Register",
+      0x00050,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_6,
+      "Full Register",
+      0x00060,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_7,
+      "Full Register",
+      0x00070,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_8,
+      "Full Register",
+      0x00080,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_9,
+      "Full Register",
+      0x00090,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_10,
+      "Full Register",
+      0x000A0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_11,
+      "Full Register",
+      0x000B0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_12,
+      "Full Register",
+      0x000C0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_13,
+      "Full Register",
+      0x000D0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_14,
+      "Full Register",
+      0x000E0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_VEC_15,
+      "Full Register",
+      0x000F0,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { REG_INT_TAB_ENABLE,
+      "Full Register",
+      0x00100,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+    },
+    { NULL,
+      NULL,
+      0,
+      0,
+      0
+    }
+  };
+
+
+regmap_register_t regmap_bar2_registers[] =
   {
     /* Bar2 */
     /* GenericBoardInformation */
@@ -234,186 +415,143 @@ regmap_register_t regmap_registers[] =
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
-    { REG_BOARD_ID_SVN,
+    { REG_GIT_COMMIT_TIME,
       "Full Register",
       0x00020,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
-    { REG_GIT_COMMIT_TIME,
+    { REG_GIT_TAG,
       "Full Register",
       0x00030,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
-    { REG_GIT_TAG,
+    { REG_GIT_COMMIT_NUMBER,
       "Full Register",
       0x00040,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
-    { REG_GIT_COMMIT_NUMBER,
+    { REG_GIT_HASH,
       "Full Register",
       0x00050,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
-    { REG_GIT_HASH,
-      "Full Register",
-      0x00060,
-      REGMAP_REG_READ,
-      REGMAP_ENDPOINT_0
-    },
     { REG_STATUS_LEDS,
       "Full Register",
-      0x00070,
+      0x00060,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_GENERIC_CONSTANTS,
       "Full Register",
-      0x00080,
+      0x00070,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
     { REG_CARD_TYPE,
       "Full Register",
+      0x00080,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0
+    },
+    { REG_PCIE_ENDPOINT,
+      "Full Register",
       0x00090,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
-    /* ApplicationSpecific */
-    { REG_LFSR_SEED_0,
+    { REG_NUMBER_OF_PCIE_ENDPOINTS,
       "Full Register",
-      0x01000,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
-    },
-    { REG_LFSR_SEED_1,
-      "Full Register",
-      0x01010,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
-    },
-    { REG_LFSR_SEED_2,
-      "Full Register",
-      0x01020,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
-    },
-    { REG_LFSR_SEED_3,
-      "Full Register",
-      0x01030,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
-    },
-    { REG_APP_MUX,
-      "Full Register",
-      0x01040,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
-    },
-    { REG_LFSR_LOAD_SEED,
-      "Full Register",
-      0x01050,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
-    },
-    { REG_APP_ENABLE,
-      "Full Register",
-      0x01060,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
+      0x000A0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0
     },
     /* HouseKeepingControlsAndMonitors */
     { REG_MMCM_MAIN_PLL_LOCK,
       "Full Register",
-      0x02300,
+      0x01300,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
     { REG_I2C_WR,
       "Full Register",
-      0x02310,
+      0x01310,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_I2C_RD,
       "Full Register",
-      0x02320,
+      0x01320,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_FPGA_CORE_TEMP,
       "Full Register",
-      0x02330,
+      0x01330,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
     { REG_FPGA_CORE_VCCINT,
       "Full Register",
-      0x02340,
+      0x01340,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
     { REG_FPGA_CORE_VCCAUX,
       "Full Register",
-      0x02350,
+      0x01350,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
     { REG_FPGA_CORE_VCCBRAM,
       "Full Register",
-      0x02360,
+      0x01360,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
     { REG_FPGA_DNA,
       "Full Register",
-      0x02370,
+      0x01370,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1
     },
-    { REG_INT_TEST_4,
+    { REG_INT_TEST,
       "Full Register",
-      0x02800,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0
-    },
-    { REG_INT_TEST_5,
-      "Full Register",
-      0x02810,
+      0x01800,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_DMA_BUSY_STATUS,
       "Full Register",
-      0x02820,
+      0x01810,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     /* Wishbone */
     { REG_WISHBONE_CONTROL,
       "Full Register",
-      0x04000,
+      0x02000,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_WISHBONE_WRITE,
       "Full Register",
-      0x04010,
+      0x02010,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_WISHBONE_READ,
       "Full Register",
-      0x04020,
+      0x02020,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0
     },
     { REG_WISHBONE_STATUS,
       "Full Register",
-      0x04030,
+      0x02030,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0
     },
@@ -426,7 +564,1352 @@ regmap_register_t regmap_registers[] =
   };
 
 
-regmap_bitfield_t regmap_bitfields[] =
+regmap_bitfield_t regmap_bar0_bitfields[] =
+  {
+    /* Bar0 */
+    /* DMA_DESC */
+    { BF_DMA_DESC_0_END_ADDRESS,
+      "End Address",
+      0x00008,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_0_START_ADDRESS,
+      "Start Address",
+      0x00000,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_0a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x00018,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_0a_WRAP_AROUND,
+      "Wrap around",
+      0x00010,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_0a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x00010,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_0a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x00010,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_1_END_ADDRESS,
+      "End Address",
+      0x00028,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_1_START_ADDRESS,
+      "Start Address",
+      0x00020,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_1a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x00038,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_1a_WRAP_AROUND,
+      "Wrap around",
+      0x00030,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_1a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x00030,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_1a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x00030,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_2_END_ADDRESS,
+      "End Address",
+      0x00048,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_2_START_ADDRESS,
+      "Start Address",
+      0x00040,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_2a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x00058,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_2a_WRAP_AROUND,
+      "Wrap around",
+      0x00050,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_2a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x00050,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_2a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x00050,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_3_END_ADDRESS,
+      "End Address",
+      0x00068,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_3_START_ADDRESS,
+      "Start Address",
+      0x00060,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_3a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x00078,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_3a_WRAP_AROUND,
+      "Wrap around",
+      0x00070,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_3a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x00070,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_3a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x00070,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_4_END_ADDRESS,
+      "End Address",
+      0x00088,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_4_START_ADDRESS,
+      "Start Address",
+      0x00080,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_4a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x00098,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_4a_WRAP_AROUND,
+      "Wrap around",
+      0x00090,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_4a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x00090,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_4a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x00090,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_5_END_ADDRESS,
+      "End Address",
+      0x000A8,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_5_START_ADDRESS,
+      "Start Address",
+      0x000A0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_5a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x000B8,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_5a_WRAP_AROUND,
+      "Wrap around",
+      0x000B0,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_5a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x000B0,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_5a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x000B0,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_6_END_ADDRESS,
+      "End Address",
+      0x000C8,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_6_START_ADDRESS,
+      "Start Address",
+      0x000C0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_6a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x000D8,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_6a_WRAP_AROUND,
+      "Wrap around",
+      0x000D0,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_6a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x000D0,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_6a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x000D0,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_7_END_ADDRESS,
+      "End Address",
+      0x000E8,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_7_START_ADDRESS,
+      "Start Address",
+      0x000E0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_7a_SW_POINTER,
+      "Pointer controlled by the software, indicating read or write status for circular DMA",
+      0x000F8,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_7a_WRAP_AROUND,
+      "Wrap around",
+      0x000F0,
+      0x0000000000001000,
+      12,
+      12,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_7a_FROMHOST,
+      "1: fromHost/ 0: toHost",
+      0x000F0,
+      0x0000000000000800,
+      11,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_7a_NUM_WORDS,
+      "Number of 32 bit words",
+      0x000F0,
+      0x00000000000007FF,
+      0,
+      10,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    /* DMA_DESC_STATUS */
+    { BF_DMA_DESC_STATUS_0_EVEN_PC,
+      "Even address cycle PC",
+      0x00208,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_0_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00208,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_0_DESC_DONE,
+      "Descriptor Done",
+      0x00208,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_0_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00200,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_1_EVEN_PC,
+      "Even address cycle PC",
+      0x00218,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_1_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00218,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_1_DESC_DONE,
+      "Descriptor Done",
+      0x00218,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_1_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00210,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_2_EVEN_PC,
+      "Even address cycle PC",
+      0x00228,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_2_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00228,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_2_DESC_DONE,
+      "Descriptor Done",
+      0x00228,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_2_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00220,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_3_EVEN_PC,
+      "Even address cycle PC",
+      0x00238,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_3_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00238,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_3_DESC_DONE,
+      "Descriptor Done",
+      0x00238,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_3_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00230,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_4_EVEN_PC,
+      "Even address cycle PC",
+      0x00248,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_4_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00248,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_4_DESC_DONE,
+      "Descriptor Done",
+      0x00248,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_4_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00240,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_5_EVEN_PC,
+      "Even address cycle PC",
+      0x00258,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_5_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00258,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_5_DESC_DONE,
+      "Descriptor Done",
+      0x00258,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_5_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00250,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_6_EVEN_PC,
+      "Even address cycle PC",
+      0x00268,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_6_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00268,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_6_DESC_DONE,
+      "Descriptor Done",
+      0x00268,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_6_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00260,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_7_EVEN_PC,
+      "Even address cycle PC",
+      0x00278,
+      0x0000000000000004,
+      2,
+      2,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_7_EVEN_DMA,
+      "Even address cycle DMA",
+      0x00278,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_7_DESC_DONE,
+      "Descriptor Done",
+      0x00278,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_STATUS_7_FW_POINTER,
+      "Pointer controlled by the firmwarre, indicating where the DMA is busy reading or writing",
+      0x00270,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BAR0_VALUE,
+      "Copy of BAR0 offset reg.",
+      0x00300,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BAR1_VALUE,
+      "Copy of BAR1 offset reg.",
+      0x00310,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BAR2_VALUE,
+      "Copy of BAR2 offset reg.",
+      0x00320,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_DESC_ENABLE,
+      "Enable descriptors 7:0. One bit per descriptor. Cleared when Descriptor is handled.",
+      0x00400,
+      0x00000000000000FF,
+      0,
+      7,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_FIFO_FLUSH,
+      "Flush (reset). Any write clears the DMA Main output FIFO",
+      0x00410,
+      0x0000000000000000,
+      0,
+      -1,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_DMA_RESET,
+      "Reset Wupper Core (DMA Controller FSMs)",
+      0x00420,
+      0x0000000000000000,
+      0,
+      -1,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_SOFT_RESET,
+      "Global Software Reset. Any write resets applications, e.g. the Central Router.",
+      0x00430,
+      0x0000000000000000,
+      0,
+      -1,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_REGISTER_RESET,
+      "Resets the register map to default values. Any write triggers this reset.",
+      0x00440,
+      0x0000000000000000,
+      0,
+      -1,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_FROMHOST_FULL_THRESH_THRESHOLD_ASSERT,
+      "Assert value of the FromHost programmable full flag",
+      0x00450,
+      0x00000000007F0000,
+      16,
+      22,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_FROMHOST_FULL_THRESH_THRESHOLD_NEGATE,
+      "Negate value of the FromHost programmalbe full flag",
+      0x00450,
+      0x000000000000007F,
+      0,
+      6,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_TOHOST_FULL_THRESH_THRESHOLD_ASSERT,
+      "Assert value of the ToHost programmable full flag",
+      0x00460,
+      0x000000000FFF0000,
+      16,
+      27,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_TOHOST_FULL_THRESH_THRESHOLD_NEGATE,
+      "Negate value of the ToHost programmalbe full flag",
+      0x00460,
+      0x0000000000000FFF,
+      0,
+      11,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BUSY_THRESHOLD_ASSERT,
+      "Tohost or Fromhost busy will be asserted in circular DMA mode when the server PC buffer gets full (space below ASSERT threshold)..",
+      0x00470,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BUSY_THRESHOLD_NEGATE,
+      "Tohost or Fromhost busy will be negated in circular DMA mode when the server PC buffer gets less full (space above NEGATE threshold).",
+      0x00480,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BUSY_STATUS_FROMHOST_BUSY,
+      "A fromhost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set",
+      0x00490,
+      0x0000000000000002,
+      1,
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_BUSY_STATUS_TOHOST_BUSY,
+      "A tohost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set",
+      0x00490,
+      0x0000000000000001,
+      0,
+      0,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_PC_PTR_GAP,
+      "This is the minimum value that the pc_pointer in a descriptor has to decrease in order to flip the evencycle_pc bit",
+      0x004A0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { NULL,
+      NULL,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    }
+  };
+  
+regmap_bitfield_t regmap_bar1_bitfields[] =
+  {
+    /* Bar1 */
+    /* INT_VEC */
+    { BF_INT_VEC_0_INT_CTRL,
+      "Interrupt Control",
+      0x00008,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_0_INT_DATA,
+      "Interrupt Data",
+      0x00008,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_0_INT_ADDRESS,
+      "Interrupt Address",
+      0x00000,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_1_INT_CTRL,
+      "Interrupt Control",
+      0x00018,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_1_INT_DATA,
+      "Interrupt Data",
+      0x00018,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_1_INT_ADDRESS,
+      "Interrupt Address",
+      0x00010,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_2_INT_CTRL,
+      "Interrupt Control",
+      0x00028,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_2_INT_DATA,
+      "Interrupt Data",
+      0x00028,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_2_INT_ADDRESS,
+      "Interrupt Address",
+      0x00020,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_3_INT_CTRL,
+      "Interrupt Control",
+      0x00038,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_3_INT_DATA,
+      "Interrupt Data",
+      0x00038,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_3_INT_ADDRESS,
+      "Interrupt Address",
+      0x00030,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_4_INT_CTRL,
+      "Interrupt Control",
+      0x00048,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_4_INT_DATA,
+      "Interrupt Data",
+      0x00048,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_4_INT_ADDRESS,
+      "Interrupt Address",
+      0x00040,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_5_INT_CTRL,
+      "Interrupt Control",
+      0x00058,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_5_INT_DATA,
+      "Interrupt Data",
+      0x00058,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_5_INT_ADDRESS,
+      "Interrupt Address",
+      0x00050,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_6_INT_CTRL,
+      "Interrupt Control",
+      0x00068,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_6_INT_DATA,
+      "Interrupt Data",
+      0x00068,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_6_INT_ADDRESS,
+      "Interrupt Address",
+      0x00060,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_7_INT_CTRL,
+      "Interrupt Control",
+      0x00078,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_7_INT_DATA,
+      "Interrupt Data",
+      0x00078,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_7_INT_ADDRESS,
+      "Interrupt Address",
+      0x00070,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_8_INT_CTRL,
+      "Interrupt Control",
+      0x00088,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_8_INT_DATA,
+      "Interrupt Data",
+      0x00088,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_8_INT_ADDRESS,
+      "Interrupt Address",
+      0x00080,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_9_INT_CTRL,
+      "Interrupt Control",
+      0x00098,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_9_INT_DATA,
+      "Interrupt Data",
+      0x00098,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_9_INT_ADDRESS,
+      "Interrupt Address",
+      0x00090,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_10_INT_CTRL,
+      "Interrupt Control",
+      0x000A8,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_10_INT_DATA,
+      "Interrupt Data",
+      0x000A8,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_10_INT_ADDRESS,
+      "Interrupt Address",
+      0x000A0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_11_INT_CTRL,
+      "Interrupt Control",
+      0x000B8,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_11_INT_DATA,
+      "Interrupt Data",
+      0x000B8,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_11_INT_ADDRESS,
+      "Interrupt Address",
+      0x000B0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_12_INT_CTRL,
+      "Interrupt Control",
+      0x000C8,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_12_INT_DATA,
+      "Interrupt Data",
+      0x000C8,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_12_INT_ADDRESS,
+      "Interrupt Address",
+      0x000C0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_13_INT_CTRL,
+      "Interrupt Control",
+      0x000D8,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_13_INT_DATA,
+      "Interrupt Data",
+      0x000D8,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_13_INT_ADDRESS,
+      "Interrupt Address",
+      0x000D0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_14_INT_CTRL,
+      "Interrupt Control",
+      0x000E8,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_14_INT_DATA,
+      "Interrupt Data",
+      0x000E8,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_14_INT_ADDRESS,
+      "Interrupt Address",
+      0x000E0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_15_INT_CTRL,
+      "Interrupt Control",
+      0x000F8,
+      0xFFFFFFFF00000000,
+      32,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_15_INT_DATA,
+      "Interrupt Data",
+      0x000F8,
+      0x00000000FFFFFFFF,
+      0,
+      31,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_VEC_15_INT_ADDRESS,
+      "Interrupt Address",
+      0x000F0,
+      0xFFFFFFFFFFFFFFFF,
+      0,
+      63,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { BF_INT_TAB_ENABLE,
+      "Interrupt Table enable\nSelectively enable Interrupts\n",
+      0x00100,
+      0x00000000000000FF,
+      0,
+      7,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+    },
+    { NULL,
+      NULL,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    }
+  };
+  
+regmap_bitfield_t regmap_bar2_bitfields[] =
   {
     /* Bar2 */
     /* GenericBoardInformation */
@@ -448,18 +1931,9 @@ regmap_bitfield_t regmap_bitfields[] =
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0      
     },
-    { BF_BOARD_ID_SVN,
-      "Board ID SVN Revision",
-      0x00020,
-      0x000000000000FFFF,
-      0,
-      15,
-      REGMAP_REG_READ,
-      REGMAP_ENDPOINT_0      
-    },
     { BF_GIT_COMMIT_TIME,
       "Board ID GIT Commit time of current revision, Date / Time in BCD format YYMMDDhhmm",
-      0x00030,
+      0x00020,
       0x000000FFFFFFFFFF,
       0,
       39,
@@ -468,7 +1942,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_GIT_TAG,
       "String containing the current GIT TAG",
-      0x00040,
+      0x00030,
       0xFFFFFFFFFFFFFFFF,
       0,
       63,
@@ -477,7 +1951,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_GIT_COMMIT_NUMBER,
       "Number of GIT commits after current GIT_TAG",
-      0x00050,
+      0x00040,
       0x00000000FFFFFFFF,
       0,
       31,
@@ -486,7 +1960,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_GIT_HASH,
       "Short GIT hash (32 bit)",
-      0x00060,
+      0x00050,
       0x00000000FFFFFFFF,
       0,
       31,
@@ -495,7 +1969,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_STATUS_LEDS,
       "Board GPIO Leds",
-      0x00070,
+      0x00060,
       0x00000000000000FF,
       0,
       7,
@@ -504,7 +1978,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_GENERIC_CONSTANTS_INTERRUPTS,
       "Number of Interrupts",
-      0x00080,
+      0x00070,
       0x000000000000FF00,
       8,
       15,
@@ -513,7 +1987,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_GENERIC_CONSTANTS_DESCRIPTORS,
       "Number of Descriptors",
-      0x00080,
+      0x00070,
       0x00000000000000FF,
       0,
       7,
@@ -521,82 +1995,36 @@ regmap_bitfield_t regmap_bitfields[] =
       REGMAP_ENDPOINT_0      
     },
     { BF_CARD_TYPE,
-      "Card Type:\n  - 709 (0x2c5): VC-709\n  - 710 (0x2c6): HTG-710\n  - 711 (0x2c7): BNL-711\n  - 712 (0x2c8): BNL-712\n",
-      0x00090,
+      "Card Type:\n  - 105 (0x069): KCU-105\n  - 128 (0x080): VCU128\n  - 180 (0x0B4): VMK180\n  - 709 (0x2c5): VC-709\n  - 710 (0x2c6): HTG-710\n  - 711 (0x2c7): BNL-711\n  - 712 (0x2c8): BNL-712\n",
+      0x00080,
       0xFFFFFFFFFFFFFFFF,
       0,
       63,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0      
     },
-    /* ApplicationSpecific */
-    { BF_LFSR_SEED_0,
-      "Least significant 64 bits of the LFSR seed",
-      0x01000,
-      0xFFFFFFFFFFFFFFFF,
-      0,
-      63,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
-    },
-    { BF_LFSR_SEED_1,
-      "Bits 127 downto 64 of the LFSR seed",
-      0x01010,
-      0xFFFFFFFFFFFFFFFF,
-      0,
-      63,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
-    },
-    { BF_LFSR_SEED_2,
-      "Bits 191 downto 128 of the LFSR seed",
-      0x01020,
-      0xFFFFFFFFFFFFFFFF,
-      0,
-      63,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
-    },
-    { BF_LFSR_SEED_3,
-      "Bits 255 downto 192 of the LFSR seed",
-      0x01030,
-      0xFFFFFFFFFFFFFFFF,
-      0,
-      63,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
-    },
-    { BF_APP_MUX,
-      "Switch between multiplier or LFSR.\n  * 0 LFSR\n  * 1 Loopback\n",
-      0x01040,
+    { BF_PCIE_ENDPOINT,
+      "Indicator of the PCIe endpoint on BNL71x cards with two endpoints. 0 or 1",
+      0x00090,
       0x0000000000000001,
       0,
       0,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0      
     },
-    { BF_LFSR_LOAD_SEED,
-      "Writing any value to this register triggers the LFSR module to reset to the LFSR_SEED value",
-      0x01050,
-      0x0000000000000000,
+    { BF_NUMBER_OF_PCIE_ENDPOINTS,
+      "Number of PCIe endpoints on the card. The VCU128 cards have 2 endpoints",
+      0x000A0,
+      0x0000000000000003,
       0,
-      -1,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
-    },
-    { BF_APP_ENABLE,
-      "1 Enables LFSR module or Loopback (depending on APP_MUX)\n0 disable application\n",
-      0x01060,
-      0x0000000000000001,
-      0,
-      0,
-      REGMAP_REG_READ|REGMAP_REG_WRITE,
-      REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
+      1,
+      REGMAP_REG_READ,
+      REGMAP_ENDPOINT_0      
     },
     /* HouseKeepingControlsAndMonitors */
     { BF_MMCM_MAIN_PLL_LOCK,
       "Main MMCM PLL Lock Status",
-      0x02300,
+      0x01300,
       0x0000000000000001,
       0,
       0,
@@ -605,7 +2033,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_I2C_WREN,
       "Any write to this register triggers an I2C read or write sequence",
-      0x02310,
+      0x01310,
       0x0000000000000000,
       0,
       -1,
@@ -614,7 +2042,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_I2C_FULL,
       "I2C FIFO full",
-      0x02310,
+      0x01310,
       0x0000000002000000,
       25,
       25,
@@ -623,7 +2051,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_WRITE_2BYTES,
       "Write two bytes",
-      0x02310,
+      0x01310,
       0x0000000001000000,
       24,
       24,
@@ -632,7 +2060,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_DATA_BYTE2,
       "Data byte 2",
-      0x02310,
+      0x01310,
       0x0000000000FF0000,
       16,
       23,
@@ -641,7 +2069,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_DATA_BYTE1,
       "Data byte 1",
-      0x02310,
+      0x01310,
       0x000000000000FF00,
       8,
       15,
@@ -650,7 +2078,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_SLAVE_ADDRESS,
       "Slave address",
-      0x02310,
+      0x01310,
       0x00000000000000FE,
       1,
       7,
@@ -659,7 +2087,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_WR_READ_NOT_WRITE,
       "READ/<o>WRITE</o>",
-      0x02310,
+      0x01310,
       0x0000000000000001,
       0,
       0,
@@ -668,7 +2096,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_RD_I2C_RDEN,
       "Any write to this register pops the last I2C data from the FIFO",
-      0x02320,
+      0x01320,
       0x0000000000000000,
       0,
       -1,
@@ -677,7 +2105,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_RD_I2C_EMPTY,
       "I2C FIFO Empty",
-      0x02320,
+      0x01320,
       0x0000000000000100,
       8,
       8,
@@ -686,7 +2114,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_I2C_RD_I2C_DOUT,
       "I2C READ Data",
-      0x02320,
+      0x01320,
       0x00000000000000FF,
       0,
       7,
@@ -695,7 +2123,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_FPGA_CORE_TEMP,
       "XADC temperature monitor for the FPGA CORE\nfor Virtex7\ntemp (C)= ((FPGA_CORE_TEMP* 503.975)/4096)-273.15\nfor Kintex Ultrascale\ntemp (C)= ((FPGA_CORE_TEMP* 502.9098)/4096)-273.8195\n",
-      0x02330,
+      0x01330,
       0x0000000000000FFF,
       0,
       11,
@@ -704,7 +2132,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_FPGA_CORE_VCCINT,
       "XADC voltage measurement VCCINT = (FPGA_CORE_VCCINT *3.0)/4096",
-      0x02340,
+      0x01340,
       0x0000000000000FFF,
       0,
       11,
@@ -713,7 +2141,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_FPGA_CORE_VCCAUX,
       "XADC voltage measurement VCCAUX = (FPGA_CORE_VCCAUX *3.0)/4096",
-      0x02350,
+      0x01350,
       0x0000000000000FFF,
       0,
       11,
@@ -722,7 +2150,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_FPGA_CORE_VCCBRAM,
       "XADC voltage measurement VCCBRAM = (FPGA_CORE_VCCBRAM *3.0)/4096",
-      0x02360,
+      0x01360,
       0x0000000000000FFF,
       0,
       11,
@@ -731,34 +2159,34 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_FPGA_DNA,
       "Unique identifier of the FPGA",
-      0x02370,
+      0x01370,
       0xFFFFFFFFFFFFFFFF,
       0,
       63,
       REGMAP_REG_READ,
       REGMAP_ENDPOINT_0|REGMAP_ENDPOINT_1      
     },
-    { BF_INT_TEST_4,
-      "Fire a test MSIx interrupt #4",
-      0x02800,
+    { BF_INT_TEST_TRIGGER,
+      "Fire a test MSIx interrupt set in IRQ",
+      0x01800,
       0x0000000000000000,
       0,
       -1,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0      
     },
-    { BF_INT_TEST_5,
-      "Fire a test MSIx interrupt #5",
-      0x02810,
-      0x0000000000000000,
+    { BF_INT_TEST_IRQ,
+      "Set this field to a value equal to the MSIX interrupt to be fired. The write triggers the interrupt immediately.",
+      0x01800,
+      0x000000000000000F,
       0,
-      -1,
+      3,
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0      
     },
     { BF_DMA_BUSY_STATUS_CLEAR_LATCH,
       "Any write to this register clears TOHOST_BUSY_LATCHED",
-      0x02820,
+      0x01810,
       0x0000000000000000,
       0,
       -1,
@@ -767,7 +2195,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_DMA_BUSY_STATUS_ENABLE,
       "Enable the DMA buffer on the server as a source of busy",
-      0x02820,
+      0x01810,
       0x0000000000000010,
       4,
       4,
@@ -776,7 +2204,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_DMA_BUSY_STATUS_TOHOST_BUSY_LATCHED,
       "A tohost descriptor has passed BUSY_THRESHOLD_ASSERT in the past, busy flag was set",
-      0x02820,
+      0x01810,
       0x0000000000000008,
       3,
       3,
@@ -785,7 +2213,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_DMA_BUSY_STATUS_FROMHOST_BUSY_LATCHED,
       "A fromhost descriptor has passed BUSY_THRESHOLD_ASSERT in the past, busy flag was set",
-      0x02820,
+      0x01810,
       0x0000000000000004,
       2,
       2,
@@ -794,7 +2222,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_DMA_BUSY_STATUS_FROMHOST_BUSY,
       "A fromhost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set",
-      0x02820,
+      0x01810,
       0x0000000000000002,
       1,
       1,
@@ -803,7 +2231,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_DMA_BUSY_STATUS_TOHOST_BUSY,
       "A tohost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set",
-      0x02820,
+      0x01810,
       0x0000000000000001,
       0,
       0,
@@ -813,7 +2241,7 @@ regmap_bitfield_t regmap_bitfields[] =
     /* Wishbone */
     { BF_WISHBONE_CONTROL_WRITE_NOT_READ,
       "wishbone write command wishbone read command",
-      0x04000,
+      0x02000,
       0x0000000100000000,
       32,
       32,
@@ -822,7 +2250,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_CONTROL_ADDRESS,
       "Slave address for Wishbone bus",
-      0x04000,
+      0x02000,
       0x00000000FFFFFFFF,
       0,
       31,
@@ -831,7 +2259,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_WRITE_WRITE_ENABLE,
       "Any write to this register triggers a write to the Wupper to Wishbone fifo",
-      0x04010,
+      0x02010,
       0x0000000000000000,
       0,
       -1,
@@ -840,7 +2268,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_WRITE_FULL,
       "Wishbone",
-      0x04010,
+      0x02010,
       0x0000000100000000,
       32,
       32,
@@ -849,7 +2277,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_WRITE_DATA,
       "Wishbone",
-      0x04010,
+      0x02010,
       0x00000000FFFFFFFF,
       0,
       31,
@@ -858,7 +2286,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_READ_READ_ENABLE,
       "Any write to this register triggers a read from the Wishbone to Wupper fifo",
-      0x04020,
+      0x02020,
       0x0000000000000000,
       0,
       -1,
@@ -867,7 +2295,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_READ_EMPTY,
       "Indicates that the Wishbone to Wupper fifo is empty",
-      0x04020,
+      0x02020,
       0x0000000100000000,
       32,
       32,
@@ -876,7 +2304,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_READ_DATA,
       "Wishbone read data",
-      0x04020,
+      0x02020,
       0x00000000FFFFFFFF,
       0,
       31,
@@ -885,7 +2313,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_STATUS_INT,
       "interrupt",
-      0x04030,
+      0x02030,
       0x0000000000000010,
       4,
       4,
@@ -894,7 +2322,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_STATUS_RETRY,
       "Interface is not ready to accept data cycle should be retried",
-      0x04030,
+      0x02030,
       0x0000000000000008,
       3,
       3,
@@ -903,7 +2331,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_STATUS_STALL,
       "When pipelined mode slave can't accept additional transactions in its queue",
-      0x04030,
+      0x02030,
       0x0000000000000004,
       2,
       2,
@@ -912,7 +2340,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_STATUS_ACKNOWLEDGE,
       "Indicates the termination of a normal bus cycle",
-      0x04030,
+      0x02030,
       0x0000000000000002,
       1,
       1,
@@ -921,7 +2349,7 @@ regmap_bitfield_t regmap_bitfields[] =
     },
     { BF_WISHBONE_STATUS_ERROR,
       "Address not mapped by the crossbar",
-      0x04030,
+      0x02030,
       0x0000000000000001,
       0,
       0,
@@ -939,25 +2367,19 @@ regmap_bitfield_t regmap_bitfields[] =
     }
   };
 
-
-regmap_group_t regmap_groups[] =
+regmap_group_t regmap_bar2_groups[] =
   {
     /* GenericBoardInformation */
     { GRP_GEN,
       "Generic Board Information",
       { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
- -1 }
-    },
-    /* ApplicationSpecific */
-    { GRP_APP,
-      "Application specific registers",
-      { 10, 11, 12, 13, 14, 15, 16, -1 }
+ 10, -1 }
     },
     /* HouseKeepingControlsAndMonitors */
     { GRP_HKC,
       "House Keeping Controls and Monitors",
-      { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
- 27, 28, 29, 30, 31, -1 }
+      { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+ 21, 22, 23, 24, -1 }
     },
     { NULL,
       NULL,

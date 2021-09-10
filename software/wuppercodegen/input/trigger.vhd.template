@@ -1,0 +1,7 @@
+{{ tree.warning|vhdl_comment }}
+
+{% for register in registers if register is in_group('Bar2') %}
+{% for bf in register.bitfield if bf.is_trigger %}
+  register_map_control_s.{{"%-30s"|format(register.prefix_name)}} <= {{"%-34s"|format(bf.full_name|prepend('REG_')|append('_C')|semi)}} {{bf.desc|vhdl_comment(106)}}
+{% endfor %}
+{% endfor %}

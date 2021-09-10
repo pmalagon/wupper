@@ -150,6 +150,12 @@ Bar0:
           name: TOHOST_BUSY
           desc: A tohost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set
 
+    - name: PC_PTR_GAP
+      type: W
+      desc: This is the minimum value that the pc_pointer in a descriptor has to decrease in order to flip the evencycle_pc bit
+      default: 0x1000000
+      bitfield:
+        - range: 63..0
 
 DMA_DESC:
   number: 8
@@ -225,7 +231,7 @@ INT_VEC:
         - range: 95..64
           name: INT_DATA
           desc: Interrupt Data
-        - range: 64..0
+        - range: 63..0
           name: INT_ADDRESS
           desc: Interrupt Address
 
@@ -236,12 +242,10 @@ Bar2:
   entries:
     - ref: GenericBoardInformation
       offset: 0x0000
-    - ref: ApplicationSpecific
-      offset: 0x1000
     - ref: HouseKeepingControlsAndMonitors
-      offset: 0x2000
+      offset: 0x1000
     - ref: Wishbone
-      offset: 0x4000
+      offset: 0x2000
 
 GenericBoardInformation:
   group: GEN
@@ -259,12 +263,6 @@ GenericBoardInformation:
         - range: 39..0
           value: BUILD_DATETIME
           desc: Board ID Date / Time in BCD format YYMMDDhhmm
-
-    - name: BOARD_ID_SVN
-      bitfield:
-        - range: 15..0
-          value: std_logic_vector(to_unsigned(SVN_VERSION,16))
-          desc: Board ID SVN Revision
 
     - name: GIT_COMMIT_TIME
       bitfield:
@@ -308,69 +306,35 @@ GenericBoardInformation:
           value: std_logic_vector(to_unsigned(NUMBER_OF_DESCRIPTORS,8))
           desc: Number of Descriptors
 
+
     - name: CARD_TYPE
       bitfield:
         - range: 63..0
           value: std_logic_vector(to_unsigned(CARD_TYPE,64))
           desc: |
             Card Type:
+              - 105 (0x069): KCU-105
+              - 128 (0x080): VCU128
+              - 180 (0x0B4): VMK180
               - 709 (0x2c5): VC-709
               - 710 (0x2c6): HTG-710
               - 711 (0x2c7): BNL-711
               - 712 (0x2c8): BNL-712
-    
-    
-ApplicationSpecific:
-  group: APP
-  desc: Application specific registers
-  endpoints: 0,1
-  entries:
-    - name: LFSR_SEED_0
-      desc: Least significant 64 bits of the LFSR seed
-      type: W
-      default: 0x0
+
+    - name: PCIE_ENDPOINT
+      type: R
+      desc: Indicator of the PCIe endpoint on BNL71x cards with two endpoints. 0 or 1
       bitfield:
-        - range: 63..0
-    - name: LFSR_SEED_1
-      desc: Bits 127 downto 64 of the LFSR seed
-      type: W
-      default: 0x0
+        - range: 0
+          value: std_logic_vector(to_unsigned(PCIE_ENDPOINT, 1))
+        
+    - name: NUMBER_OF_PCIE_ENDPOINTS
+      type: R
+      desc: Number of PCIe endpoints on the card. The VCU128 cards have 2 endpoints
       bitfield:
-        - range: 63..0
-    - name: LFSR_SEED_2
-      desc: Bits 191 downto 128 of the LFSR seed
-      type: W
-      default: 0x0
-      bitfield:
-        - range: 63..0
-    - name: LFSR_SEED_3
-      desc: Bits 255 downto 192 of the LFSR seed
-      type: W
-      default: 0x0
-      bitfield:
-        - range: 63..0
-    - name: APP_MUX
-      type: W
-      desc: |
-            Switch between multiplier or LFSR.
-              * 0 LFSR
-              * 1 Loopback
-      bitfield:
-        - range: 0..0
-    - name: LFSR_LOAD_SEED
-      type: T
-      desc: Writing any value to this register triggers the LFSR module to reset to the LFSR_SEED value
-      value: 1
-      bitfield:
-        - range: any
-    - name: APP_ENABLE
-      type: W
-      desc: |
-            1 Enables LFSR module or Loopback (depending on APP_MUX)
-            0 disable application
-      bitfield:
-        - range: 0..0
-    
+        - range: 1..0
+
+  
 HouseKeepingControlsAndMonitors:
   group: HKC
   desc: House Keeping Controls and Monitors
@@ -461,20 +425,19 @@ HouseKeepingControlsAndMonitors:
       bitfield:
         - range: 63..0
           desc: Unique identifier of the FPGA
-    - name: INT_TEST_4
+    - name: INT_TEST
       offset: 0x0800
-      type: T
+      type: W
       value: 1
       bitfield:
-        - range: any
-          desc: Fire a test MSIx interrupt \#4
-    - name: INT_TEST_5
-      type: T
-      value: 1
-      bitfield:
-        - range: any
-          desc: Fire a test MSIx interrupt \#5
-
+        - name: TRIGGER
+          type: T
+          range: any
+          desc: Fire a test MSIx interrupt set in IRQ
+        - name: IRQ
+          type: W
+          range: 3..0
+          desc: Set this field to a value equal to the MSIX interrupt to be fired. The write triggers the interrupt immediately.
     - name: DMA_BUSY_STATUS
       type: W
       bitfield:

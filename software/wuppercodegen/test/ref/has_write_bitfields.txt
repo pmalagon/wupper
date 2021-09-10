@@ -1,0 +1,14 @@
+  Group Registers                             lo: None hi: None is_write(): False
+    Register Status                           lo: 0 hi: 15 is_write(): False
+    Register Status                           lo: 0 hi: 15 has_write_bitfields(): False
+      BitField Status                         lo: 0 hi: 15 is_write(): False
+    Register Multi-BitField                   lo: 0 hi: 31 is_write(): True
+    Register Multi-BitField                   lo: 0 hi: 31 has_write_bitfields(): True
+      BitField Multi-BitField_WriteBitField   lo: 16 hi: 31 is_write(): True
+      BitField Multi-BitField_ReadBitField    lo: 0 hi: 15 is_write(): False
+    Register Command                          lo: 0 hi: 15 is_write(): True
+    Register Command                          lo: 0 hi: 15 has_write_bitfields(): True
+      BitField Command                        lo: 0 hi: 15 is_write(): True
+    Register Trigger                          lo: 0 hi: -1 is_write(): False
+    Register Trigger                          lo: 0 hi: -1 has_write_bitfields(): False
+      BitField Trigger                        lo: 0 hi: -1 is_write(): False

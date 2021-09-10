@@ -1,0 +1,5 @@
+{% for item in tree|list_nodes_recursively %}
+{% if item.is_register %}
+    Register {{ "%-34s"|format(item.name) }}
+{% endif %}
+{% endfor %}

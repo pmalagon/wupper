@@ -3,7 +3,11 @@
 #ifndef REGMAP_STRUCT_H
 #define REGMAP_STRUCT_H
 
-#include <sys/types.h>
+#ifdef __KERNEL__
+  #include <linux/types.h>
+#else
+  #include <sys/types.h>
+#endif
 
 #include "regmap/regmap-common.h"
 
@@ -41,9 +45,9 @@ typedef struct
 {% if _lo.append(lo) %}{% endif %}
 {% endfor %}
 {% if item.parent.is_sequence %}
-} flxcard_{{ item.type_name|lower }}_t;
+} wuppercard_{{ item.type_name|lower }}_t;
 {% else %}
-} flxcard_{{ item.prefix_name|lower }}_t;
+} wuppercard_{{ item.prefix_name|lower }}_t;
 {% endif %}
 
 {% endif %}
@@ -64,19 +68,19 @@ typedef struct
 {% set count = 0 %}
 {% endif %}
 {% if item.is_sequence %}
-} flxcard_{{ item.name|lower }}_t;
+} wuppercard_{{ item.name|lower }}_t;
 {% set open = False %}
 {% else %}
 {% if item.is_register %}
 {% if item.bitfield|count > 1 %}
-  flxcard_{{ item.type_name|lower }}_t {{ item.name }};
+  wuppercard_{{ item.type_name|lower }}_t {{ item.name }};
 {% else %}
   volatile u_long {{ item.name }};
 {% endif %}
   volatile u_long unused{{count}};
 {%- set count = count + 1 %}
 {% else %}
-  flxcard_{{ item.name|lower }}_t {{item.name}}[{{item.number}}];
+  wuppercard_{{ item.name|lower }}_t {{item.name}}[{{item.number}}];
 {%- endif %}
 {% endif %}
 {% endfor %}
@@ -102,7 +106,7 @@ typedef struct
 {% endif %}
 {% if item.is_register %}
 {% if item.bitfield|count > 1 %}
-  {{ "%-30s"|format(item.prefix_name|lower|prepend("flxcard_")|append("_t ")) }} {{ "%-30s"|format(item.prefix_name|append(";")) }} /* {{ item.address|c_hex }} - {{ item.address|inc(7)|c_hex }} (8) */
+  {{ "%-30s"|format(item.prefix_name|lower|prepend("wuppercard_")|append("_t ")) }} {{ "%-30s"|format(item.prefix_name|append(";")) }} /* {{ item.address|c_hex }} - {{ item.address|inc(7)|c_hex }} (8) */
   {{ "%-30s"|format("u_char ") }} {{ "%-30s"|format(count|string|prepend("unused")|append("[8];")) }} /* {{ item.address|inc(8)|c_hex }} - {{ item.address|inc(15)|c_hex }} (8) */
 {% else %}
   {{ "%-30s"|format("volatile u_long ") }} {{ "%-30s"|format(item.prefix_name|append(";")) }} /* {{ item.address|c_hex }} - {{ item.address|inc(7)|c_hex }} (8) */
@@ -113,7 +117,7 @@ typedef struct
 
 {% else %}
 {% if item.is_sequence %}
-  {{ "%-30s"|format(item.name|lower|prepend("flxcard_")|append("_t")) }} {{ "%-30s"|format(item.name|append("[")|append(item.number|string)|append("];")) }} /* {{ item.address|c_hex }} - {{ item.address|inc(item.size-1)|c_hex }} ({{item.size}}) */
+  {{ "%-30s"|format(item.name|lower|prepend("wuppercard_")|append("_t")) }} {{ "%-30s"|format(item.name|append("[")|append(item.number|string)|append("];")) }} /* {{ item.address|c_hex }} - {{ item.address|inc(item.size-1)|c_hex }} ({{item.size}}) */
 
 {% set address = address + item.size %}
 {% else %}
@@ -123,7 +127,7 @@ typedef struct
 {% if _count.append(count) %}{% endif %}
 {% if _address.append(address) %}{% endif %}
 {% endfor %}
-} flxcard_bar2_regs_t;
+} wuppercard_bar2_regs_t;
 
 
 #pragma GCC diagnostic pop

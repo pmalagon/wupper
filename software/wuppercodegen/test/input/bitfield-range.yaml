@@ -1,0 +1,8 @@
+Registers:
+  type: R
+  default: 0
+  entries:
+    - name: WrongBitField
+      desc: Wrong bitfield spec
+      bitfield:
+        - range: 0..15

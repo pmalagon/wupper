@@ -1,0 +1,4 @@
+    Register Status                            
+    Register Multi-BitField                    
+    Register Command                           
+    Register Trigger                           

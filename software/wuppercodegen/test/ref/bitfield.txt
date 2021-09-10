@@ -1,0 +1,6 @@
+    Register Status                             lo: 0 hi: 15 bits: 16
+    Register Multi-BitField                     lo: 0 hi: 31 bits: 32
+        BitField Multi-BitField_FirstBitField   lo: 16 hi: 31 bits: 16
+        BitField Multi-BitField_SecondBitField  lo: 0 hi: 15 bits: 16
+    Register Command                            lo: 0 hi: 15 bits: 16
+    Register Trigger                            lo: 0 hi: -1 bits: 0

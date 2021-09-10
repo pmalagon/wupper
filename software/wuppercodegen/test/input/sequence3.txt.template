@@ -1,0 +1,17 @@
+{% for item in nodes['Registers']|list_nodes_and_sequences %}
+{% if item.is_group %}
+{% if item.is_sequence %}
+  Sequence {{ item.name }} - {{ item.number }} - {{ item.address|hex }} {{ item.size|hex }}
+{% else %}
+  Group {{ item.full_name }} - {{ item.print_name }}
+{% endif %}
+{% endif %}
+{% if item.is_register %}
+  Register {{ item.prefix_name }} {{ item.address|hex }} {{ item.size|hex }}
+{% if item.bitfield|count > 1 %}
+{% for bf in item.bitfield %}
+  BitField {{ bf.full_name }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}

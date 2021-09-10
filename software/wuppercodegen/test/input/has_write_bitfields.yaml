@@ -1,0 +1,26 @@
+Registers:
+  entries:
+    - name: Status
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Multi-BitField
+      type: W
+      bitfield:
+        - name: WriteBitField
+          range: 31..16
+          type: W
+        - name: ReadBitField
+          range: 15..0
+          type: R
+    - name: Command
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0
+    - name: Trigger
+      type: T
+      desc: Trigger field
+      bitfield:
+        - range: any

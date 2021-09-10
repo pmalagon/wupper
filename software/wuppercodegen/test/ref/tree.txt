@@ -1,0 +1,15 @@
+-- Subgroup2 and Subgroup3
+  Group SubGroup2
+    Register Status2                           
+    Register Command2                          
+  Group SubGroup3
+    Register Status3                           
+    Register Command3                          
+
+-- see if group clears, only Subgroup1 and Subgroup3 should list
+  Group SubGroup1
+    Register Status1                           
+    Register Command1                          
+  Group SubGroup3
+    Register Status3                           
+    Register Command3                          

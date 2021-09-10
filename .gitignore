@@ -1,0 +1,6 @@
+*.jou
+*.str
+firmware/constraints/felix_probes.xdc
+firmware/Projects/
+.Xil
+*.log
