@@ -2,7 +2,7 @@
 set scriptdir [pwd]
 set firmware_dir $scriptdir/../../
 # Vivado project directory:
-set GET_IPS_ARGS {-exclude_bd_ips -quiet}
+set GET_IPS_ARGS {-exclude_bd_ips}
 set project_dir $firmware_dir/Projects/$PROJECT_NAME
 if {$BOARD_TYPE == 711 || $BOARD_TYPE == 712} {
 	set PART xcku115-flvf1924-2-e
