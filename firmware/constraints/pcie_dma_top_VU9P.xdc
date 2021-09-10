@@ -906,8 +906,8 @@ set_property PACKAGE_PIN BF4 [get_ports pcie_txn[15]]
 #create_clock -name gtrefclk0_20 -period 3.1 [get_ports sep_gty_refclk0p_i[1]]
 
 # GTH Bank 229 Refclk 1/PCIE RefClk 2
-#set_property PACKAGE_PIN V11 [get_ports sys_clk_p[1]] 
-#set_property PACKAGE_PIN V10 [get_ports sys_clk_n[1]]
+set_property PACKAGE_PIN V11 [get_ports sys_clk_p[1]] 
+set_property PACKAGE_PIN V10 [get_ports sys_clk_n[1]]
 #create_clock -name gtrefclk1_20 -period 3.1 [get_ports sep_gty_refclk1p_i[1]]
 
 #set_property PACKAGE_PIN T11 [get_ports sep_gty_refclk0p_i[2]] # GTH Bank 230 Refclk 0
@@ -923,8 +923,8 @@ set_property PACKAGE_PIN BF4 [get_ports pcie_txn[15]]
 #create_clock -name gtrefclk0_22 -period 3.1 [get_ports sep_gty_refclk0p_i[3]]
 
 # GTH Bank 231 Refclk 1/PCIe RefClk 3
-set_property PACKAGE_PIN K11 [get_ports sys_clk_p[1]] 
-set_property PACKAGE_PIN K10 [get_ports sys_clk_n[1]]
+#set_property PACKAGE_PIN K11 [get_ports sys_clk_p[1]] 
+#set_property PACKAGE_PIN K10 [get_ports sys_clk_n[1]]
 #create_clock -name gtrefclk1_22 -period 3.1 [get_ports sep_gty_refclk1p_i[3]]
 
 #set_property PACKAGE_PIN H11 [get_ports sep_gty_refclk0p_i[4]] # GTH Bank 232 Refclk 0

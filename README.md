@@ -42,7 +42,7 @@ Wupper is provided with a generic MSI-X compatible interrupt controller.
 
 For portability reasons, no Xilinx project files will be supplied with Wupper.
 Instead, a bundle of _TCL scripts_ has been supplied to create a project and import all necessary files, as well as to do the synthesis and implementation.
-These scripts are be described in details in the [/documentation/wupper.pdf](http://opencores.org/websvn,filedetails?repname=virtex7_pcie_dma&path=%2Fvirtex7_pcie_dma%2Ftrunk%2Fdocumentation%2Fwupper.pdf) distributed with Wupper.
+These scripts are be described in details in the [/documentation/wupper.pdf](documentation/wupper.pdf) distributed with Wupper.
 
 ## Feedback
 
