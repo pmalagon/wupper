@@ -655,6 +655,18 @@
           }
         },
         "interface_nets": {
+          "Conn10": {
+            "interface_ports": [
+              "pcie_refclk",
+              "refclk_ibuf/CLK_IN_D"
+            ]
+          },
+          "pcie_phy_GT_RX0": {
+            "interface_ports": [
+              "pcie_phy/GT_RX0",
+              "gt_quad_0/RX0_GT_IP_Interface"
+            ]
+          },
           "pcie_phy_GT_RX3": {
             "interface_ports": [
               "pcie_phy/GT_RX3",
@@ -743,18 +755,6 @@
             "interface_ports": [
               "phy_mac_rx",
               "pcie_phy/phy_mac_rx"
-            ]
-          },
-          "Conn10": {
-            "interface_ports": [
-              "pcie_refclk",
-              "refclk_ibuf/CLK_IN_D"
-            ]
-          },
-          "pcie_phy_GT_RX0": {
-            "interface_ports": [
-              "pcie_phy/GT_RX0",
-              "gt_quad_0/RX0_GT_IP_Interface"
             ]
           },
           "pcie_phy_GT_RX4": {
@@ -1080,6 +1080,18 @@
       }
     },
     "interface_nets": {
+      "pcie_versal_0_support_phy_mac_rx_eq_3rd": {
+        "interface_ports": [
+          "pcie_versal_0/phy_mac_rx_eq_3rd",
+          "pcie_versal_0_support/phy_mac_rx_eq_3rd"
+        ]
+      },
+      "pcie_versal_0_support_phy_mac_tx_drive": {
+        "interface_ports": [
+          "pcie_versal_0/phy_mac_tx_drive",
+          "pcie_versal_0_support/phy_mac_tx_drive"
+        ]
+      },
       "pcie_versal_0_pcie4_transmit_fc": {
         "interface_ports": [
           "pcie4_transmit_fc",
@@ -1168,18 +1180,6 @@
         "interface_ports": [
           "pcie_versal_0/phy_mac_rx_margining",
           "pcie_versal_0_support/phy_mac_rx_margining"
-        ]
-      },
-      "pcie_versal_0_support_phy_mac_rx_eq_3rd": {
-        "interface_ports": [
-          "pcie_versal_0/phy_mac_rx_eq_3rd",
-          "pcie_versal_0_support/phy_mac_rx_eq_3rd"
-        ]
-      },
-      "pcie_versal_0_support_phy_mac_tx_drive": {
-        "interface_ports": [
-          "pcie_versal_0/phy_mac_tx_drive",
-          "pcie_versal_0_support/phy_mac_tx_drive"
         ]
       },
       "pcie4_cfg_external_msix_without_msi_0_1": {

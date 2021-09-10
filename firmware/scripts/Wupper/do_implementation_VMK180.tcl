@@ -5,4 +5,5 @@ set CARD_TYPE 180
 set PCIE_LANES 8
 set DATA_WIDTH 512
 set ENDPOINTS 1
+set NUM_LEDS 4
 source ../helper/do_implementation_post.tcl

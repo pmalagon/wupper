@@ -2,7 +2,7 @@
 set scriptdir [pwd]
 set firmware_dir $scriptdir/../../
 # Vivado project directory:
-set GET_IPS_ARGS {-exclude_bd_ips -quiet}
+set GET_IPS_ARGS {-exclude_bd_ips}
 set project_dir $firmware_dir/Projects/$PROJECT_NAME
 if {$BOARD_TYPE == 711 || $BOARD_TYPE == 712} {
 	set PART xcku115-flvf1924-2-e
@@ -173,12 +173,12 @@ set_property target_constrs_file $firmware_dir/constraints/felix_probes.xdc [cur
 
 
 set_property top $TOPLEVEL [current_fileset]
-upgrade_ip [get_ips $GET_IPS_ARGS]
-generate_target all [get_ips $GET_IPS_ARGS]
+upgrade_ip [get_ips $GET_IPS_ARGS] -quiet
+generate_target all [get_ips $GET_IPS_ARGS] -quiet
 export_ip_user_files -of_objects [get_ips $GET_IPS_ARGS] -no_script -force -quiet
 set MAX_IP_RUNS 6
 set IP_RUNS 0
-
+set run ""
 foreach ip [get_ips $GET_IPS_ARGS] {
     set run [create_ip_run [get_ips $ip]]
     launch_run $run
@@ -191,6 +191,6 @@ foreach ip [get_ips $GET_IPS_ARGS] {
     }
 }
 #wait for the last run.
-wait_on_run $run
+wait_on_run $run -quiet
 export_simulation -of_objects [get_ips $GET_IPS_ARGS] -force -quiet
 

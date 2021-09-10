@@ -70,7 +70,7 @@ $GitDiff
     send_msg_id {GitDiff-1} {CRITICAL WARNING} $MsgString
 }
 
-cd ../../
+cd ../../../
 set GitSubmoduleStatus [exec git submodule status]
 cd $scriptdir
 
