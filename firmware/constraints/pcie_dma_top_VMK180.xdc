@@ -1,6 +1,7 @@
 #103     GTY_REFCLKN0_103
 set_property  PACKAGE_PIN W40      [get_ports  {sys_clk_n[0]}]
 set_property  PACKAGE_PIN W39      [get_ports  {sys_clk_p[0]}]
+create_clock -name sys_clk0 -period 10.000 [get_ports {sys_clk_p[0]}]
  
 #Bank 103 / 104
 set_property  PACKAGE_PIN AB47     [get_ports  {pcie_rxn[0]}]    
