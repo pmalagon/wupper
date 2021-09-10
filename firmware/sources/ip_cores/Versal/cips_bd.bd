@@ -1,0 +1,106 @@
+{
+  "design": {
+    "design_info": {
+      "boundary_crc": "0x6207FED185C0ADD0",
+      "device": "xcvm1802-vsva2197-2MP-e-S-es1",
+      "name": "cips_bd",
+      "rev_ctrl_bd_flag": "RevCtrlBdOff",
+      "synth_flow_mode": "Hierarchical",
+      "tool_version": "2020.1",
+      "validated": "true"
+    },
+    "design_tree": {
+      "cips_pcie_debug": ""
+    },
+    "ports": {
+      "pl0_resetn": {
+        "type": "rst",
+        "direction": "O",
+        "parameters": {
+          "INSERT_VIP": {
+            "value": "0",
+            "value_src": "default"
+          },
+          "POLARITY": {
+            "value": "ACTIVE_LOW",
+            "value_src": "default"
+          }
+        }
+      }
+    },
+    "components": {
+      "cips_pcie_debug": {
+        "vlnv": "xilinx.com:ip:versal_cips:2.0",
+        "xci_name": "cips_bd_cips_pcie_debug_0",
+        "parameters": {
+          "PMC_CRP_PL0_REF_CTRL_FREQMHZ": {
+            "value": "100"
+          },
+          "PMC_MIO_37_DIRECTION": {
+            "value": "out"
+          },
+          "PMC_MIO_37_OUTPUT_DATA": {
+            "value": "high"
+          },
+          "PMC_MIO_37_USAGE": {
+            "value": "GPIO"
+          },
+          "PS_NUM_FABRIC_RESETS": {
+            "value": "1"
+          },
+          "PS_PCIE_RESET_ENABLE": {
+            "value": "1"
+          },
+          "PS_USE_M_AXI_GP2": {
+            "value": "1"
+          },
+          "PS_USE_PMCPL_CLK0": {
+            "value": "1"
+          }
+        },
+        "addressing": {
+          "address_spaces": {
+            "Data1": {
+              "range": "16T",
+              "width": "44"
+            }
+          },
+          "interface_ports": {
+            "M_AXI_LPD": {
+              "mode": "Master",
+              "address_space_ref": "Data1",
+              "base_address": {
+                "minimum": "0x80000000",
+                "maximum": "0x9FFFFFFF"
+              }
+            }
+          }
+        }
+      }
+    },
+    "nets": {
+      "cips_pcie_debug_pl0_ref_clk": {
+        "ports": [
+          "cips_pcie_debug/pl0_ref_clk",
+          "cips_pcie_debug/m_axi_lpd_aclk"
+        ]
+      },
+      "cips_pcie_debug_pl0_resetn": {
+        "ports": [
+          "cips_pcie_debug/pl0_resetn",
+          "pl0_resetn"
+        ]
+      }
+    },
+    "addressing": {
+      "/cips_pcie_debug": {
+        "address_spaces": {
+          "Data1": {
+            "range": "16T",
+            "width": "44"
+          }
+        }
+      }
+    }
+  }
+}

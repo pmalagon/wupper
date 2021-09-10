@@ -1,0 +1,31 @@
+Registers:
+  entries:
+    - ref: IC_FIFOS
+      desc: See Central Router Doc
+      offset: 0x1400
+
+IC_FIFOS:
+  number: 4
+  format_name: FH_TH_IC_FIFOS
+  entries:
+    - name: FH
+      format_name: FH_IC_FIFO_{index:02}
+      type_name: FH_IC_FIFO
+      type: W
+      bitfield:
+        - range: any
+          type: T
+          value: not register_map_monitor_s.register_map_cr_monitor.FH_IC_FIFO_{index:02}.FULL
+          name: WE
+          format_name: FH_IC_FIFO_{index:02}_{bitfield}
+          desc: Any write to this register will trigger a write to the FIFO
+        - range: 8
+          type: R
+          name: FULL
+          format_name: FH_IC_FIFO_{index:02}_{bitfield}
+          desc: Full flag of the fifo, do not write if 1
+        - range: 7..0
+          type: W
+          name: DATAIN
+          format_name: FH_IC_FIFO_{index:02}_{bitfield}
+          desc: Data input of fifo

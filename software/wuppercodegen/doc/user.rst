@@ -234,3 +234,11 @@ and its output
 .. include:: warning.tex
 	:code:
 
+Example
+-------
+Below is an example of a register description file. The format is yaml.
+Yaml files can be comfortably created and edited any text editor.
+
+.. highlight:: yaml
+.. include:: ../examples/simple_vhdl/simple_vhdl.yaml
+	:code:

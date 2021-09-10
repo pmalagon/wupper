@@ -1,0 +1,19 @@
+-- Subgroup2 and Subgroup3
+{% for item in nodes['SubGroup2']|list_nodes_recursively %}
+{% if item.is_group %}
+  Group {{ item.name|e }}
+{% endif %}
+{% if item.is_register %}
+    Register {{ "%-34s"|format(item.name) }}
+{% endif %}
+{% endfor %}
+
+-- see if group clears, only Subgroup1 and Subgroup3 should list
+{% for item in nodes['SubGroup1']|list_nodes_recursively %}
+{% if item.is_group %}
+  Group {{ item.name|e }}
+{% endif %}
+{% if item.is_register %}
+    Register {{ "%-34s"|format(item.name) }}
+{% endif %}
+{% endfor %}

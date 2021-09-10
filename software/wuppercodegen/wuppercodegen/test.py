@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Tests."""
 #
 # Copyright 2014-2016 Mark Donszelmann, Jose Valenciano and Jorn Schumacher

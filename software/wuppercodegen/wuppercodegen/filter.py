@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Filters."""
 #
 # Copyright 2014-2016 Mark Donszelmann, Jose Valenciano and Jorn Schumacher
@@ -32,6 +32,7 @@ def _setup(env):
     env.filters['c_hex'] = c_hex
     env.filters['prepend'] = prepend
     env.filters['version'] = version
+    env.filters['major_version'] = major_version
 
     env.filters['vhdl_constant'] = vhdl_constant
     env.filters['vhdl_string_or_constant'] = vhdl_string_or_constant
@@ -42,9 +43,12 @@ def _setup(env):
     env.filters['html_comment'] = html_comment
     env.filters['html_string'] = html_string
     env.filters['c_comment'] = c_comment
+    env.filters['yaml_comment'] = yaml_comment
     env.filters['cpp_comment'] = cpp_comment
     env.filters['c_string'] = c_string
     env.filters['c_mask'] = c_mask
+    env.filters['shr64'] = shr64
+    
     # Tex does not handle underscores on template functions
     env.filters['xhex'] = xhex
     env.filters['tex_comment'] = tex_comment
@@ -87,10 +91,15 @@ def prepend(value, prefix):
 
 
 def version(value):
-    """Convert MajorVersion.MinorVersion to MajorVersion*0x100+MinorVersion."""
+    """Convert MajorVersion.MinorVersion to a 2 8-bit numbers."""
     v = value.split('.')
-    return int(v[0]) * 0x100 + int(v[1])
+    minor = v[1]
+    major = v[0]
+    return int(major)*0x100 + int(minor)
 
+def major_version(value):
+    v = value.split('.')
+    return str(v[0])
 
 def vhdl_constant(value, bits=1):
     """Format the input value using 'bits' in binary of hexadecimal for VHDL."""
@@ -100,14 +109,14 @@ def vhdl_constant(value, bits=1):
 
     if bits % 4 == 0:
         # hex_digits = bits / 4
-        fmtstring = 'x"{0:0' + str(bits / 4) + 'x}"'
+        fmtstring = 'x"{0:0' + str(int(bits / 4)) + 'x}"'
         return fmtstring.format(value)
     else:
         fmtstring = '"{0:0' + str(bits) + 'b}"'
         return fmtstring.format(value)
 
 def vhdl_string_or_constant(bitfield):
-    return vhdl_constant(bitfield.default, bitfield.bits) if isinstance(bitfield.default, (int, long)) else bitfield.default[bitfield.parent.index] if isinstance(bitfield.default, list) else bitfield.default
+    return vhdl_constant(bitfield.default, bitfield.bits) if isinstance(bitfield.default, int) else bitfield.default[bitfield.parent.index] if isinstance(bitfield.default, list) else bitfield.default
 
 def vhdl_logic_vector(bitfield):
     r"""Format the bitfield value as std_logic_vector(\ *hi* downto *lo*)."""
@@ -134,7 +143,7 @@ def vhdl_value(bitfield, prefix):
     prepended by prefix.
     """
     if bitfield.is_trigger:
-        return bitfield.value_string if isinstance(bitfield.value, basestring) else vhdl_constant(bitfield.value)
+        return bitfield.value_string if isinstance(bitfield.value, str) else vhdl_constant(bitfield.value)
     else:
         return prefix + vhdl_downto(bitfield)
 
@@ -216,9 +225,19 @@ def c_comment(value, indent=0):
     return line_comment(value, "/* ", indent, " */")
 
 
+def yaml_comment(value, indent=0):
+    r"""
+    Split the input value in separate lines and indents each of them by 'indent' spaces.
+
+    Every line is preceded by a yaml comment delimiter (# ).
+    """
+    value = value.replace('\#', '#')
+    return line_comment(value, "# ", indent)
+
+
 def html_string(value):
     """Escape YAML (multi-line) string into html."""
-    if value is not None and isinstance(value, basestring):
+    if value is not None and isinstance(value, str):
         value = value.replace('\#', '#')
         value = value.replace('\n', '<br/>')
     return value
@@ -234,6 +253,10 @@ def c_string(value):
 def c_mask(bitfield):
     """Return the mask value based on the bitfield.hi and bitfield.lo values."""
     return ((1 << (bitfield.hi - bitfield.lo + 1)) - 1) << bitfield.lo
+
+def shr64(value):
+    """Return the value shifted 64 bits to the right."""
+    return value >> 64
 
 
 def tex_string(value):
@@ -361,7 +384,7 @@ def list_sequences(node):
 
             if hasattr(seq, 'nodes'):
                 # NOTE: the sequence is unwrapped, lists all elements, we need only the defined ones
-                for index in range(len(seq.nodes) / seq.number):
+                for index in range(len(seq.nodes) // seq.number):
                     item = seq.nodes[index]
                     if item.is_sequence:
                         list.append(Node(seq, {"number": item.number}, item.name))

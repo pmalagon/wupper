@@ -13,8 +13,9 @@
 
 #include "DFDebug/DFDebug.h"
 #include "cmem_rcc/cmem_rcc.h"
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
+
 
 #define APPLICATION_NAME    "wupper-dma-stat"
 
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
 
   try
   {
-    wupperCard.card_open( device_number );
+    wupperCard.card_open( device_number ,0);
 
     u_long baraddr0 = wupperCard.openBackDoor( 0 );
 
@@ -131,7 +132,7 @@ int main(int argc, char **argv)
 
     wupperCard.card_close();
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std:: endl;
     exit(-1);

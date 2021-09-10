@@ -1,0 +1,24 @@
+Registers:
+  entries:
+    - name: Status
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Multi-BitField
+      type: R
+      bitfield:
+        - name: FirstBitField
+          range: 31..16
+        - name: SecondBitField
+          range: 15..0
+    - name: Command
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0
+    - name: Trigger
+      type: T
+      desc: Trigger field
+      bitfield:
+        - range: any

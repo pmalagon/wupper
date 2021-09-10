@@ -1,0 +1,18 @@
+  Group Registers
+  Sequence IC_FIFOS
+    Register FH_IC_FIFO_00                      FH         0
+        BitField FH_IC_FIFO_00_WE               WE         lo: 0 hi: -1 bits: 0
+        BitField FH_IC_FIFO_00_FULL             FULL       lo: 8 hi: 8 bits: 1
+        BitField FH_IC_FIFO_00_DATAIN           DATAIN     lo: 0 hi: 7 bits: 8
+    Register FH_IC_FIFO_01                      FH         1
+        BitField FH_IC_FIFO_01_WE               WE         lo: 0 hi: -1 bits: 0
+        BitField FH_IC_FIFO_01_FULL             FULL       lo: 8 hi: 8 bits: 1
+        BitField FH_IC_FIFO_01_DATAIN           DATAIN     lo: 0 hi: 7 bits: 8
+    Register FH_IC_FIFO_02                      FH         2
+        BitField FH_IC_FIFO_02_WE               WE         lo: 0 hi: -1 bits: 0
+        BitField FH_IC_FIFO_02_FULL             FULL       lo: 8 hi: 8 bits: 1
+        BitField FH_IC_FIFO_02_DATAIN           DATAIN     lo: 0 hi: 7 bits: 8
+    Register FH_IC_FIFO_03                      FH         3
+        BitField FH_IC_FIFO_03_WE               WE         lo: 0 hi: -1 bits: 0
+        BitField FH_IC_FIFO_03_FULL             FULL       lo: 8 hi: 8 bits: 1
+        BitField FH_IC_FIFO_03_DATAIN           DATAIN     lo: 0 hi: 7 bits: 8

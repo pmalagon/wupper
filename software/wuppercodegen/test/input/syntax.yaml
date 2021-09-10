@@ -1,0 +1,6 @@
+Registers:
+  type: R
+  default: 0
+  entries:
+    - name: Status
+      desc: 0: on, 1: Off

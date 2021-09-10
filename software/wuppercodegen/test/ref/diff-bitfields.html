@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+    width: 100%;
+}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    vertical-align: top;
+}
+th {
+    text-align: left;
+}
+.group {
+    text-align: center;
+    font-weight: bold;
+}
+.changedAdded {
+    color: green;
+    font-weight: bold;
+}
+.changedRemoved {
+    color: purple;
+    font-weight: bold;
+}
+.changedTrue {
+    color: red;
+    font-weight: bold;
+}
+.changedChanged {
+    color: blue;
+    font-weight: bold;
+}
+.changedInto {
+    color: magenta;
+    font-weight: bold;
+}
+.type, .range {
+    text-align: center;
+}
+.field {
+    text-align: right;
+}
+</style>
+</head>
+
+<body>
+  <h1>Changes between 5.6.0 and 5.7.0</h1>
+  <h2>Changes marked with '*' are backward incompatible</h2>
+  <table>
+    <tr>
+      <th>#</th>
+      <th>State</th>
+      <th>Address</th>
+      <th>Name</th>
+      <th>State</th>
+      <th>Field</th>
+      <th>Bits</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">1</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0010</td>
+      <td class="name changedNone" colspan="7">BF_COMPATIBLE_TYPE_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield with Compatible Type change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield with Compatible Type change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">1</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0010</td>
+      <td class="name changedNone" colspan="7">BF_COMPATIBLE_TYPE_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedFalse">31..16</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Bitfield with Compatible Type change</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedFalse">15..0</td>
+      <td class="type changedTrue">W</td>
+      <td class="desc changedFalse">Bitfield with Compatible Type change</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">2*</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0018</td>
+      <td class="name changedNone" colspan="7">BF_TYPE_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">W</td>
+      <td class="desc changedNone">Bitfield with Type change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield with Type change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">2*</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0018</td>
+      <td class="name changedNone" colspan="7">BF_TYPE_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedFalse">31..16</td>
+      <td class="type changedTrue">R</td>
+      <td class="desc changedFalse">Bitfield with Type change</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedFalse">15..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Bitfield with Type change</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">3</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0020</td>
+      <td class="name changedNone" colspan="7">BF_DESC_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield 1 with Description change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield 2 with Description change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">3</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0020</td>
+      <td class="name changedNone" colspan="7">BF_DESC_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedFalse">31..16</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedTrue">Bitfield 1 with a change in Description</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedFalse">15..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedTrue">Bitfield 2 with a change in Description</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">4*</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0030</td>
+      <td class="name changedNone" colspan="7">BF_RANGE_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield with Range change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Bitfield with Range change</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">4*</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0030</td>
+      <td class="name changedNone" colspan="7">BF_RANGE_CHANGE</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedTrue">31..20</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Bitfield with Range change</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedFalse">15..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Bitfield with Range change</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">5*</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0040</td>
+      <td class="name changedNone" colspan="7">BF_CHANGED_AND_REMOVED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedRemoved">Removed</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Changed and Removed Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changedRemoved">Removed</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Changed and Removed Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence">5*</td>
+      <td class="state changedInto">Into</td>
+      <td class="address changedFalse">0x0040</td>
+      <td class="name changedNone" colspan="3">BF_CHANGED_AND_REMOVED</td>
+
+      <td class="range changedFalse">15..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Changed and Removed Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="4">6*</td>
+      <td class="state changedChanged" rowspan="4">Changed</td>
+      <td class="address changedNone" rowspan="4">0x0048</td>
+      <td class="name changedNone" colspan="7">BF_REMOVED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="3"></td>
+            <td class="state changedRemoved">Removed</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Removed Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..8</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Removed Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF3</td>
+      <td class="range changedNone">7..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Removed Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">6*</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0048</td>
+      <td class="name changedNone" colspan="7">BF_REMOVED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedFalse">15..8</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Removed Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF3</td>
+      <td class="range changedFalse">7..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Removed Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">7*</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0050</td>
+      <td class="name changedNone" colspan="7">BF_REPLACED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Replaced Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changedChanged">Changed</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedNone">15..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Replaced Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">7*</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0050</td>
+      <td class="name changedNone" colspan="7">BF_REPLACED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF2</td>
+      <td class="range changedTrue">31..16</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Replaced Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changedInto">Into</td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedTrue">15..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Replaced Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">8</td>
+      <td class="state changedChanged" rowspan="3">Changed</td>
+      <td class="address changedNone" rowspan="3">0x0060</td>
+      <td class="name changedNone" colspan="7">BF_INSERTED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedNone">31..20</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Inserted Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF3</td>
+      <td class="range changedNone">10..0</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Inserted Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="4">8</td>
+      <td class="state changedInto" rowspan="4">Into</td>
+      <td class="address changedFalse" rowspan="4">0x0060</td>
+      <td class="name changedNone" colspan="7">BF_INSERTED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="3"></td>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedFalse">31..20</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Inserted Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changedAdded">Added</td>
+      <td class="field changedTrue">BF2</td>
+      <td class="range changedFalse">19..11</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Inserted Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF3</td>
+      <td class="range changedFalse">10..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Inserted Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence">9</td>
+      <td class="state changedChanged">Changed</td>
+      <td class="address changedNone">0x0080</td>
+      <td class="name changedNone" colspan="3">BF_ADDED</td>
+
+      <td class="range changedNone">31..16</td>
+      <td class="type changedNone">R</td>
+      <td class="desc changedNone">Added Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+    <tr>
+      <td class="sequence" rowspan="3">9</td>
+      <td class="state changedInto" rowspan="3">Into</td>
+      <td class="address changedFalse" rowspan="3">0x0080</td>
+      <td class="name changedNone" colspan="7">BF_ADDED</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changed"></td>
+      <td class="field changedNone">BF1</td>
+      <td class="range changedFalse">31..16</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Added Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+    <tr>
+            <td class="state changedAdded">Added</td>
+      <td class="field changedTrue">BF2</td>
+      <td class="range changedFalse">15..0</td>
+      <td class="type changedFalse">R</td>
+      <td class="desc changedFalse">Added Bitfield</td>
+      <td class="value changedFalse">None</td>
+    </tr>
+
+    <tr>
+      <td colspan="10" class="group"></td>
+    </tr>
+    <tr>
+      <td class="sequence" rowspan="3">10</td>
+      <td class="state changedAdded" rowspan="3">Added</td>
+      <td class="address changedTrue" rowspan="3">0x0090</td>
+      <td class="name changedTrue" colspan="7">BF_EXTRA</td>
+    </tr>
+
+    <tr>
+                  <td rowspan="2"></td>
+            <td class="state changedAdded">Added</td>
+      <td class="field changedTrue">BF1</td>
+      <td class="range changedTrue">31..16</td>
+      <td class="type changedTrue">R</td>
+      <td class="desc changedTrue">Extra Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+    <tr>
+            <td class="state changedAdded">Added</td>
+      <td class="field changedTrue">BF2</td>
+      <td class="range changedTrue">15..0</td>
+      <td class="type changedTrue">R</td>
+      <td class="desc changedTrue">Extra Bitfield</td>
+      <td class="value changedNone">None</td>
+    </tr>
+
+  </table>
+
+</body>
+</html>

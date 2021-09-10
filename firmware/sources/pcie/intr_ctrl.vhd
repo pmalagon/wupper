@@ -34,30 +34,30 @@
 --!  
 --!
 --! ------------------------------------------------------------------------------
---! Virtex7 PCIe Gen3 DMA Core
+--! Wupper: PCIe Gen3 and Gen4 DMA Core for Xilinx FPGAs
 --! 
---! \copyright GNU LGPL License
---! Copyright (c) Nikhef, Amsterdam, All rights reserved. <br>
---! This library is free software; you can redistribute it and/or
---! modify it under the terms of the GNU Lesser General Public
---! License as published by the Free Software Foundation; either
---! version 3.0 of the License, or (at your option) any later version.
---! This library is distributed in the hope that it will be useful,
---! but WITHOUT ANY WARRANTY; without even the implied warranty of
---! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
---! Lesser General Public License for more details.<br>
---! You should have received a copy of the GNU Lesser General Public
---! License along with this library.
+--! Copyright (C) 2021 Nikhef, Amsterdam (f.schreuder@nikhef.nl)
 --! 
+--! Licensed under the Apache License, Version 2.0 (the "License");
+--! you may not use this file except in compliance with the License.
+--! You may obtain a copy of the License at
+--! 
+--!         http://www.apache.org/licenses/LICENSE-2.0
+--! 
+--! Unless required by applicable law or agreed to in writing, software
+--! distributed under the License is distributed on an "AS IS" BASIS,
+--! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--! See the License for the specific language governing permissions and
+--! limitations under the License.
 -- 
 --! @brief ieee
 
 
 
-library ieee, UNISIM, work;
+library ieee, UNISIM;
 use ieee.numeric_std.all;
 use UNISIM.VCOMPONENTS.all;
-use ieee.std_logic_unsigned.all;
+--use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 use work.pcie_package.all;
 
@@ -68,9 +68,9 @@ entity intr_ctrl is
     cfg_interrupt_msix_address : out    std_logic_vector(63 downto 0);
     cfg_interrupt_msix_data    : out    std_logic_vector(31 downto 0);
     cfg_interrupt_msix_enable  : in     std_logic_vector(3 downto 0);
-    cfg_interrupt_msix_fail    : in     std_logic;
+    --cfg_interrupt_msix_fail    : in     std_logic;
     cfg_interrupt_msix_int     : out    std_logic;
-    cfg_interrupt_msix_sent    : in     std_logic;
+    --cfg_interrupt_msix_sent    : in     std_logic;
     clk                        : in     std_logic;
     regmap_clk                 : in     std_logic;
     dma_interrupt_call         : in     std_logic_vector(3 downto 0);
@@ -81,7 +81,8 @@ entity intr_ctrl is
     s_axis_cc                  : in     axis_type;
     s_axis_cq                  : in     axis_type;
     s_axis_rc                  : in     axis_type;
-    s_axis_rq                  : in     axis_type);
+    s_axis_rq                  : in     axis_type;
+    int_test                   : in     bitfield_int_test_t_type);
 end entity intr_ctrl;
 
 
@@ -95,23 +96,24 @@ architecture rtl of intr_ctrl is
   signal s_cfg_interrupt_msix_data           :  std_logic_vector(31 downto 0);
   signal s_cfg_interrupt_msix_address        :  std_logic_vector(63 downto 0);
   
-  signal monitor_cfg_interrupt_msix_data     :  std_logic_vector(31 downto 0);
-  signal monitor_cfg_interrupt_msix_address  :  std_logic_vector(63 downto 0);  
+  --signal monitor_cfg_interrupt_msix_data     :  std_logic_vector(31 downto 0);
+  --signal monitor_cfg_interrupt_msix_address  :  std_logic_vector(63 downto 0);  
 
   signal s_interrupt_call                    :  std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
   signal s_interrupt_latch                   :  std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
   signal clear_interrupt_pending_s           :  std_logic;
-  attribute dont_touch : string;
-  attribute dont_touch of monitor_cfg_interrupt_msix_data    : signal is "true";
-  attribute dont_touch of monitor_cfg_interrupt_msix_address : signal is "true";
+  --attribute dont_touch : string;
+  --attribute dont_touch of monitor_cfg_interrupt_msix_data    : signal is "true";
+  --attribute dont_touch of monitor_cfg_interrupt_msix_address : signal is "true";
   
   signal axi_busy                             : std_logic;
   signal s_interrupt_pending : std_logic := '0';
+  signal s_test_interrupt_call: std_logic_vector(NUMBER_OF_INTERRUPTS-1 downto 0);
 
 begin
 
   -- Interrupt vector assignments
-  interrupt_assign : process (regmap_clk, interrupt_vector)
+  interrupt_assign : process (regmap_clk)
   begin
     if rising_edge (regmap_clk) then
       for i in 0 to (NUMBER_OF_INTERRUPTS-1) loop
@@ -127,12 +129,24 @@ begin
       end if;
     end if;
   end process;
+  
+  test_interrupt: process(regmap_clk)
+    variable trigger_p1: std_logic;
+  begin
+    if rising_edge(regmap_clk) then
+      s_test_interrupt_call <= (others => '0');
+      if int_test.TRIGGER = "1" and trigger_p1 = '0' then
+        s_test_interrupt_call(to_integer(unsigned(int_test.IRQ))) <= '1';
+      end if;
+      trigger_p1 := int_test.TRIGGER(64);
+    end if;
+  end process;
 
   --
   -- Monitor Signals
   -- 
-  monitor_cfg_interrupt_msix_data    <= s_cfg_interrupt_msix_data;
-  monitor_cfg_interrupt_msix_address <= s_cfg_interrupt_msix_address;  
+  --monitor_cfg_interrupt_msix_data    <= s_cfg_interrupt_msix_data;
+  --monitor_cfg_interrupt_msix_address <= s_cfg_interrupt_msix_address;  
 
   s_interrupt_call <= interrupt_call & dma_interrupt_call;
   --
@@ -163,7 +177,7 @@ begin
       
       if (cfg_interrupt_msix_enable = "0001") then
         for i in 0 to NUMBER_OF_INTERRUPTS - 1 loop
-          if(s_interrupt_call(i)='1') and (interrupt_table_en(i) = '1') then
+          if(s_interrupt_call(i)='1' or s_test_interrupt_call(i) = '1') and (interrupt_table_en(i) = '1') then
             s_interrupt_latch(i) <= '1';
           end if;
         end loop;

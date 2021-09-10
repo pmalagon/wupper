@@ -1,0 +1,16 @@
+Registers:
+  entries:
+    - ref: SubGroup
+
+SubGroup:
+  entries:
+    - name: Status
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Command
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0

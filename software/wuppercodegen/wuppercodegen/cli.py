@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Command Line Interface (CLI) of Wupper Code Gen."""
 #
 # Copyright 2014-2016 Mark Donszelmann, Jose Valenciano and Jorn Schumacher
@@ -53,8 +53,8 @@ class FileLoader(BaseLoader):
         if not exists(path):
             raise TemplateNotFound(template)
         mtime = getmtime(path)
-        with file(path) as f:
-            source = f.read().decode('utf-8')
+        with open(path) as f:
+            source = f.read()  # .decode('utf-8')
         return source, path, lambda: mtime == getmtime(path)
 
 
@@ -62,9 +62,13 @@ def read_input(yaml_file):
     """Read data from input yaml file."""
     try:
         with open(yaml_file, 'r') as f:
-            config = yaml.load(f)
-    except yaml.YAMLError, exc:
-        print "Error in configuration file:", exc
+            try:
+                config = yaml.load(f, Loader=yaml.FullLoader)
+            except AttributeError:
+                # Python 2.7
+                config = yaml.load(f)
+    except yaml.YAMLError as exc:
+        print("Error in configuration file:", exc)
         sys.exit(1)
 
     return config
@@ -91,7 +95,7 @@ def generate_bitfields(register):
                 bf.hi = int(x[0])
                 bf.lo = int(x[1])
                 if (bf.lo > bf.hi):
-                    print "ERROR register/bitfield", register.full_name, 'has wrong order for bitfield spec:', bf.range, ", should be:", bf.lo, "..", bf.hi
+                    print("ERROR register/bitfield", register.full_name, 'has wrong order for bitfield spec:', bf.range, ", should be:", bf.lo, "..", bf.hi)
                     sys.exit(1)
             else:
                 bf.hi, bf.lo = bf.range, bf.range
@@ -99,7 +103,7 @@ def generate_bitfields(register):
             if bf.lo < lowest:
                 lowest = bf.lo
             else:
-                print "ERROR register/bitfield", register.prefix_name, 'has wrong order for bitfields, which should be hi to lo'
+                print("ERROR register/bitfield", register.prefix_name, 'has wrong order for bitfields, which should be hi to lo')
                 sys.exit(1)
 
         bitfields.append(bf)
@@ -114,7 +118,7 @@ def generate_bitfields(register):
 def generate_register(parent, register, registers, nodes, address, index):
     """Define a register."""
     if 'name' not in register:
-        print "ERROR no 'name' defined for register."
+        print("ERROR no 'name' defined for register.")
         sys.exit(1)
 
     reg = Register(parent, register, register['name'], index)
@@ -142,7 +146,7 @@ def generate_register(parent, register, registers, nodes, address, index):
 def generate_node(parent, config, group_name, registers, nodes, address=0x0000, index=None):
     """Generate a dictionary of output data to be passed to jinja2."""
     if group_name not in config:
-        print "ERROR group", group_name, "not defined."
+        print("ERROR group", group_name, "not defined.")
         sys.exit(1)
 
     dictionary = config[group_name]
@@ -213,7 +217,7 @@ def generate_output(output, template_file, data):
     result = template.render(**data)
 
     with open(output, 'w') as f:
-        f.write(result.encode('utf-8'))
+        f.write(result)  # .encode('utf-8'))
 
 
 def diff(diff_file, registers, nodes, data):

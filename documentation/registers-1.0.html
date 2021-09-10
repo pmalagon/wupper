@@ -9,7 +9,7 @@
     
     This file was generated from template '../documentation/registers.html.template'
     and register map registers-1.0.yaml, version 2.0
-    by the script 'wuppercodegen', version: 0.8.0,
+    by the script 'wuppercodegen', version: 0.8.4,
     using the following commandline:
     
     ../software/wuppercodegen/wuppercodegen/cli.py registers-1.0.yaml ../documentation/registers.html.template ../documentation/registers-1.0.html
@@ -352,6 +352,15 @@ th {
       <td class="desc">A tohost descriptor passed BUSY_THRESHOLD_ASSERT, busy flag set</td>
     </tr>
     <tr>
+      <td rowspan="1">0x04A0</td>
+      <td rowspan="1">0,1</td>
+      <td rowspan="1">PC_PTR_GAP</td>
+      <td class="name"></td>
+      <td class="range">63..0</td>
+      <td class="type">W</td>
+      <td class="desc">This is the minimum value that the pc_pointer in a descriptor has to decrease in order to flip the evencycle_pc bit</td>
+    </tr>
+    <tr>
       <td colspan="7" class="group">Bar1</td>
     </tr>
     <tr>
@@ -374,7 +383,7 @@ th {
     </tr>
     <tr>
       <td class="name">INT_ADDRESS</td>
-      <td class="range">64..0</td>
+      <td class="range">63..0</td>
       <td class="type">W</td>
       <td class="desc">Interrupt Address</td>
     </tr>
@@ -398,7 +407,7 @@ th {
     </tr>
     <tr>
       <td class="name">INT_ADDRESS</td>
-      <td class="range">64..0</td>
+      <td class="range">63..0</td>
       <td class="type">W</td>
       <td class="desc">Interrupt Address</td>
     </tr>
@@ -438,15 +447,6 @@ th {
     <tr>
       <td rowspan="1">0x0020</td>
       <td rowspan="1">0</td>
-      <td rowspan="1">BOARD_ID_SVN</td>
-      <td class="name"></td>
-      <td class="range">15..0</td>
-      <td class="type">R</td>
-      <td class="desc">Board ID SVN Revision</td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x0030</td>
-      <td rowspan="1">0</td>
       <td rowspan="1">GIT_COMMIT_TIME</td>
       <td class="name"></td>
       <td class="range">39..0</td>
@@ -454,7 +454,7 @@ th {
       <td class="desc">Board ID GIT Commit time of current revision, Date / Time in BCD format YYMMDDhhmm</td>
     </tr>
     <tr>
-      <td rowspan="1">0x0040</td>
+      <td rowspan="1">0x0030</td>
       <td rowspan="1">0</td>
       <td rowspan="1">GIT_TAG</td>
       <td class="name"></td>
@@ -463,7 +463,7 @@ th {
       <td class="desc">String containing the current GIT TAG</td>
     </tr>
     <tr>
-      <td rowspan="1">0x0050</td>
+      <td rowspan="1">0x0040</td>
       <td rowspan="1">0</td>
       <td rowspan="1">GIT_COMMIT_NUMBER</td>
       <td class="name"></td>
@@ -472,7 +472,7 @@ th {
       <td class="desc">Number of GIT commits after current GIT_TAG</td>
     </tr>
     <tr>
-      <td rowspan="1">0x0060</td>
+      <td rowspan="1">0x0050</td>
       <td rowspan="1">0</td>
       <td rowspan="1">GIT_HASH</td>
       <td class="name"></td>
@@ -481,7 +481,7 @@ th {
       <td class="desc">Short GIT hash (32 bit)</td>
     </tr>
     <tr>
-      <td rowspan="1">0x0070</td>
+      <td rowspan="1">0x0060</td>
       <td rowspan="1">0</td>
       <td rowspan="1">STATUS_LEDS</td>
       <td class="name"></td>
@@ -490,7 +490,7 @@ th {
       <td class="desc">Board GPIO Leds</td>
     </tr>
     <tr>
-      <td rowspan="2">0x0080</td>
+      <td rowspan="2">0x0070</td>
       <td rowspan="2">0</td>
       <td rowspan="2">GENERIC_CONSTANTS</td>
       <td class="name">INTERRUPTS</td>
@@ -505,85 +505,37 @@ th {
       <td class="desc">Number of Descriptors</td>
     </tr>
     <tr>
-      <td rowspan="1">0x0090</td>
+      <td rowspan="1">0x0080</td>
       <td rowspan="1">0</td>
       <td rowspan="1">CARD_TYPE</td>
       <td class="name"></td>
       <td class="range">63..0</td>
       <td class="type">R</td>
-      <td class="desc">Card Type:<br/>  - 709 (0x2c5): VC-709<br/>  - 710 (0x2c6): HTG-710<br/>  - 711 (0x2c7): BNL-711<br/>  - 712 (0x2c8): BNL-712<br/></td>
+      <td class="desc">Card Type:<br/>  - 105 (0x069): KCU-105<br/>  - 128 (0x080): VCU128<br/>  - 180 (0x0B4): VMK180<br/>  - 709 (0x2c5): VC-709<br/>  - 710 (0x2c6): HTG-710<br/>  - 711 (0x2c7): BNL-711<br/>  - 712 (0x2c8): BNL-712<br/></td>
     </tr>
     <tr>
-      <td colspan="7" class="group">Application Specific</td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x1000</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">LFSR_SEED_0</td>
+      <td rowspan="1">0x0090</td>
+      <td rowspan="1">0</td>
+      <td rowspan="1">PCIE_ENDPOINT</td>
       <td class="name"></td>
-      <td class="range">63..0</td>
-      <td class="type">W</td>
-      <td class="desc">Least significant 64 bits of the LFSR seed</td>
+      <td class="range">0</td>
+      <td class="type">R</td>
+      <td class="desc">Indicator of the PCIe endpoint on BNL71x cards with two endpoints. 0 or 1</td>
     </tr>
     <tr>
-      <td rowspan="1">0x1010</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">LFSR_SEED_1</td>
+      <td rowspan="1">0x00A0</td>
+      <td rowspan="1">0</td>
+      <td rowspan="1">NUMBER_OF_PCIE_ENDPOINTS</td>
       <td class="name"></td>
-      <td class="range">63..0</td>
-      <td class="type">W</td>
-      <td class="desc">Bits 127 downto 64 of the LFSR seed</td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x1020</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">LFSR_SEED_2</td>
-      <td class="name"></td>
-      <td class="range">63..0</td>
-      <td class="type">W</td>
-      <td class="desc">Bits 191 downto 128 of the LFSR seed</td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x1030</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">LFSR_SEED_3</td>
-      <td class="name"></td>
-      <td class="range">63..0</td>
-      <td class="type">W</td>
-      <td class="desc">Bits 255 downto 192 of the LFSR seed</td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x1040</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">APP_MUX</td>
-      <td class="name"></td>
-      <td class="range">0..0</td>
-      <td class="type">W</td>
-      <td class="desc">Switch between multiplier or LFSR.<br/>  * 0 LFSR<br/>  * 1 Loopback<br/></td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x1050</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">LFSR_LOAD_SEED</td>
-      <td class="name"></td>
-      <td class="range">any</td>
-      <td class="type">T</td>
-      <td class="desc">Writing any value to this register triggers the LFSR module to reset to the LFSR_SEED value</td>
-    </tr>
-    <tr>
-      <td rowspan="1">0x1060</td>
-      <td rowspan="1">0,1</td>
-      <td rowspan="1">APP_ENABLE</td>
-      <td class="name"></td>
-      <td class="range">0..0</td>
-      <td class="type">W</td>
-      <td class="desc">1 Enables LFSR module or Loopback (depending on APP_MUX)<br/>0 disable application<br/></td>
+      <td class="range">1..0</td>
+      <td class="type">R</td>
+      <td class="desc">Number of PCIe endpoints on the card. The VCU128 cards have 2 endpoints</td>
     </tr>
     <tr>
       <td colspan="7" class="group">House Keeping Controls And Monitors</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2300</td>
+      <td rowspan="1">0x1300</td>
       <td rowspan="1">0</td>
       <td rowspan="1">MMCM_MAIN_PLL_LOCK</td>
       <td class="name"></td>
@@ -592,7 +544,7 @@ th {
       <td class="desc">Main MMCM PLL Lock Status</td>
     </tr>
     <tr>
-      <td rowspan="7">0x2310</td>
+      <td rowspan="7">0x1310</td>
       <td rowspan="7">0</td>
       <td rowspan="7">I2C_WR</td>
       <td class="name">I2C_WREN</td>
@@ -637,7 +589,7 @@ th {
       <td class="desc">READ/<o>WRITE</o></td>
     </tr>
     <tr>
-      <td rowspan="3">0x2320</td>
+      <td rowspan="3">0x1320</td>
       <td rowspan="3">0</td>
       <td rowspan="3">I2C_RD</td>
       <td class="name">I2C_RDEN</td>
@@ -658,7 +610,7 @@ th {
       <td class="desc">I2C READ Data</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2330</td>
+      <td rowspan="1">0x1330</td>
       <td rowspan="1">0</td>
       <td rowspan="1">FPGA_CORE_TEMP</td>
       <td class="name"></td>
@@ -667,7 +619,7 @@ th {
       <td class="desc">XADC temperature monitor for the FPGA CORE<br/>for Virtex7<br/>temp (C)= ((FPGA_CORE_TEMP* 503.975)/4096)-273.15<br/>for Kintex Ultrascale<br/>temp (C)= ((FPGA_CORE_TEMP* 502.9098)/4096)-273.8195<br/></td>
     </tr>
     <tr>
-      <td rowspan="1">0x2340</td>
+      <td rowspan="1">0x1340</td>
       <td rowspan="1">0</td>
       <td rowspan="1">FPGA_CORE_VCCINT</td>
       <td class="name"></td>
@@ -676,7 +628,7 @@ th {
       <td class="desc">XADC voltage measurement VCCINT = (FPGA_CORE_VCCINT *3.0)/4096</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2350</td>
+      <td rowspan="1">0x1350</td>
       <td rowspan="1">0</td>
       <td rowspan="1">FPGA_CORE_VCCAUX</td>
       <td class="name"></td>
@@ -685,7 +637,7 @@ th {
       <td class="desc">XADC voltage measurement VCCAUX = (FPGA_CORE_VCCAUX *3.0)/4096</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2360</td>
+      <td rowspan="1">0x1360</td>
       <td rowspan="1">0</td>
       <td rowspan="1">FPGA_CORE_VCCBRAM</td>
       <td class="name"></td>
@@ -694,7 +646,7 @@ th {
       <td class="desc">XADC voltage measurement VCCBRAM = (FPGA_CORE_VCCBRAM *3.0)/4096</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2370</td>
+      <td rowspan="1">0x1370</td>
       <td rowspan="1">0,1</td>
       <td rowspan="1">FPGA_DNA</td>
       <td class="name"></td>
@@ -703,25 +655,22 @@ th {
       <td class="desc">Unique identifier of the FPGA</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2800</td>
-      <td rowspan="1">0</td>
-      <td rowspan="1">INT_TEST_4</td>
-      <td class="name"></td>
+      <td rowspan="2">0x1800</td>
+      <td rowspan="2">0</td>
+      <td rowspan="2">INT_TEST</td>
+      <td class="name">TRIGGER</td>
       <td class="range">any</td>
       <td class="type">T</td>
-      <td class="desc">Fire a test MSIx interrupt #4</td>
+      <td class="desc">Fire a test MSIx interrupt set in IRQ</td>
     </tr>
     <tr>
-      <td rowspan="1">0x2810</td>
-      <td rowspan="1">0</td>
-      <td rowspan="1">INT_TEST_5</td>
-      <td class="name"></td>
-      <td class="range">any</td>
-      <td class="type">T</td>
-      <td class="desc">Fire a test MSIx interrupt #5</td>
+      <td class="name">IRQ</td>
+      <td class="range">3..0</td>
+      <td class="type">W</td>
+      <td class="desc">Set this field to a value equal to the MSIX interrupt to be fired. The write triggers the interrupt immediately.</td>
     </tr>
     <tr>
-      <td rowspan="6">0x2820</td>
+      <td rowspan="6">0x1810</td>
       <td rowspan="6">0</td>
       <td rowspan="6">DMA_BUSY_STATUS</td>
       <td class="name">CLEAR_LATCH</td>
@@ -763,7 +712,7 @@ th {
       <td colspan="7" class="group">Wishbone</td>
     </tr>
     <tr>
-      <td rowspan="2">0x4000</td>
+      <td rowspan="2">0x2000</td>
       <td rowspan="2">0</td>
       <td rowspan="2">WISHBONE_CONTROL</td>
       <td class="name">WRITE_NOT_READ</td>
@@ -778,7 +727,7 @@ th {
       <td class="desc">Slave address for Wishbone bus</td>
     </tr>
     <tr>
-      <td rowspan="3">0x4010</td>
+      <td rowspan="3">0x2010</td>
       <td rowspan="3">0</td>
       <td rowspan="3">WISHBONE_WRITE</td>
       <td class="name">WRITE_ENABLE</td>
@@ -799,7 +748,7 @@ th {
       <td class="desc">Wishbone</td>
     </tr>
     <tr>
-      <td rowspan="3">0x4020</td>
+      <td rowspan="3">0x2020</td>
       <td rowspan="3">0</td>
       <td rowspan="3">WISHBONE_READ</td>
       <td class="name">READ_ENABLE</td>
@@ -820,7 +769,7 @@ th {
       <td class="desc">Wishbone read data</td>
     </tr>
     <tr>
-      <td rowspan="5">0x4030</td>
+      <td rowspan="5">0x2030</td>
       <td rowspan="5">0</td>
       <td rowspan="5">WISHBONE_STATUS</td>
       <td class="name">INT</td>

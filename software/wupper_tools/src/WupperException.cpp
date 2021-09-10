@@ -1,7 +1,7 @@
 
 
 
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperException.h"
 
 
 //WupperException::WupperException(u_int errorId, std::string errorText) :

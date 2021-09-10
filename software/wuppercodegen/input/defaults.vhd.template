@@ -1,0 +1,9 @@
+{{ tree.warning|vhdl_comment }}
+
+{% for register in registers if register is in_group('Bar2') %}
+{% for bf in register.bitfield %}
+{% if bf.is_write or bf.is_trigger %}
+  constant {{"%-40s"|format(bf.full_name|prepend('REG_')|append('_C'))}}: {{"%-32s"|format(bf|vhdl_logic_vector)}} := {{ "%-22s"|format(bf.default|vhdl_constant(bf.bits)|semi) }} {{bf.desc|vhdl_comment(112)}}
+{% endif %}
+{% endfor %}
+{% endfor %}

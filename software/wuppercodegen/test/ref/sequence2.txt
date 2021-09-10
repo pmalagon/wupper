@@ -1,0 +1,26 @@
+
+typedef struct
+{
+  volatile u_long TH;
+  volatile u_long unused0;
+  volatile u_long FH;
+  volatile u_long unused1;
+} cr_gbt_mon_t;
+
+typedef struct
+{
+  volatile u_long FH;
+  volatile u_long unused0;
+} egroup_fh_t;
+
+typedef struct
+{
+  volatile u_long TH;
+  volatile u_long unused0;
+} egroup_th_t;
+
+typedef struct
+{
+  egroup_th_t EGROUP_TH[7];
+  egroup_fh_t EGROUP_FH[5];
+} cr_gbt_ctrl_t;

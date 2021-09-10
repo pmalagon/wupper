@@ -1,0 +1,29 @@
+-- WUPPER: VHDL configuration code
+
+{% for group in tree|list_nodes_recursively if group.is_sequence and group.index == 0 and group.name != 'Registers' %}
+-----------------------------------------------------
+-- {{group.full_name}} record definition
+-----------------------------------------------------
+--
+
+type {{group.full_name}} is
+	record
+		--
+		-- {{group.full_name}} attributes
+		--
+{% for register in group.nodes %}
+		{{"%-30s"|format(register.full_name)}} : {{"%-32s"|format(register|vhdl_logic_vector|semi)}} {{register.desc|vhdl_comment}}
+{% endfor %}
+	end record
+
+
+
+-----------------------------------------------------
+--   array of {{group.full_name}}s in {{group.parent.full_name}}
+-----------------------------------------------------
+--
+
+type {{group.full_name}}_array is array (0 to {{group.nodes|count-1}}) of {{group.full_name}};
+
+
+{% endfor %}

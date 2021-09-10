@@ -1,0 +1,3 @@
+{% for item in registers if item is in_group('FirstGroup') %}
+    Register {{ "%-34s"|format(item.name) }}
+{% endfor %}

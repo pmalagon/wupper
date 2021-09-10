@@ -28,8 +28,8 @@ set_property IOSTANDARD LVCMOS18 [get_ports emcclk]
 set_property PACKAGE_PIN AP37 [get_ports emcclk]
 
 #XADC GPIO
-set_property PACKAGE_PIN AR38 [get_ports emcclk_out]
-set_property IOSTANDARD LVCMOS18 [get_ports emcclk_out] 
+#set_property PACKAGE_PIN AR38 [get_ports emcclk_out]
+#set_property IOSTANDARD LVCMOS18 [get_ports emcclk_out] 
 
 
 set_property BITSTREAM.CONFIG.BPI_SYNC_MODE Type1 [current_design]
@@ -103,31 +103,28 @@ set_property PULLUP true [get_ports sys_reset_n]
 # Please refer to the Virtex-7 GT Transceiver User Guide
 # (UG) for guidelines regarding clock resource selection.
 #
-set_property LOC IBUFDS_GTE2_X1Y11 [get_cells pcie0/u1/g_virtex7.refclk_buff]
+set_property PACKAGE_PIN AB8 [get_ports {sys_clk_p[0]}]
+set_property PACKAGE_PIN AB7 [get_ports {sys_clk_n[0]}]
+create_clock -period 10.000 -name sys_clk_0 [get_ports {sys_clk_p[0]}]
+                                                       
+create_generated_clock -name clk_125mhz_x0y1 [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/mmcm0/CLKOUT0"}]
+create_generated_clock -name clk_250mhz_x0y1 [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/mmcm0/CLKOUT1"}]
+create_generated_clock -name userclk1 [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/mmcm0/CLKOUT2"}]
+create_generated_clock -name userclk2 [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/mmcm0/CLKOUT3"}]
 
-###############################################################################
-# Timing Constraints
-###############################################################################
-create_clock -period 10.000 -name sys_clk [get_pins pcie0/u1/g_virtex7.refclk_buff/O]
-
-create_generated_clock -name clk_125mhz_x0y1 [get_pins pcie0/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT0]
-create_generated_clock -name clk_250mhz_x0y1 [get_pins pcie0/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT1]
-create_generated_clock -name userclk1 [get_pins pcie0/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT2]
-create_generated_clock -name userclk2 [get_pins pcie0/u1/g_virtex7.pipe_clock0/mmcm0/CLKOUT3]
-
-create_generated_clock -name clk_125mhz_mux_x0y1 -source [get_pins pcie0/u1/g_virtex7.pipe_clock0/g0.pclk_i1/I0] -divide_by 1 [get_pins pcie0/u1/g_virtex7.pipe_clock0/g0.pclk_i1/O]
-create_generated_clock -name clk_250mhz_mux_x0y1 -source [get_pins pcie0/u1/g_virtex7.pipe_clock0/g0.pclk_i1/I1] -divide_by 1 -add -master_clock clk_250mhz_x0y1 [get_pins pcie0/u1/g_virtex7.pipe_clock0/g0.pclk_i1/O]
+create_generated_clock -name clk_125mhz_mux_x0y1 -source [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/g0.pclk_i1/I0"}] -divide_by 1 [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/g0.pclk_i1/O"}]
+create_generated_clock -name clk_250mhz_mux_x0y1 -source [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/g0.pclk_i1/I1"}] -divide_by 1 -add -master_clock clk_250mhz_x0y1 [get_pins -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/g0.pclk_i1/O"}]
 set_clock_groups -name pcieclkmux -physically_exclusive -group clk_125mhz_mux_x0y1 -group clk_250mhz_mux_x0y1
 
-set_false_path -to [get_pins pcie0/u1/g_virtex7.pipe_clock0/g0.pclk_i1/S0]
-set_false_path -to [get_pins pcie0/u1/g_virtex7.pipe_clock0/g0.pclk_i1/S1]
+set_false_path -to [get_pins  -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/g0.pclk_i1/S0"}]
+set_false_path -to [get_pins  -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.pipe_clock0/g0.pclk_i1/S1"}]
 
 ###############################################################################
 # Physical Constraints
 ###############################################################################
 
 set_false_path -from [get_ports sys_reset_n]
-set_false_path -reset_path -from [get_pins pcie0/u1/g_virtex7.u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C] 
+set_false_path -reset_path -from [get_pins  -hierarchical -filter {NAME =~ "*/g_NoSim.g_virtex7.u1/inst/gt_top_i/pipe_wrapper_i/pipe_reset_i/cpllreset_reg/C"}] 
 ###############################################################################
 # End
 ###############################################################################

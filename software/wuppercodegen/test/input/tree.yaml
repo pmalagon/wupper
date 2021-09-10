@@ -1,0 +1,45 @@
+Registers:
+  entries:
+    - ref: SubGroup1
+    - ref: SubGroup2
+
+SubGroup1:
+  entries:
+    - name: Status1
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Command1
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0
+    - ref: SubGroup3
+
+SubGroup2:
+  entries:
+    - name: Status2
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Command2
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0
+    - ref: SubGroup3
+
+SubGroup3:
+  entries:
+    - name: Status3
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Command3
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0

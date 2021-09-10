@@ -3,7 +3,11 @@
 #ifndef REGMAP_SYMBOL_H
 #define REGMAP_SYMBOL_H
 
-#include <sys/types.h>
+#ifdef __KERNEL__
+  #include <linux/types.h>
+#else
+  #include <sys/types.h>
+#endif
 
 #include "regmap/regmap-common.h"
 
@@ -30,7 +34,9 @@ typedef struct regmap_register {
   u_int endpoints;
 } regmap_register_t;
 
-extern regmap_register_t regmap_registers[];
+extern regmap_register_t regmap_bar0_registers[];
+extern regmap_register_t regmap_bar1_registers[];
+extern regmap_register_t regmap_bar2_registers[];
 /*****************************/
 typedef struct regmap_bitfield {
   const char* name;
@@ -43,7 +49,9 @@ typedef struct regmap_bitfield {
   u_int endpoints;
 } regmap_bitfield_t;
 
-extern regmap_bitfield_t regmap_bitfields[];
+extern regmap_bitfield_t regmap_bar0_bitfields[];
+extern regmap_bitfield_t regmap_bar1_bitfields[];
+extern regmap_bitfield_t regmap_bar2_bitfields[];
 /*****************************/
 typedef struct regmap_group {
   const char* name;
@@ -51,29 +59,65 @@ typedef struct regmap_group {
   int index[MAX_ENTRIES_IN_GROUP];
 } regmap_group_t;
 
-extern regmap_group_t regmap_groups[];
+extern regmap_group_t regmap_bar2_groups[];
 
 
 /******************Register access*******************/
-int regmap_cfg_get_option(u_long offset, const char* key, u_long* value);
-int regmap_cfg_set_option(u_long offset, const char* key, u_long value);
-int regmap_cfg_get_reg(u_long offset, const char* key, u_long* value);
-int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
+//Functions in WupperCard should be used instead
+//int regmap_cfg_get_option(u_long offset, const char* key, u_long* value);
+//int regmap_cfg_set_option(u_long offset, const char* key, u_long value);
+//int regmap_cfg_get_reg(u_long offset, const char* key, u_long* value);
+//int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 
 
-/* Registers */
+/* Registers in BAR0*/
+{% for register in registers if register is in_group('Bar0') %}
+#define REG_{{ register.prefix_name }} {{ "%35s"|format('"'+register.prefix_name+'"') }}
+{% endfor %}
+
+/* Bitfields in BAR0*/
+{% for register in registers if register is in_group('Bar0') %}
+{% for bf in register.bitfield %}
+#define BF_{{ bf.full_name }}  {{ "%35s"|format('"'+bf.full_name+'"') }}
+{% endfor %}
+{% endfor %}
+
+/* Groups in BAR0*/
+{% for group in nodes['Bar0']|list_nodes_recursively if group.has_groupname %}
+#define GRP_{{ group.group }} {{ "%35s"|format('"'+group.group+'"') }}
+{% endfor %}
+
+/* Registers in BAR1*/
+{% for register in registers if register is in_group('Bar1') %}
+#define REG_{{ register.prefix_name }} {{ "%35s"|format('"'+register.prefix_name+'"') }}
+{% endfor %}
+
+/* Bitfields in BAR1*/
+{% for register in registers if register is in_group('Bar1') %}
+{% for bf in register.bitfield %}
+#define BF_{{ bf.full_name }}  {{ "%35s"|format('"'+bf.full_name+'"') }}
+{% endfor %}
+{% endfor %}
+
+/* Groups in BAR1*/
+{% for group in nodes['Bar1']|list_nodes_recursively if group.has_groupname %}
+#define GRP_{{ group.group }} {{ "%35s"|format('"'+group.group+'"') }}
+{% endfor %}
+
+
+/* Registers in BAR2*/
 {% for register in registers if register is in_group('Bar2') %}
 #define REG_{{ register.prefix_name }} {{ "%35s"|format('"'+register.prefix_name+'"') }}
 {% endfor %}
 
-/* Bitfields */
+/* Bitfields in BAR2*/
 {% for register in registers if register is in_group('Bar2') %}
 {% for bf in register.bitfield %}
 #define BF_{{ bf.full_name }}  {{ "%35s"|format('"'+bf.full_name+'"') }}
 {% endfor %}
 {% endfor %}
 
-/* Groups */
+/* Groups in BAR2*/
 {% for group in nodes['Bar2']|list_nodes_recursively if group.has_groupname %}
 #define GRP_{{ group.group }} {{ "%35s"|format('"'+group.group+'"') }}
 {% endfor %}

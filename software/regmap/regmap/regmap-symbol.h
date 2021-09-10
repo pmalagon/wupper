@@ -7,7 +7,7 @@
 /*  */
 /* This file was generated from template '../software/regmap/src/regmap-symbol.h.template' */
 /* and register map registers-1.0.yaml, version 2.0 */
-/* by the script 'wuppercodegen', version: 0.8.0, */
+/* by the script 'wuppercodegen', version: 0.8.4, */
 /* using the following commandline: */
 /*  */
 /* ../software/wuppercodegen/wuppercodegen/cli.py registers-1.0.yaml ../software/regmap/src/regmap-symbol.h.template ../software/regmap/regmap/regmap-symbol.h */
@@ -24,7 +24,11 @@
 #ifndef REGMAP_SYMBOL_H
 #define REGMAP_SYMBOL_H
 
-#include <sys/types.h>
+#ifdef __KERNEL__
+  #include <linux/types.h>
+#else
+  #include <sys/types.h>
+#endif
 
 #include "regmap/regmap-common.h"
 
@@ -51,7 +55,9 @@ typedef struct regmap_register {
   u_int endpoints;
 } regmap_register_t;
 
-extern regmap_register_t regmap_registers[];
+extern regmap_register_t regmap_bar0_registers[];
+extern regmap_register_t regmap_bar1_registers[];
+extern regmap_register_t regmap_bar2_registers[];
 /*****************************/
 typedef struct regmap_bitfield {
   const char* name;
@@ -64,7 +70,9 @@ typedef struct regmap_bitfield {
   u_int endpoints;
 } regmap_bitfield_t;
 
-extern regmap_bitfield_t regmap_bitfields[];
+extern regmap_bitfield_t regmap_bar0_bitfields[];
+extern regmap_bitfield_t regmap_bar1_bitfields[];
+extern regmap_bitfield_t regmap_bar2_bitfields[];
 /*****************************/
 typedef struct regmap_group {
   const char* name;
@@ -72,20 +80,234 @@ typedef struct regmap_group {
   int index[MAX_ENTRIES_IN_GROUP];
 } regmap_group_t;
 
-extern regmap_group_t regmap_groups[];
+extern regmap_group_t regmap_bar2_groups[];
 
 
 /******************Register access*******************/
-int regmap_cfg_get_option(u_long offset, const char* key, u_long* value);
-int regmap_cfg_set_option(u_long offset, const char* key, u_long value);
-int regmap_cfg_get_reg(u_long offset, const char* key, u_long* value);
-int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
+//Functions in WupperCard should be used instead
+//int regmap_cfg_get_option(u_long offset, const char* key, u_long* value);
+//int regmap_cfg_set_option(u_long offset, const char* key, u_long value);
+//int regmap_cfg_get_reg(u_long offset, const char* key, u_long* value);
+//int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 
 
-/* Registers */
+/* Registers in BAR0*/
+#define REG_DMA_DESC_0                        "DMA_DESC_0"
+#define REG_DMA_DESC_0a                       "DMA_DESC_0a"
+#define REG_DMA_DESC_1                        "DMA_DESC_1"
+#define REG_DMA_DESC_1a                       "DMA_DESC_1a"
+#define REG_DMA_DESC_2                        "DMA_DESC_2"
+#define REG_DMA_DESC_2a                       "DMA_DESC_2a"
+#define REG_DMA_DESC_3                        "DMA_DESC_3"
+#define REG_DMA_DESC_3a                       "DMA_DESC_3a"
+#define REG_DMA_DESC_4                        "DMA_DESC_4"
+#define REG_DMA_DESC_4a                       "DMA_DESC_4a"
+#define REG_DMA_DESC_5                        "DMA_DESC_5"
+#define REG_DMA_DESC_5a                       "DMA_DESC_5a"
+#define REG_DMA_DESC_6                        "DMA_DESC_6"
+#define REG_DMA_DESC_6a                       "DMA_DESC_6a"
+#define REG_DMA_DESC_7                        "DMA_DESC_7"
+#define REG_DMA_DESC_7a                       "DMA_DESC_7a"
+#define REG_DMA_DESC_STATUS_0                 "DMA_DESC_STATUS_0"
+#define REG_DMA_DESC_STATUS_1                 "DMA_DESC_STATUS_1"
+#define REG_DMA_DESC_STATUS_2                 "DMA_DESC_STATUS_2"
+#define REG_DMA_DESC_STATUS_3                 "DMA_DESC_STATUS_3"
+#define REG_DMA_DESC_STATUS_4                 "DMA_DESC_STATUS_4"
+#define REG_DMA_DESC_STATUS_5                 "DMA_DESC_STATUS_5"
+#define REG_DMA_DESC_STATUS_6                 "DMA_DESC_STATUS_6"
+#define REG_DMA_DESC_STATUS_7                 "DMA_DESC_STATUS_7"
+#define REG_BAR0_VALUE                        "BAR0_VALUE"
+#define REG_BAR1_VALUE                        "BAR1_VALUE"
+#define REG_BAR2_VALUE                        "BAR2_VALUE"
+#define REG_DMA_DESC_ENABLE                   "DMA_DESC_ENABLE"
+#define REG_DMA_FIFO_FLUSH                    "DMA_FIFO_FLUSH"
+#define REG_DMA_RESET                         "DMA_RESET"
+#define REG_SOFT_RESET                        "SOFT_RESET"
+#define REG_REGISTER_RESET                    "REGISTER_RESET"
+#define REG_FROMHOST_FULL_THRESH              "FROMHOST_FULL_THRESH"
+#define REG_TOHOST_FULL_THRESH                "TOHOST_FULL_THRESH"
+#define REG_BUSY_THRESHOLD_ASSERT             "BUSY_THRESHOLD_ASSERT"
+#define REG_BUSY_THRESHOLD_NEGATE             "BUSY_THRESHOLD_NEGATE"
+#define REG_BUSY_STATUS                       "BUSY_STATUS"
+#define REG_PC_PTR_GAP                        "PC_PTR_GAP"
+
+/* Bitfields in BAR0*/
+#define BF_DMA_DESC_0_END_ADDRESS             "DMA_DESC_0_END_ADDRESS"
+#define BF_DMA_DESC_0_START_ADDRESS           "DMA_DESC_0_START_ADDRESS"
+#define BF_DMA_DESC_0a_SW_POINTER             "DMA_DESC_0a_SW_POINTER"
+#define BF_DMA_DESC_0a_WRAP_AROUND            "DMA_DESC_0a_WRAP_AROUND"
+#define BF_DMA_DESC_0a_FROMHOST               "DMA_DESC_0a_FROMHOST"
+#define BF_DMA_DESC_0a_NUM_WORDS              "DMA_DESC_0a_NUM_WORDS"
+#define BF_DMA_DESC_1_END_ADDRESS             "DMA_DESC_1_END_ADDRESS"
+#define BF_DMA_DESC_1_START_ADDRESS           "DMA_DESC_1_START_ADDRESS"
+#define BF_DMA_DESC_1a_SW_POINTER             "DMA_DESC_1a_SW_POINTER"
+#define BF_DMA_DESC_1a_WRAP_AROUND            "DMA_DESC_1a_WRAP_AROUND"
+#define BF_DMA_DESC_1a_FROMHOST               "DMA_DESC_1a_FROMHOST"
+#define BF_DMA_DESC_1a_NUM_WORDS              "DMA_DESC_1a_NUM_WORDS"
+#define BF_DMA_DESC_2_END_ADDRESS             "DMA_DESC_2_END_ADDRESS"
+#define BF_DMA_DESC_2_START_ADDRESS           "DMA_DESC_2_START_ADDRESS"
+#define BF_DMA_DESC_2a_SW_POINTER             "DMA_DESC_2a_SW_POINTER"
+#define BF_DMA_DESC_2a_WRAP_AROUND            "DMA_DESC_2a_WRAP_AROUND"
+#define BF_DMA_DESC_2a_FROMHOST               "DMA_DESC_2a_FROMHOST"
+#define BF_DMA_DESC_2a_NUM_WORDS              "DMA_DESC_2a_NUM_WORDS"
+#define BF_DMA_DESC_3_END_ADDRESS             "DMA_DESC_3_END_ADDRESS"
+#define BF_DMA_DESC_3_START_ADDRESS           "DMA_DESC_3_START_ADDRESS"
+#define BF_DMA_DESC_3a_SW_POINTER             "DMA_DESC_3a_SW_POINTER"
+#define BF_DMA_DESC_3a_WRAP_AROUND            "DMA_DESC_3a_WRAP_AROUND"
+#define BF_DMA_DESC_3a_FROMHOST               "DMA_DESC_3a_FROMHOST"
+#define BF_DMA_DESC_3a_NUM_WORDS              "DMA_DESC_3a_NUM_WORDS"
+#define BF_DMA_DESC_4_END_ADDRESS             "DMA_DESC_4_END_ADDRESS"
+#define BF_DMA_DESC_4_START_ADDRESS           "DMA_DESC_4_START_ADDRESS"
+#define BF_DMA_DESC_4a_SW_POINTER             "DMA_DESC_4a_SW_POINTER"
+#define BF_DMA_DESC_4a_WRAP_AROUND            "DMA_DESC_4a_WRAP_AROUND"
+#define BF_DMA_DESC_4a_FROMHOST               "DMA_DESC_4a_FROMHOST"
+#define BF_DMA_DESC_4a_NUM_WORDS              "DMA_DESC_4a_NUM_WORDS"
+#define BF_DMA_DESC_5_END_ADDRESS             "DMA_DESC_5_END_ADDRESS"
+#define BF_DMA_DESC_5_START_ADDRESS           "DMA_DESC_5_START_ADDRESS"
+#define BF_DMA_DESC_5a_SW_POINTER             "DMA_DESC_5a_SW_POINTER"
+#define BF_DMA_DESC_5a_WRAP_AROUND            "DMA_DESC_5a_WRAP_AROUND"
+#define BF_DMA_DESC_5a_FROMHOST               "DMA_DESC_5a_FROMHOST"
+#define BF_DMA_DESC_5a_NUM_WORDS              "DMA_DESC_5a_NUM_WORDS"
+#define BF_DMA_DESC_6_END_ADDRESS             "DMA_DESC_6_END_ADDRESS"
+#define BF_DMA_DESC_6_START_ADDRESS           "DMA_DESC_6_START_ADDRESS"
+#define BF_DMA_DESC_6a_SW_POINTER             "DMA_DESC_6a_SW_POINTER"
+#define BF_DMA_DESC_6a_WRAP_AROUND            "DMA_DESC_6a_WRAP_AROUND"
+#define BF_DMA_DESC_6a_FROMHOST               "DMA_DESC_6a_FROMHOST"
+#define BF_DMA_DESC_6a_NUM_WORDS              "DMA_DESC_6a_NUM_WORDS"
+#define BF_DMA_DESC_7_END_ADDRESS             "DMA_DESC_7_END_ADDRESS"
+#define BF_DMA_DESC_7_START_ADDRESS           "DMA_DESC_7_START_ADDRESS"
+#define BF_DMA_DESC_7a_SW_POINTER             "DMA_DESC_7a_SW_POINTER"
+#define BF_DMA_DESC_7a_WRAP_AROUND            "DMA_DESC_7a_WRAP_AROUND"
+#define BF_DMA_DESC_7a_FROMHOST               "DMA_DESC_7a_FROMHOST"
+#define BF_DMA_DESC_7a_NUM_WORDS              "DMA_DESC_7a_NUM_WORDS"
+#define BF_DMA_DESC_STATUS_0_EVEN_PC          "DMA_DESC_STATUS_0_EVEN_PC"
+#define BF_DMA_DESC_STATUS_0_EVEN_DMA         "DMA_DESC_STATUS_0_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_0_DESC_DONE        "DMA_DESC_STATUS_0_DESC_DONE"
+#define BF_DMA_DESC_STATUS_0_FW_POINTER       "DMA_DESC_STATUS_0_FW_POINTER"
+#define BF_DMA_DESC_STATUS_1_EVEN_PC          "DMA_DESC_STATUS_1_EVEN_PC"
+#define BF_DMA_DESC_STATUS_1_EVEN_DMA         "DMA_DESC_STATUS_1_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_1_DESC_DONE        "DMA_DESC_STATUS_1_DESC_DONE"
+#define BF_DMA_DESC_STATUS_1_FW_POINTER       "DMA_DESC_STATUS_1_FW_POINTER"
+#define BF_DMA_DESC_STATUS_2_EVEN_PC          "DMA_DESC_STATUS_2_EVEN_PC"
+#define BF_DMA_DESC_STATUS_2_EVEN_DMA         "DMA_DESC_STATUS_2_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_2_DESC_DONE        "DMA_DESC_STATUS_2_DESC_DONE"
+#define BF_DMA_DESC_STATUS_2_FW_POINTER       "DMA_DESC_STATUS_2_FW_POINTER"
+#define BF_DMA_DESC_STATUS_3_EVEN_PC          "DMA_DESC_STATUS_3_EVEN_PC"
+#define BF_DMA_DESC_STATUS_3_EVEN_DMA         "DMA_DESC_STATUS_3_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_3_DESC_DONE        "DMA_DESC_STATUS_3_DESC_DONE"
+#define BF_DMA_DESC_STATUS_3_FW_POINTER       "DMA_DESC_STATUS_3_FW_POINTER"
+#define BF_DMA_DESC_STATUS_4_EVEN_PC          "DMA_DESC_STATUS_4_EVEN_PC"
+#define BF_DMA_DESC_STATUS_4_EVEN_DMA         "DMA_DESC_STATUS_4_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_4_DESC_DONE        "DMA_DESC_STATUS_4_DESC_DONE"
+#define BF_DMA_DESC_STATUS_4_FW_POINTER       "DMA_DESC_STATUS_4_FW_POINTER"
+#define BF_DMA_DESC_STATUS_5_EVEN_PC          "DMA_DESC_STATUS_5_EVEN_PC"
+#define BF_DMA_DESC_STATUS_5_EVEN_DMA         "DMA_DESC_STATUS_5_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_5_DESC_DONE        "DMA_DESC_STATUS_5_DESC_DONE"
+#define BF_DMA_DESC_STATUS_5_FW_POINTER       "DMA_DESC_STATUS_5_FW_POINTER"
+#define BF_DMA_DESC_STATUS_6_EVEN_PC          "DMA_DESC_STATUS_6_EVEN_PC"
+#define BF_DMA_DESC_STATUS_6_EVEN_DMA         "DMA_DESC_STATUS_6_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_6_DESC_DONE        "DMA_DESC_STATUS_6_DESC_DONE"
+#define BF_DMA_DESC_STATUS_6_FW_POINTER       "DMA_DESC_STATUS_6_FW_POINTER"
+#define BF_DMA_DESC_STATUS_7_EVEN_PC          "DMA_DESC_STATUS_7_EVEN_PC"
+#define BF_DMA_DESC_STATUS_7_EVEN_DMA         "DMA_DESC_STATUS_7_EVEN_DMA"
+#define BF_DMA_DESC_STATUS_7_DESC_DONE        "DMA_DESC_STATUS_7_DESC_DONE"
+#define BF_DMA_DESC_STATUS_7_FW_POINTER       "DMA_DESC_STATUS_7_FW_POINTER"
+#define BF_BAR0_VALUE                         "BAR0_VALUE"
+#define BF_BAR1_VALUE                         "BAR1_VALUE"
+#define BF_BAR2_VALUE                         "BAR2_VALUE"
+#define BF_DMA_DESC_ENABLE                    "DMA_DESC_ENABLE"
+#define BF_DMA_FIFO_FLUSH                     "DMA_FIFO_FLUSH"
+#define BF_DMA_RESET                          "DMA_RESET"
+#define BF_SOFT_RESET                         "SOFT_RESET"
+#define BF_REGISTER_RESET                     "REGISTER_RESET"
+#define BF_FROMHOST_FULL_THRESH_THRESHOLD_ASSERT  "FROMHOST_FULL_THRESH_THRESHOLD_ASSERT"
+#define BF_FROMHOST_FULL_THRESH_THRESHOLD_NEGATE  "FROMHOST_FULL_THRESH_THRESHOLD_NEGATE"
+#define BF_TOHOST_FULL_THRESH_THRESHOLD_ASSERT  "TOHOST_FULL_THRESH_THRESHOLD_ASSERT"
+#define BF_TOHOST_FULL_THRESH_THRESHOLD_NEGATE  "TOHOST_FULL_THRESH_THRESHOLD_NEGATE"
+#define BF_BUSY_THRESHOLD_ASSERT              "BUSY_THRESHOLD_ASSERT"
+#define BF_BUSY_THRESHOLD_NEGATE              "BUSY_THRESHOLD_NEGATE"
+#define BF_BUSY_STATUS_FROMHOST_BUSY          "BUSY_STATUS_FROMHOST_BUSY"
+#define BF_BUSY_STATUS_TOHOST_BUSY            "BUSY_STATUS_TOHOST_BUSY"
+#define BF_PC_PTR_GAP                         "PC_PTR_GAP"
+
+/* Groups in BAR0*/
+
+/* Registers in BAR1*/
+#define REG_INT_VEC_0                         "INT_VEC_0"
+#define REG_INT_VEC_1                         "INT_VEC_1"
+#define REG_INT_VEC_2                         "INT_VEC_2"
+#define REG_INT_VEC_3                         "INT_VEC_3"
+#define REG_INT_VEC_4                         "INT_VEC_4"
+#define REG_INT_VEC_5                         "INT_VEC_5"
+#define REG_INT_VEC_6                         "INT_VEC_6"
+#define REG_INT_VEC_7                         "INT_VEC_7"
+#define REG_INT_VEC_8                         "INT_VEC_8"
+#define REG_INT_VEC_9                         "INT_VEC_9"
+#define REG_INT_VEC_10                        "INT_VEC_10"
+#define REG_INT_VEC_11                        "INT_VEC_11"
+#define REG_INT_VEC_12                        "INT_VEC_12"
+#define REG_INT_VEC_13                        "INT_VEC_13"
+#define REG_INT_VEC_14                        "INT_VEC_14"
+#define REG_INT_VEC_15                        "INT_VEC_15"
+#define REG_INT_TAB_ENABLE                    "INT_TAB_ENABLE"
+
+/* Bitfields in BAR1*/
+#define BF_INT_VEC_0_INT_CTRL                 "INT_VEC_0_INT_CTRL"
+#define BF_INT_VEC_0_INT_DATA                 "INT_VEC_0_INT_DATA"
+#define BF_INT_VEC_0_INT_ADDRESS              "INT_VEC_0_INT_ADDRESS"
+#define BF_INT_VEC_1_INT_CTRL                 "INT_VEC_1_INT_CTRL"
+#define BF_INT_VEC_1_INT_DATA                 "INT_VEC_1_INT_DATA"
+#define BF_INT_VEC_1_INT_ADDRESS              "INT_VEC_1_INT_ADDRESS"
+#define BF_INT_VEC_2_INT_CTRL                 "INT_VEC_2_INT_CTRL"
+#define BF_INT_VEC_2_INT_DATA                 "INT_VEC_2_INT_DATA"
+#define BF_INT_VEC_2_INT_ADDRESS              "INT_VEC_2_INT_ADDRESS"
+#define BF_INT_VEC_3_INT_CTRL                 "INT_VEC_3_INT_CTRL"
+#define BF_INT_VEC_3_INT_DATA                 "INT_VEC_3_INT_DATA"
+#define BF_INT_VEC_3_INT_ADDRESS              "INT_VEC_3_INT_ADDRESS"
+#define BF_INT_VEC_4_INT_CTRL                 "INT_VEC_4_INT_CTRL"
+#define BF_INT_VEC_4_INT_DATA                 "INT_VEC_4_INT_DATA"
+#define BF_INT_VEC_4_INT_ADDRESS              "INT_VEC_4_INT_ADDRESS"
+#define BF_INT_VEC_5_INT_CTRL                 "INT_VEC_5_INT_CTRL"
+#define BF_INT_VEC_5_INT_DATA                 "INT_VEC_5_INT_DATA"
+#define BF_INT_VEC_5_INT_ADDRESS              "INT_VEC_5_INT_ADDRESS"
+#define BF_INT_VEC_6_INT_CTRL                 "INT_VEC_6_INT_CTRL"
+#define BF_INT_VEC_6_INT_DATA                 "INT_VEC_6_INT_DATA"
+#define BF_INT_VEC_6_INT_ADDRESS              "INT_VEC_6_INT_ADDRESS"
+#define BF_INT_VEC_7_INT_CTRL                 "INT_VEC_7_INT_CTRL"
+#define BF_INT_VEC_7_INT_DATA                 "INT_VEC_7_INT_DATA"
+#define BF_INT_VEC_7_INT_ADDRESS              "INT_VEC_7_INT_ADDRESS"
+#define BF_INT_VEC_8_INT_CTRL                 "INT_VEC_8_INT_CTRL"
+#define BF_INT_VEC_8_INT_DATA                 "INT_VEC_8_INT_DATA"
+#define BF_INT_VEC_8_INT_ADDRESS              "INT_VEC_8_INT_ADDRESS"
+#define BF_INT_VEC_9_INT_CTRL                 "INT_VEC_9_INT_CTRL"
+#define BF_INT_VEC_9_INT_DATA                 "INT_VEC_9_INT_DATA"
+#define BF_INT_VEC_9_INT_ADDRESS              "INT_VEC_9_INT_ADDRESS"
+#define BF_INT_VEC_10_INT_CTRL                "INT_VEC_10_INT_CTRL"
+#define BF_INT_VEC_10_INT_DATA                "INT_VEC_10_INT_DATA"
+#define BF_INT_VEC_10_INT_ADDRESS             "INT_VEC_10_INT_ADDRESS"
+#define BF_INT_VEC_11_INT_CTRL                "INT_VEC_11_INT_CTRL"
+#define BF_INT_VEC_11_INT_DATA                "INT_VEC_11_INT_DATA"
+#define BF_INT_VEC_11_INT_ADDRESS             "INT_VEC_11_INT_ADDRESS"
+#define BF_INT_VEC_12_INT_CTRL                "INT_VEC_12_INT_CTRL"
+#define BF_INT_VEC_12_INT_DATA                "INT_VEC_12_INT_DATA"
+#define BF_INT_VEC_12_INT_ADDRESS             "INT_VEC_12_INT_ADDRESS"
+#define BF_INT_VEC_13_INT_CTRL                "INT_VEC_13_INT_CTRL"
+#define BF_INT_VEC_13_INT_DATA                "INT_VEC_13_INT_DATA"
+#define BF_INT_VEC_13_INT_ADDRESS             "INT_VEC_13_INT_ADDRESS"
+#define BF_INT_VEC_14_INT_CTRL                "INT_VEC_14_INT_CTRL"
+#define BF_INT_VEC_14_INT_DATA                "INT_VEC_14_INT_DATA"
+#define BF_INT_VEC_14_INT_ADDRESS             "INT_VEC_14_INT_ADDRESS"
+#define BF_INT_VEC_15_INT_CTRL                "INT_VEC_15_INT_CTRL"
+#define BF_INT_VEC_15_INT_DATA                "INT_VEC_15_INT_DATA"
+#define BF_INT_VEC_15_INT_ADDRESS             "INT_VEC_15_INT_ADDRESS"
+#define BF_INT_TAB_ENABLE                     "INT_TAB_ENABLE"
+
+/* Groups in BAR1*/
+
+
+/* Registers in BAR2*/
 #define REG_REG_MAP_VERSION                   "REG_MAP_VERSION"
 #define REG_BOARD_ID_TIMESTAMP                "BOARD_ID_TIMESTAMP"
-#define REG_BOARD_ID_SVN                      "BOARD_ID_SVN"
 #define REG_GIT_COMMIT_TIME                   "GIT_COMMIT_TIME"
 #define REG_GIT_TAG                           "GIT_TAG"
 #define REG_GIT_COMMIT_NUMBER                 "GIT_COMMIT_NUMBER"
@@ -93,13 +315,8 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define REG_STATUS_LEDS                       "STATUS_LEDS"
 #define REG_GENERIC_CONSTANTS                 "GENERIC_CONSTANTS"
 #define REG_CARD_TYPE                         "CARD_TYPE"
-#define REG_LFSR_SEED_0                       "LFSR_SEED_0"
-#define REG_LFSR_SEED_1                       "LFSR_SEED_1"
-#define REG_LFSR_SEED_2                       "LFSR_SEED_2"
-#define REG_LFSR_SEED_3                       "LFSR_SEED_3"
-#define REG_APP_MUX                           "APP_MUX"
-#define REG_LFSR_LOAD_SEED                    "LFSR_LOAD_SEED"
-#define REG_APP_ENABLE                        "APP_ENABLE"
+#define REG_PCIE_ENDPOINT                     "PCIE_ENDPOINT"
+#define REG_NUMBER_OF_PCIE_ENDPOINTS          "NUMBER_OF_PCIE_ENDPOINTS"
 #define REG_MMCM_MAIN_PLL_LOCK                "MMCM_MAIN_PLL_LOCK"
 #define REG_I2C_WR                            "I2C_WR"
 #define REG_I2C_RD                            "I2C_RD"
@@ -108,18 +325,16 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define REG_FPGA_CORE_VCCAUX                  "FPGA_CORE_VCCAUX"
 #define REG_FPGA_CORE_VCCBRAM                 "FPGA_CORE_VCCBRAM"
 #define REG_FPGA_DNA                          "FPGA_DNA"
-#define REG_INT_TEST_4                        "INT_TEST_4"
-#define REG_INT_TEST_5                        "INT_TEST_5"
+#define REG_INT_TEST                          "INT_TEST"
 #define REG_DMA_BUSY_STATUS                   "DMA_BUSY_STATUS"
 #define REG_WISHBONE_CONTROL                  "WISHBONE_CONTROL"
 #define REG_WISHBONE_WRITE                    "WISHBONE_WRITE"
 #define REG_WISHBONE_READ                     "WISHBONE_READ"
 #define REG_WISHBONE_STATUS                   "WISHBONE_STATUS"
 
-/* Bitfields */
+/* Bitfields in BAR2*/
 #define BF_REG_MAP_VERSION                    "REG_MAP_VERSION"
 #define BF_BOARD_ID_TIMESTAMP                 "BOARD_ID_TIMESTAMP"
-#define BF_BOARD_ID_SVN                       "BOARD_ID_SVN"
 #define BF_GIT_COMMIT_TIME                    "GIT_COMMIT_TIME"
 #define BF_GIT_TAG                            "GIT_TAG"
 #define BF_GIT_COMMIT_NUMBER                  "GIT_COMMIT_NUMBER"
@@ -128,13 +343,8 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define BF_GENERIC_CONSTANTS_INTERRUPTS       "GENERIC_CONSTANTS_INTERRUPTS"
 #define BF_GENERIC_CONSTANTS_DESCRIPTORS      "GENERIC_CONSTANTS_DESCRIPTORS"
 #define BF_CARD_TYPE                          "CARD_TYPE"
-#define BF_LFSR_SEED_0                        "LFSR_SEED_0"
-#define BF_LFSR_SEED_1                        "LFSR_SEED_1"
-#define BF_LFSR_SEED_2                        "LFSR_SEED_2"
-#define BF_LFSR_SEED_3                        "LFSR_SEED_3"
-#define BF_APP_MUX                            "APP_MUX"
-#define BF_LFSR_LOAD_SEED                     "LFSR_LOAD_SEED"
-#define BF_APP_ENABLE                         "APP_ENABLE"
+#define BF_PCIE_ENDPOINT                      "PCIE_ENDPOINT"
+#define BF_NUMBER_OF_PCIE_ENDPOINTS           "NUMBER_OF_PCIE_ENDPOINTS"
 #define BF_MMCM_MAIN_PLL_LOCK                 "MMCM_MAIN_PLL_LOCK"
 #define BF_I2C_WR_I2C_WREN                    "I2C_WR_I2C_WREN"
 #define BF_I2C_WR_I2C_FULL                    "I2C_WR_I2C_FULL"
@@ -151,8 +361,8 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define BF_FPGA_CORE_VCCAUX                   "FPGA_CORE_VCCAUX"
 #define BF_FPGA_CORE_VCCBRAM                  "FPGA_CORE_VCCBRAM"
 #define BF_FPGA_DNA                           "FPGA_DNA"
-#define BF_INT_TEST_4                         "INT_TEST_4"
-#define BF_INT_TEST_5                         "INT_TEST_5"
+#define BF_INT_TEST_TRIGGER                   "INT_TEST_TRIGGER"
+#define BF_INT_TEST_IRQ                       "INT_TEST_IRQ"
 #define BF_DMA_BUSY_STATUS_CLEAR_LATCH        "DMA_BUSY_STATUS_CLEAR_LATCH"
 #define BF_DMA_BUSY_STATUS_ENABLE             "DMA_BUSY_STATUS_ENABLE"
 #define BF_DMA_BUSY_STATUS_TOHOST_BUSY_LATCHED  "DMA_BUSY_STATUS_TOHOST_BUSY_LATCHED"
@@ -173,9 +383,8 @@ int regmap_cfg_set_reg(u_long offset, const char* key, u_long value);
 #define BF_WISHBONE_STATUS_ACKNOWLEDGE        "WISHBONE_STATUS_ACKNOWLEDGE"
 #define BF_WISHBONE_STATUS_ERROR              "WISHBONE_STATUS_ERROR"
 
-/* Groups */
+/* Groups in BAR2*/
 #define GRP_GEN                               "GEN"
-#define GRP_APP                               "APP"
 #define GRP_HKC                               "HKC"
 
 

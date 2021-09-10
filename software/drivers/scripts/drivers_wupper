@@ -29,7 +29,7 @@ case "$1" in
         chmod 666 /dev/cmem_rcc
         echo
 
-        export WUPPERCARDS=`lspci -n | grep -c -e "10ee:7039"`
+        export WUPPERCARDS=`lspci -n | grep -c -e "10dc:042"`
         echo $WUPPERCARDS wupper cards found
         if [ $WUPPERCARDS -gt 0 ]; then
           echo "Starting wupper driver "
@@ -50,17 +50,18 @@ case "$1" in
 
   stop)
         echo "Shutting down cmem_rcc driver "
-        /sbin/rmmod cmem_rcc
+        rmmod cmem_rcc
 
-        /sbin/lsmod | grep wupper
+
+        lsmod | grep wupper
         if [ $? = 0 ]; then
           echo "Shutting down wupper driver "
-          /sbin/rmmod wupper
+          rmmod wupper
         fi
         ;;
 
    status)
-        /sbin/lsmod | grep cmem_rcc
+        lsmod | grep cmem_rcc
         if [ $? = 0 ]; then
           echo ""
           echo ">>>>>> Status of the cmem_rcc driver"
@@ -68,7 +69,7 @@ case "$1" in
           more /proc/cmem_rcc
         fi
 
-        /sbin/lsmod | grep wupper
+        lsmod | grep wupper
         if [ $? = 0 ]; then
           echo ""
           echo ">>>>>> Status of the wupper driver "

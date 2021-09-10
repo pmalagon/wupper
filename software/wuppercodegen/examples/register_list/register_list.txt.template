@@ -1,0 +1,7 @@
+All Registers:
+
+{% for item in nodes['Registers']|list_nodes_recursively %}
+{% if item.is_register %}
+    {{ "%-34s"|format(item.full_name) }} @ {{ item.address|hex}} ({{ item.offset|hex}})
+{% endif %}
+{% endfor %}

@@ -30,21 +30,21 @@
 --!  
 --!
 --! ------------------------------------------------------------------------------
---! Wishbone interconnection
+--! Wupper: PCIe Gen3 and Gen4 DMA Core for Xilinx FPGAs
 --! 
---! \copyright GNU LGPL License
---! Copyright (c) Nikhef, Amsterdam, All rights reserved. <br>
---! This library is free software; you can redistribute it and/or
---! modify it under the terms of the GNU Lesser General Public
---! License as published by the Free Software Foundation; either
---! version 3.0 of the License, or (at your option) any later version.
---! This library is distributed in the hope that it will be useful,
---! but WITHOUT ANY WARRANTY; without even the implied warranty of
---! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
---! Lesser General Public License for more details.<br>
---! You should have received a copy of the GNU Lesser General Public
---! License along with this library.
+--! Copyright (C) 2021 Nikhef, Amsterdam (f.schreuder@nikhef.nl)
 --! 
+--! Licensed under the Apache License, Version 2.0 (the "License");
+--! you may not use this file except in compliance with the License.
+--! You may obtain a copy of the License at
+--! 
+--!         http://www.apache.org/licenses/LICENSE-2.0
+--! 
+--! Unless required by applicable law or agreed to in writing, software
+--! distributed under the License is distributed on an "AS IS" BASIS,
+--! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--! See the License for the specific language governing permissions and
+--! limitations under the License.
 -- 
 --! @brief ieee
 
@@ -52,6 +52,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use work.wishbone_pkg.all;
 use work.pcie_package.all;
+library xpm;
+use xpm.vcomponents.all;
 
 entity wupper_to_wb is
 port(
@@ -114,33 +116,102 @@ begin
     wupper2wb_data_in(64 downto 64) <= control_in.wishbone_control.write_not_read;
     wupper2wb_data_in(63 downto 32) <= control_in.wishbone_control.address;
     wupper2wb_data_in(31 downto 0)  <= control_in.wishbone_write.data;
-    
-
-wupper_to_wb : wupper_to_wishbone_fifo
-  PORT MAP (
-    rst     => RST_I,
-    wr_clk  => wupper_clk_i,
-    rd_clk  => wishbone_clk_i,
-    din     => wupper2wb_data_in,
-    wr_en   => wupper2wb_wr_en,
-    rd_en   => wupper2wb_rd_en,
-    dout    => wupper2wb_fifo_out,
-    full    => monitor_out.wishbone_write.full(32),
-    empty   => wupper2wb_empty
-  ); 
   
-wb_to_wupper : wishbone_to_wupper_fifo
-  PORT MAP (
-    rst     => RST_I,
-    wr_clk  => wishbone_clk_i,
-    rd_clk  => wupper_clk_i,
-    din     => master_i.dat,
-    wr_en   => wb2wupper_wr_en,
-    rd_en   => wb2wupper_rd_en,
-    dout    => monitor_out.wishbone_read.data,
-    full    => wb2wupper_full,
-    empty   => monitor_out.wishbone_read.empty(32)
-    );
+  wupper_to_wb_fifo0 : xpm_fifo_async
+   generic map (
+      DOUT_RESET_VALUE => "0",    -- String
+      ECC_MODE => "no_ecc",       -- String
+      FIFO_MEMORY_TYPE => "auto", -- String
+      FIFO_READ_LATENCY => 1,     -- DECIMAL
+      FIFO_WRITE_DEPTH => 32,   -- DECIMAL
+      FULL_RESET_VALUE => 0,      -- DECIMAL
+      PROG_EMPTY_THRESH => 5,    -- DECIMAL
+      PROG_FULL_THRESH => 25,     -- DECIMAL
+      RD_DATA_COUNT_WIDTH => 1,   -- DECIMAL
+      READ_DATA_WIDTH => 65,      -- DECIMAL
+      READ_MODE => "std",         -- String
+      --SIM_ASSERT_CHK => 0,        -- DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+      USE_ADV_FEATURES => "0000", -- String
+      WAKEUP_TIME => 0,           -- DECIMAL
+      WRITE_DATA_WIDTH => 65,     -- DECIMAL
+      WR_DATA_COUNT_WIDTH => 1    -- DECIMAL
+   )
+   port map (
+      almost_empty => open,
+      almost_full => open,
+      data_valid => open,
+      dbiterr => open,
+      rd_clk => wishbone_clk_i,
+      dout => wupper2wb_fifo_out,
+      empty => wupper2wb_empty,
+      full => monitor_out.wishbone_write.full(32),
+      overflow => open,
+      prog_empty => open,
+      prog_full => open,
+      rd_data_count => open,
+      rd_rst_busy => open,
+      sbiterr => open,
+      underflow => open,
+      wr_ack => open,
+      wr_data_count => open,
+      wr_rst_busy => open,
+      din => wupper2wb_data_in,
+      injectdbiterr => '0',
+      injectsbiterr => '0',
+      wr_clk => wupper_clk_i,
+      rd_en => wupper2wb_rd_en,
+      rst => RST_I,
+      sleep => '0',
+      wr_en => wupper2wb_wr_en
+   );
+    
+ wb_to_wupper_fifo0 : xpm_fifo_async
+   generic map (
+      DOUT_RESET_VALUE => "0",    -- String
+      ECC_MODE => "no_ecc",       -- String
+      FIFO_MEMORY_TYPE => "auto", -- String
+      FIFO_READ_LATENCY => 1,     -- DECIMAL
+      FIFO_WRITE_DEPTH => 32,   -- DECIMAL
+      FULL_RESET_VALUE => 0,      -- DECIMAL
+      PROG_EMPTY_THRESH => 5,    -- DECIMAL
+      PROG_FULL_THRESH => 25,     -- DECIMAL
+      RD_DATA_COUNT_WIDTH => 1,   -- DECIMAL
+      READ_DATA_WIDTH => 32,      -- DECIMAL
+      READ_MODE => "std",         -- String
+      --SIM_ASSERT_CHK => 0,        -- DECIMAL; 0=disable simulation messages, 1=enable simulation messages
+      USE_ADV_FEATURES => "0000", -- String
+      WAKEUP_TIME => 0,           -- DECIMAL
+      WRITE_DATA_WIDTH => 32,     -- DECIMAL
+      WR_DATA_COUNT_WIDTH => 1    -- DECIMAL
+   )
+   port map (
+      almost_empty => open,
+      almost_full => open,
+      data_valid => open,
+      dbiterr => open,
+      rd_clk => wupper_clk_i,
+      dout => monitor_out.wishbone_read.data,
+      empty => monitor_out.wishbone_read.empty(32),
+      full => wb2wupper_full,
+      overflow => open,
+      prog_empty => open,
+      prog_full => open,
+      rd_data_count => open,
+      rd_rst_busy => open,
+      sbiterr => open,
+      underflow => open,
+      wr_ack => open,
+      wr_data_count => open,
+      wr_rst_busy => open,
+      din => master_i.dat,
+      injectdbiterr => '0',
+      injectsbiterr => '0',
+      wr_clk => wishbone_clk_i,
+      rd_en => wb2wupper_rd_en,
+      rst => RST_I,
+      sleep => '0',
+      wr_en => wb2wupper_wr_en
+   );
     
     
 monitor_proc: process(wupper_clk_i)

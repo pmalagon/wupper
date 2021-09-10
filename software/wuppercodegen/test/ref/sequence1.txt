@@ -1,0 +1,22 @@
+  Group Registers - None
+  Sequence DMA_DESC_GROUP - None
+    Register DMA_DESC_0                        
+    Register DMA_DESC_1                        
+  Sequence DMA_DESC_STATUS_GROUP - None
+    Register DMA_DESC_STATUS_0                 
+        BitField DMA_DESC_STATUS_0_BF1          lo: 32 hi: 63 bits: 32
+        BitField DMA_DESC_STATUS_0_BF2          lo: 0 hi: 31 bits: 32
+    Register DMA_DESC_CMD_0                    
+    Register DMA_DESC_STATUS_1                 
+        BitField DMA_DESC_STATUS_1_BF1          lo: 32 hi: 63 bits: 32
+        BitField DMA_DESC_STATUS_1_BF2          lo: 0 hi: 31 bits: 32
+    Register DMA_DESC_CMD_1                    
+    Register DMA_DESC_STATUS_2                 
+        BitField DMA_DESC_STATUS_2_BF1          lo: 32 hi: 63 bits: 32
+        BitField DMA_DESC_STATUS_2_BF2          lo: 0 hi: 31 bits: 32
+    Register DMA_DESC_CMD_2                    
+    Register DMA_DESC_STATUS_3                 
+        BitField DMA_DESC_STATUS_3_BF1          lo: 32 hi: 63 bits: 32
+        BitField DMA_DESC_STATUS_3_BF2          lo: 0 hi: 31 bits: 32
+    Register DMA_DESC_CMD_3                    
+    Register SOME_VALUE                        

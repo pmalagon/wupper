@@ -60,8 +60,8 @@
 
 #include "cmem_rcc/cmem_rcc.h"
 #include "rcc_error/rcc_error.h"
-#include "wupper/Wupper.h"
-#include "wupper/WupperException.h"
+#include "wuppercard/WupperCard.h"
+#include "wuppercard/WupperException.h"
 
 #define APPLICATION_NAME "wupper-chaintest"
 #define device_number     0
@@ -99,9 +99,9 @@ start_datagen()
   //select app mux 0 for LFSR
   wupperCard.cfg_set_option("APP_MUX",0);
   wupperCard.cfg_set_option("APP_ENABLE",1);
-  int max_tlp = wupperCard.dma_max_tlp_bytes();
+  //int max_tlp = wupperCard.dma_max_tlp_bytes();
   printf("Starging dma To Host");
-  wupperCard.dma_to_host(0, paddr1, 1024*1024, max_tlp, 0);
+  wupperCard.dma_to_host(0, paddr1, 1024*1024, 0);
   wupperCard.dma_wait(0);
   
   
@@ -113,15 +113,15 @@ void
 start_loopback()
 {  
   //select app mux 1 for application in the firmware. 
-  int max_tlp = wupperCard.dma_max_tlp_bytes();
+  //int max_tlp = wupperCard.dma_max_tlp_bytes();
   
   printf("Reading data from buffer 1...\n");
   wupperCard.cfg_set_option("APP_MUX",1);
   wupperCard.cfg_set_option("APP_ENABLE",1);
   printf("Starging dma To Host and from host");
   
-  wupperCard.dma_to_host(0, paddr2, 1024*1024, max_tlp, 0);
-  wupperCard.dma_from_host(1, paddr1, 1024*1024, max_tlp, 0);
+  wupperCard.dma_to_host(0, paddr2, 1024*1024, 0);
+  wupperCard.dma_from_host(1, paddr1, 1024*1024, 0);
   wupperCard.dma_wait(0);
   wupperCard.dma_wait(1);
   
@@ -187,7 +187,7 @@ main(int argc, char** argv)
       exit(-1);
   }
 
-  wupperCard.card_open(0);
+  wupperCard.card_open(0,0);
   start_datagen();
   start_loopback();
   compare_buf();

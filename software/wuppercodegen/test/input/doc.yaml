@@ -1,0 +1,29 @@
+Registers:
+  endpoints: 0,1
+  entries:
+    - ref: DMA_DESC_GROUP
+    - ref: DMA_DESC_STATUS_GROUP
+      offset: 0x0200
+    - name: SOME_VALUE
+      offset: 0x0300
+      endpoints: 0
+      bitfield:
+        - range: 15..0
+          desc: Some Value
+
+DMA_DESC_GROUP:
+  number: 2
+  entries:
+    - name: DMA_DESC_{index}
+      bitfield:
+        - range: 7..0
+
+DMA_DESC_STATUS_GROUP:
+  number: 4
+  entries:
+    - name: DMA_DESC_STATUS_{index}
+      bitfield:
+        - range: 63..0
+    - name: DMA_DESC_CMD_{index}
+      bitfield:
+        - range: 31..0

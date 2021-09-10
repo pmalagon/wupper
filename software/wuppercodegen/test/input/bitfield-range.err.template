@@ -1,0 +1,10 @@
+{% for item in tree|list_nodes_recursively %}
+{% if item.is_register %}
+    Register {{ "%-34s"|format(item.prefix_name) }} lo: {{ item.lo }} hi: {{ item.hi }} bits: {{ item.bits }}
+{% if item.bitfield|count > 1 %}
+{% for bf in item.bitfield %}
+        BitField {{ "%-30s"|format(bf.full_name) }} lo: {{ bf.lo }} hi: {{ bf.hi }} bits: {{ bf.bits }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}

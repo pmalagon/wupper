@@ -1,0 +1,30 @@
+Registers:
+  entries:
+    - ref: FirstGroup
+    - ref: SecondGroup
+
+FirstGroup:
+  entries:
+    - name: Status
+      type: R
+      desc: Status Field
+      bitfield:
+        - range: 15..0
+    - name: Command
+      type: W
+      desc: Command field
+      bitfield:
+        - range: 15..0
+
+SecondGroup:
+  entries:
+    - name: Flow
+      type: R
+      desc: Flow Field
+      bitfield:
+        - range: 15..0
+    - name: Print
+      type: W
+      desc: Print field
+      bitfield:
+        - range: 15..0

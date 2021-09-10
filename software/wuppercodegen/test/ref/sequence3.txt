@@ -1,0 +1,5 @@
+  Group Registers - None
+  Register START_PLAIN 0000 0010
+  Sequence CR_GBT_CTRL - 8 - 0010 0600
+  Sequence CR_GBT_MON - 3 - 0610 0060
+  Register END_PLAIN 0670 0010

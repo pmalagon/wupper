@@ -26,7 +26,7 @@ case "$1" in
         chmod 666 /dev/cmem_rcc
         echo
 
-        export WUPPERCARDS=`lspci -n | grep -c -e "10ee:7039"`
+        export WUPPERCARDS=`lspci -n | grep -c -e "10dc:042"`
         echo $WUPPERCARDS wupper cards found
         if [ $WUPPERCARDS -gt 0 ]; then
           echo "Starting wupper driver "
@@ -82,5 +82,4 @@ case "$1" in
 
 esac
 
-exit 
-0
+exit 0

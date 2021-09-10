@@ -1,0 +1,28 @@
+Registers:
+  default: 0
+  type: W
+  entries:
+    - ref: Channel
+      offset: 0x0000
+    - ref: GBT
+      offset: 0x1000
+
+Channel:
+  number: 2
+  entries:
+    - name: hasChkSum_{index}
+      desc: a 16-bit 1’s-complement checksum is at the end of the packet
+      bitfield:
+        - range: 15..0
+    - name: TDAT_{index}
+      desc: destination for scheduled data transfers
+      bitfield:
+        - range: 0
+
+GBT:
+  number: 4
+  entries:
+    - name: gbt_format_{index}
+      desc: Wide or Normal
+      bitfield:
+        - range: 0

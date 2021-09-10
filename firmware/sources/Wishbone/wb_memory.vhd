@@ -30,27 +30,29 @@
 --!  
 --!
 --! ------------------------------------------------------------------------------
---! Wishbone interconnection
+--! Wupper: PCIe Gen3 and Gen4 DMA Core for Xilinx FPGAs
 --! 
---! \copyright GNU LGPL License
---! Copyright (c) Nikhef, Amsterdam, All rights reserved. <br>
---! This library is free software; you can redistribute it and/or
---! modify it under the terms of the GNU Lesser General Public
---! License as published by the Free Software Foundation; either
---! version 3.0 of the License, or (at your option) any later version.
---! This library is distributed in the hope that it will be useful,
---! but WITHOUT ANY WARRANTY; without even the implied warranty of
---! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
---! Lesser General Public License for more details.<br>
---! You should have received a copy of the GNU Lesser General Public
---! License along with this library.
+--! Copyright (C) 2021 Nikhef, Amsterdam (f.schreuder@nikhef.nl)
 --! 
+--! Licensed under the Apache License, Version 2.0 (the "License");
+--! you may not use this file except in compliance with the License.
+--! You may obtain a copy of the License at
+--! 
+--!         http://www.apache.org/licenses/LICENSE-2.0
+--! 
+--! Unless required by applicable law or agreed to in writing, software
+--! distributed under the License is distributed on an "AS IS" BASIS,
+--! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--! See the License for the specific language governing permissions and
+--! limitations under the License.
 -- 
 --! @brief ieee
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use work.wishbone_pkg.all;
+library xpm;
+use xpm.vcomponents.all;
 
 entity wb_memory is
 port(
@@ -76,17 +78,45 @@ COMPONENT wishbone_memory
 END COMPONENT;
 
 begin
-
-mem0 : wishbone_memory
-  PORT MAP (
-    clka    => CLK_I,
-    rsta    => RST_I,
-    ena     => slave_i.stb,
-    wea(0)  => slave_i.we,
-    addra   => slave_i.adr (15 downto 0),
-    dina    => slave_i.dat (31 downto 0),
-    douta   => slave_o.dat (31 downto 0)
-  );
+  
+  mem0 : xpm_memory_spram
+   generic map (
+      ADDR_WIDTH_A => 16,
+      AUTO_SLEEP_TIME => 0,
+      BYTE_WRITE_WIDTH_A => 32,
+      --CASCADE_HEIGHT => 0,
+      ECC_MODE => "no_ecc",
+      MEMORY_INIT_FILE => "none",
+      MEMORY_INIT_PARAM => "0",
+      MEMORY_OPTIMIZATION => "true",
+      MEMORY_PRIMITIVE => "auto",
+      MEMORY_SIZE => 65536*32,
+      MESSAGE_CONTROL => 0,
+      READ_DATA_WIDTH_A => 32,
+      READ_LATENCY_A => 1,
+      READ_RESET_VALUE_A => "0",
+      --RST_MODE_A => "SYNC",
+      --SIM_ASSERT_CHK => 0,
+      USE_MEM_INIT => 1,
+      WAKEUP_TIME => "disable_sleep",
+      WRITE_DATA_WIDTH_A => 32,
+      WRITE_MODE_A => "read_first"
+   )
+   port map (
+      dbiterra => open,
+      douta => slave_o.dat (31 downto 0),
+      sbiterra => open,
+      addra => slave_i.adr (15 downto 0),
+      clka => CLK_I,
+      dina => slave_i.dat (31 downto 0),
+      ena => slave_i.stb,
+      injectdbiterra => '0',
+      injectsbiterra => '0',
+      regcea => '1',
+      rsta => RST_I,
+      sleep => '0',
+      wea(0) => slave_i.we
+   );
   
   process(CLK_I)
   variable stb_p1: std_logic;

@@ -1,0 +1,5 @@
+    Group Registers                               is_write(): False
+      Register Status                             is_write(): False
+      Register Multi-BitField                     is_write(): False
+      Register Command                            is_write(): True
+      Register Trigger                            is_write(): False

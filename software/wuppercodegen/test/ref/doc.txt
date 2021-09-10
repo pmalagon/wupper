@@ -1,0 +1,11 @@
+  Group Registers
+  Sequence DMA_DESC_GROUP
+    Register DMA_DESC_0 0,1
+    Register DMA_DESC_1 0,1
+  Sequence DMA_DESC_STATUS_GROUP
+    Register DMA_DESC_STATUS_0 0,1
+    Register DMA_DESC_CMD_0 0,1
+  Group ...
+    Register DMA_DESC_STATUS_3 0,1
+    Register DMA_DESC_CMD_3 0,1
+    Register SOME_VALUE 0

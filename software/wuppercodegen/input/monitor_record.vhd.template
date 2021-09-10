@@ -1,0 +1,116 @@
+{{ tree.warning|vhdl_comment }}
+
+
+--
+-- General Board Info
+--
+{% for register in registers if register is in_group('GenericBoardInformation') and register.bitfield|count > 1 and register.is_read %}
+{% if loop.first %}
+  -- Bitfields of General Board Info
+{% endif %}
+  type {{register.prefix_name|lower|prepend('register_map_')|append('_type')}} is record
+{% for bf in register.bitfield if bf.is_read %}
+    {{"%-30s"|format(bf.name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+  end record;
+
+{% endfor %}
+
+  -- General Board Info
+  type register_map_gen_board_info_type is record
+{% for register in registers if register is in_group('GenericBoardInformation') %}
+{% if register.bitfield|count > 1 and register.is_read %}
+    {{"%-30s"|format(register.prefix_name)}} : {{"%-30s"|format(register.prefix_name|lower|prepend('register_map_')|append('_type')|semi)}}
+{% else %}
+{% for bf in register.bitfield if bf.is_read %}
+    {{"%-30s"|format(bf.full_name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+{% endif %}
+{% endfor %}
+  end record;
+
+{% for register in registers if register is in_group('HouseKeepingControlsAndMonitors') and register.bitfield|count > 1 and register.has_read_bitfields %}
+{% if loop.first %}
+  -- Bitfields of Housekeeping and global monitor
+{% endif %}
+  type {{register.prefix_name|lower|prepend('register_map_')|append('_type')}} is record
+{% for bf in register.bitfield if bf.is_read %}
+    {{"%-30s"|format(bf.name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+  end record;
+
+{% endfor %}
+
+  -- Housekeeping and global monitor
+  type register_map_hk_monitor_type is record
+{% for register in registers if register is in_group('HouseKeepingControlsAndMonitors') %}
+{% if register.bitfield|count > 1 and register.has_read_bitfields %}
+    {{"%-30s"|format(register.prefix_name)}} : {{"%-30s"|format(register.prefix_name|lower|prepend('register_map_')|append('_type')|semi)}}
+{% else %}
+{% for bf in register.bitfield if bf.is_read %}
+    {{"%-30s"|format(bf.full_name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+{% endif %}
+{% endfor %}
+  end record;
+
+
+{% for register in registers if register is in_group('GBTWrapperMonitors') and register.bitfield|count > 1 %}
+{% if loop.first %}
+  -- Bitfields of GBT monitor
+{% endif %}
+  type {{register.prefix_name|lower|prepend('register_map_')|append('_type')}} is record
+{% for bf in register.bitfield %}
+    {{"%-30s"|format(bf.name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+  end record;
+
+{% endfor %}
+
+-- GBT monitor
+  type register_map_gbt_monitor_type is record
+{% for register in registers if register is in_group('GBTWrapperMonitors') %}
+{% if register.bitfield|count > 1 %}
+    {{"%-30s"|format(register.prefix_name)}} : {{"%-30s"|format(register.prefix_name|lower|prepend('register_map_')|append('_type')|semi)}}
+{% else %}
+{% for bf in register.bitfield %}
+    {{"%-30s"|format(bf.full_name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+{% endif %}
+{% endfor %}
+  end record;
+
+
+{% for register in registers if register is in_group('CentralRouterMonitors') and register.bitfield|count > 1 %}
+{% if loop.first %}
+  -- Bitfields of CentralRouter monitor
+{% endif %}
+  type {{register.prefix_name|lower|prepend('register_map_')|append('_type')}} is record
+{% for bf in register.bitfield %}
+    {{"%-30s"|format(bf.name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+  end record;
+
+{% endfor %}
+
+-- CentralRouter monitor
+  type register_map_cr_monitor_type is record
+{% for register in registers if register is in_group('CentralRouterMonitors') %}
+{% if register.bitfield|count > 1 %}
+    {{"%-30s"|format(register.prefix_name)}} : {{"%-30s"|format(register.prefix_name|lower|prepend('register_map_')|append('_type')|semi)}}
+{% else %}
+{% for bf in register.bitfield %}
+    {{"%-30s"|format(bf.full_name)}} : {{"%-32s"|format(bf|vhdl_logic_vector|semi)}} {{bf.desc|vhdl_comment(70)}}
+{% endfor %}
+{% endif %}
+{% endfor %}
+  end record;
+
+
+  -- Monitor interface toward the dma_control block
+  type register_map_monitor_type is record
+    register_map_gen_board_info : register_map_gen_board_info_type;
+    register_map_hk_monitor     : register_map_hk_monitor_type;
+    register_map_cr_monitor     : register_map_cr_monitor_type;
+    register_map_gbt_monitor    : register_map_gbt_monitor_type;
+  end record;

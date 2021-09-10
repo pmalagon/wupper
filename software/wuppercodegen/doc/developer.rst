@@ -91,3 +91,14 @@ Expressions       {{ ... }}   ((( ... )))
 Comments          {# ... #}   ((= ... =))
 Line Statements   #  ... ##
 ================= =========== =============
+
+
+-------
+Example
+-------
+
+To iterate through all registers, the following snippet can be used:
+
+.. highlight:: none
+.. include:: ../examples/register_list/register_list.txt.template
+	:code:

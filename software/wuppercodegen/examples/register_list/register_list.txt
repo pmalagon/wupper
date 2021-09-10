@@ -1,0 +1,10 @@
+All Registers:
+
+    hasChkSum_0                        @ 0000 (0000)
+    TDAT_0                             @ 0010 (0000)
+    hasChkSum_1                        @ 0020 (0000)
+    TDAT_1                             @ 0030 (0000)
+    gbt_format_0                       @ 1000 (0000)
+    gbt_format_1                       @ 1010 (0000)
+    gbt_format_2                       @ 1020 (0000)
+    gbt_format_3                       @ 1030 (0000)
