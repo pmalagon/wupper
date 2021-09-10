@@ -59,6 +59,19 @@ set_property    PACKAGE_PIN AE42        [get_ports DDR4_DIMM1_CLK_P]
 set_property    IOSTANDARD DIFF_SSTL12  [get_ports DDR4_DIMM1_CLK_P] 
 set_property    IOSTANDARD DIFF_SSTL12  [get_ports DDR4_DIMM1_CLK_N] 
 
+#Following ports are not really used in the Versal device. I2C is only accessed from the PS, this I2C bus is only for HDMI. 
+set_property PACKAGE_PIN K17 [get_ports SCL]
+set_property PACKAGE_PIN L18 [get_ports SDA]
+set_property PACKAGE_PIN L17 [get_ports i2cmux_rst]
+set_property PACKAGE_PIN L19 [get_ports emcclk]
+set_property PACKAGE_PIN G21 [get_ports sys_reset_n]
+
+set_property IOSTANDARD LVCMOS33 [get_ports SCL]
+set_property IOSTANDARD LVCMOS33 [get_ports SDA]
+set_property IOSTANDARD LVCMOS33 [get_ports i2cmux_rst]
+set_property IOSTANDARD LVCMOS33 [get_ports emcclk]
+set_property IOSTANDARD LVCMOS33  [get_ports sys_reset_n]
+
 create_clock -name DDR4_DIMM1_CLK -period 5.000 [get_ports DDR4_DIMM1_CLK_P]
 
 create_generated_clock -name clk_out25_clk_wiz_regmap0 [get_pins -hierarchical -filter {NAME =~ "g_endpoints[0].pcie0/clk0/clk0/inst/clock_primitive_inst/MMCME5_inst/CLKOUT0"}]
