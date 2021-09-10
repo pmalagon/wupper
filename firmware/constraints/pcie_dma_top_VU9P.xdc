@@ -33,10 +33,10 @@ set_property LOC PCIE40E4_X0Y3 [get_cells g_endpoints[1].pcie0/ep0/g_NoSim.g_ult
 ##############################################
 #set_property IOSTANDARD LVCMOS18 [get_ports sys_reset_n] # Active Low Global Reset
 #set_property PACKAGE_PIN AT23 [get_ports sys_reset_n]
-
-#set_property IOSTANDARD LVCMOS18 [get_ports clk_48_mhz] # Fixed on-board 48.00 MHz clock
-#set_property PACKAGE_PIN AV23 [get_ports clk_48_mhz]
-#create_clock -period 20.833 -name clk_48_mhz [get_ports clk_48_mhz]
+ # Fixed on-board 48.00 MHz clock
+set_property IOSTANDARD LVCMOS18 [get_ports emcclk]
+set_property PACKAGE_PIN AV23 [get_ports emcclk]
+create_clock -period 20.833 -name clk_48_mhz [get_ports emcclk]
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets g_endpoints[1].pcie0/u1/sys_clk_gt]
 set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets g_endpoints[1].pcie0/u1/sys_clk_gt]
 
@@ -68,10 +68,12 @@ set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets g_endpoints[1].pcie0
 #set_property PACKAGE_PIN AU24 [get_ports avr_rxd]
 #set_property IOSTANDARD LVCMOS18 [get_ports avr_txd] # AVR UART Tx Data
 #set_property PACKAGE_PIN AR21 [get_ports avr_txd]
-#set_property IOSTANDARD LVCMOS18 [get_ports i2c_sda_3] # I2C SDA 3 MAC-ID
-#set_property PACKAGE_PIN AP23 [get_ports i2c_sda_3]
-#set_property IOSTANDARD LVCMOS18 [get_ports i2c_scl_3] # I2C SCL 3 MAC-ID
-#set_property PACKAGE_PIN AN24 [get_ports i2c_scl_3]
+# I2C SDA 3 MAC-ID
+set_property IOSTANDARD LVCMOS18 [get_ports SDA] 
+set_property PACKAGE_PIN AP23 [get_ports SDA]
+ # I2C SCL 3 MAC-ID
+set_property IOSTANDARD LVCMOS18 [get_ports SCL]
+set_property PACKAGE_PIN AN24 [get_ports SCL]
 #set_property IOSTANDARD LVCMOS18 [get_ports usb_uart_txd] # FTDI UART Tx Data
 #set_property PACKAGE_PIN AL24 [get_ports usb_uart_txd]
 #set_property IOSTANDARD LVCMOS18 [get_ports usb_uart_rxd] # FTDI UART Rx Data
@@ -86,8 +88,9 @@ set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets g_endpoints[1].pcie0
 ##############################################
 #set_property IOSTANDARD LVCMOS18 [get_ports qsfp_prsnt_l_1] # QSFP 1 Active Low Present
 #set_property PACKAGE_PIN BD23 [get_ports qsfp_prsnt_l_1]
-#set_property IOSTANDARD LVCMOS18 [get_ports qsfp_rst_l_1] # QSFP 1 Active Low Reset
-#set_property PACKAGE_PIN BD24 [get_ports qsfp_rst_l_1]
+ # QSFP 1 Active Low Reset
+set_property IOSTANDARD LVCMOS18 [get_ports i2cmux_rst]
+set_property PACKAGE_PIN BD24 [get_ports i2cmux_rst]
 #set_property IOSTANDARD LVCMOS18 [get_ports qsfp_lp_1] # QSFP 1 Active Low Low Power
 #set_property PACKAGE_PIN BC24 [get_ports qsfp_lp_1]
 #set_property IOSTANDARD LVCMOS18 [get_ports qsfp_int_l_1] # QSFP 1 Active Low Interrupt
