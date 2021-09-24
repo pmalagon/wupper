@@ -3,9 +3,7 @@
 #
 # Script to rebuild the derived files from templates
 #
-#prev_version=1.0
-current_version=1.0
-#next_version=1.0
+current_version=2.0
 
 #
 # firmware directory:
@@ -19,9 +17,7 @@ template_dir=$sources_dir/templates
 wuppercodegen_dir=../software/wuppercodegen
 wuppercodegen=$wuppercodegen_dir/wuppercodegen/cli.py
 
-#prev_registers=$template_dir/registers-${prev_version}.yaml
 current_registers=registers-${current_version}.yaml
-#next_registers=$template_dir/registers-${next_version}.yaml
 $wuppercodegen --version
 echo "Current  version: $current_version"
 echo "Generating pcie_package.vhd, dma_control.vhd, wupper.vhd and register_map_sync.vhd for current version..."

@@ -51,9 +51,10 @@
 
 
 
-library ieee, UNISIM, work;
+library ieee, UNISIM, xpm;
 use ieee.numeric_std.all;
 use UNISIM.VCOMPONENTS.all;
+use xpm.VCOMPONENTS.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_1164.all;
 use work.pcie_package.all;
@@ -161,6 +162,7 @@ g_endpoints: for i in 0 to ENDPOINTS-1 generate
   signal clk250: std_logic;
   signal rst_hw : std_logic;
   signal fromHostFifoDataCount: std_logic_vector(31 downto 0);
+  signal LOOPBACK_250: std_logic_vector(NUMBER_OF_DESCRIPTORS-2 downto 0);
   
 begin
 
@@ -253,17 +255,29 @@ begin
         end if;
       end process;
       
-      toHostFifo_din(0) <= fromHostFifo_dout;
-      toHostFifo_wr_en(0) <= fromHostFifo_dvalid;
+      xpm_cdc_array_single_inst : xpm_cdc_array_single
+       generic map (
+          DEST_SYNC_FF => 2,
+          INIT_SYNC_FF => 0,
+          SIM_ASSERT_CHK => 0,
+          SRC_INPUT_REG => 0,
+          WIDTH => NUMBER_OF_DESCRIPTORS-1
+       )
+       port map (
+          dest_out => LOOPBACK_250,
+          dest_clk => clk250,
+          src_clk => '0',
+          src_in => ep_register_map_control.LOOPBACK(NUMBER_OF_DESCRIPTORS-2 downto 0)
+       );
+    
       
-      g_descr: for descr in 1 to NUMBER_OF_DESCRIPTORS-2 generate
+      g_descr: for descr in 0 to NUMBER_OF_DESCRIPTORS-2 generate
       
         signal cnt: std_logic_vector(63 downto 0);
         signal out_data: std_logic_vector(DATA_WIDTH-1 downto 0);
-        signal throttle_cnt: std_logic_vector(49 downto 0):= "00000000000000000000000000000000000000000000000001";
       begin
-
-
+          
+          
           cnt_combine : for i in 0 to (DATA_WIDTH/cnt'length)-1 generate
             out_data((cnt'length*(i+1))-1 downto cnt'length*i) <= cnt;
           end generate;
@@ -273,17 +287,15 @@ begin
             if rising_edge(clk250) then
                 if ep_reset_soft = '1' then
                     cnt <= (others => '0');
-                    throttle_cnt <= "00000000000000000000000000000000000000000000000001";
                 else
-                    throttle_cnt <= throttle_cnt(48 downto 0) & throttle_cnt(49); --rotate to get 1:50 bandwidth, 1.28Gb/s
-                    if toHostFifo_prog_full(descr) = '0' and throttle_cnt(0) = '1' then
+                    if toHostFifo_prog_full(descr) = '0' then
                         cnt <= cnt + 1;
                     end if;
                 end if;
             end if;
           end process;
-          toHostFifo_wr_en(descr) <= (not toHostFifo_prog_full(descr)) and throttle_cnt(0);
-          toHostFifo_din(descr) <= out_data;
+          toHostFifo_wr_en(descr) <= (not toHostFifo_prog_full(descr)) when LOOPBACK_250(i) = '0' else fromHostFifo_dvalid;
+          toHostFifo_din(descr) <= out_data when LOOPBACK_250(i) = '0' else fromHostFifo_dout;
           
           end generate;
           

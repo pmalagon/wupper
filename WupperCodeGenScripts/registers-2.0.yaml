@@ -246,6 +246,8 @@ Bar2:
       offset: 0x1000
     - ref: Wishbone
       offset: 0x2000
+    - ref: Application
+      offset: 0x3000
 
 GenericBoardInformation:
   group: GEN
@@ -534,3 +536,15 @@ Wishbone:
           name: ERROR
           desc: Address not mapped by the crossbar
   
+Application:
+  desc: Wishbone
+  endpoints: 0, 1
+  entries:
+    - name: LOOPBACK
+      type: W
+      desc: |
+         for every DMA descriptor
+         0: Generate data from a counter value
+         1: Loop back data from FromHost to ToHost DMA
+      bitfield:
+        - range: 7..0
