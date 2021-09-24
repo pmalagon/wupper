@@ -106,7 +106,6 @@ start_datagen()
   
   
   wupperCard.cfg_set_option("APP_ENABLE",0);
-  wupperCard.dma_fifo_flush();
 }
 
 void

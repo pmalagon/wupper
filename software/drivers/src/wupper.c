@@ -133,7 +133,24 @@ static struct pci_device_id WUPPER_IDs[] =
   { 0, },
 };
 
-struct file_operations fops =
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
+#define HAVE_PROC_OPS
+#endif
+
+#ifdef HAVE_PROC_OPS
+struct proc_ops wupper_proc_ops =
+{
+  //.owner          = THIS_MODULE,
+  .proc_mmap           = wupper_mmap,
+  .proc_ioctl = wupper_ioctl,
+  .proc_open           = wupper_open,
+  .proc_read           = wupper_read_procmem,
+  .proc_write          = wupper_write_procmem,
+  .proc_release        = wupper_Release,
+};
+#endif
+struct file_operations wupper_fops =
 {
   .owner          = THIS_MODULE,
   .mmap           = wupper_mmap,
@@ -259,8 +276,11 @@ static int wupper_init(void)
     kerror(("wupper(wupper_init): Status %d from pci_register_driver\n", stat))
     return stat;
   }
-
-  procDir = proc_create(devName, 0644, NULL, &fops);
+#ifdef HAVE_PROC_OPS
+  procDir = proc_create(devName, 0644, NULL, &wupper_proc_ops);
+#else
+  procDir = proc_create(devName, 0644, NULL, &wupper_fops);
+#endif
   if (procDir == NULL)
   {
     kerror(("wupper(wupper_init): error from call to create_proc_entry\n"))
@@ -271,7 +291,7 @@ static int wupper_init(void)
   if (stat == 0)
   {
     wupper_cdev = cdev_alloc();
-    wupper_cdev->ops = &fops;
+    wupper_cdev->ops = &wupper_fops;
     wupper_cdev->owner = THIS_MODULE;
 
     for (deviceNumber = 0; deviceNumber < MAXCARDS; deviceNumber++)
@@ -567,8 +587,8 @@ static int wupper_Probe(struct pci_dev *dev, const struct pci_device_id *id)
   }
   
   //Identify the card type. The CARD_TYPE register is at offset 0xA0 of BAR2
-  
-  rm = ioremap_nocache(devices[deviceNumber].baseAddressBAR2, devices[deviceNumber].sizeBAR2);
+  kerror(("BAR2 Address: %lX, BAR2 Size: %liM\n",devices[deviceNumber].baseAddressBAR2,devices[deviceNumber].sizeBAR2/(1024*1024)));
+  rm = ioremap(devices[deviceNumber].baseAddressBAR2, devices[deviceNumber].sizeBAR2);
   ldata  = rm->CARD_TYPE;
   kdebug(("wupper(wupper_Probe): CARD_ID of device %d = 0x%016lx\n", deviceNumber, ldata));
   cdmap[deviceNumber][0] = ldata & 0xfff;  //card type
@@ -890,7 +910,7 @@ static int fill_proc_read_text(void)
   for (device = 0; device < devicesFound; device++)
   {
     // Addresses depend on firmware version
-    wuppercard_bar2_regs_t *rm = ioremap_nocache(devices[device].baseAddressBAR2, devices[device].sizeBAR2);
+    wuppercard_bar2_regs_t *rm = ioremap(devices[device].baseAddressBAR2, devices[device].sizeBAR2);
 
     u_int regmap_version = rm->REG_MAP_VERSION;
 

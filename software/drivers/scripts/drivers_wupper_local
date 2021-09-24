@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # script derived from drivers_tdaq script by Markus Joos, CERN
 
@@ -27,20 +27,26 @@ case "$1" in
         echo
 
         export WUPPERCARDS=`lspci -n | grep -c -e "10dc:042"`
+        export WUPPERCARDS=$(($WUPPERCARDS + `lspci -n | grep -c -e "10ee:703"`))
+        FIRSTCARD=0
         echo $WUPPERCARDS wupper cards found
         if [ $WUPPERCARDS -gt 0 ]; then
           echo "Starting wupper driver "
           # load the module
           insmod $DRIVER_PATH/drivers/wupper.ko
+          echo debug > /proc/wupper
           # remove old device node
           rm -f /dev/wupper
           # get major number
           major=`awk "\\$2==\"wupper\" {print \\$1}" /proc/devices`
           echo major number for wupper is $major
           # make device node
-          mknod /dev/wupper c $major 0
-          # give permissions
-          chmod 666 /dev/wupper
+          for (( c=$FIRSTCARD; c<$WUPPERCARDS; c++ ))
+          do
+              mknod /dev/wupper$c c $major $c
+              chmod 666 /dev/wupper$c
+          done
+          ln -s /dev/wupper0 /dev/wupper
           echo
         fi
         ;;

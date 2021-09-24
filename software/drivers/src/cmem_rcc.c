@@ -116,19 +116,23 @@ MODULE_AUTHOR("Markus Joos, CERN/EP");
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_VERSION("7.0");
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
+#define HAVE_PROC_OPS
+#endif
 
+#ifdef HAVE_PROC_OPS
 //// RS: Move from file_operations to proc_ops in kernel 5.13
-//static struct proc_ops proc_ops_remap_pfn_range =
-//{
-//  //.owner        = THIS_MODULE,
-//  .proc_ioctl   = cmem_rcc_ioctl,
-//  .proc_open    = cmem_rcc_open,
-//  .proc_mmap    = cmem_rcc_mmap_remap_pfn_range,
-//  .proc_release = cmem_rcc_release,
-//  .proc_read    = cmem_rcc_proc_read,
-//  .proc_write   = cmem_rcc_proc_write,
-//};
-
+static struct proc_ops proc_ops_remap_pfn_range =
+{
+  //.owner        = THIS_MODULE,
+  .proc_ioctl   = cmem_rcc_ioctl,
+  .proc_open    = cmem_rcc_open,
+  .proc_mmap    = cmem_rcc_mmap_remap_pfn_range,
+  .proc_release = cmem_rcc_release,
+  .proc_read    = cmem_rcc_proc_read,
+  .proc_write   = cmem_rcc_proc_write,
+};
+#endif
 // The ordinary device operations
 // Device 0 uses remap_pfn_range
 static struct file_operations fops_remap_pfn_range =
@@ -200,7 +204,11 @@ static int cmem_rcc_init(void)
   }
 
   // Install /proc entry
+  #ifdef HAVE_PROC_OPS
+  cmem_rcc_file = proc_create("cmem_rcc", 0644, NULL, &proc_ops_remap_pfn_range); // &fops_remap_pfn_range);  //MJMJ: it is not clear if the second structre (fops_nopage) will create problems
+  #else
   cmem_rcc_file = proc_create("cmem_rcc", 0644, NULL, &fops_remap_pfn_range); // &fops_remap_pfn_range);  //MJMJ: it is not clear if the second structre (fops_nopage) will create problems
+  #endif
   if (cmem_rcc_file == NULL)
   {
     kerror(("cmem_rcc(cmem_rcc_init): error from call to create_proc_entry\n"));

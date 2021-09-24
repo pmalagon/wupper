@@ -116,12 +116,6 @@ application_reset()
  }
  
  
- void
-fifo_flush()
-{
-  // Flush FIFO's
-  wupperCard.dma_fifo_flush();
- }
  
  void
 dma_reset()
@@ -183,8 +177,8 @@ start_application2pc()
   uint64_t *memptr;
   
   //select app mux 0 for LFSR
-  wupperCard.cfg_set_option("APP_MUX",0);
-  wupperCard.cfg_set_option("APP_ENABLE",1);
+  //wupperCard.cfg_set_option("APP_MUX",0);
+  //wupperCard.cfg_set_option("APP_ENABLE",1);
 
   //int max_tlp = wupperCard.dma_max_tlp_bytes();
   printf("Starting DMA write\n");
@@ -199,8 +193,7 @@ start_application2pc()
 	  printf("%i: %lX \n",i, *(memptr++));
 	  }  
 	  
-  wupperCard.cfg_set_option("APP_ENABLE",0);
-  wupperCard.dma_fifo_flush();
+  //wupperCard.cfg_set_option("APP_ENABLE",0);
 }
 
 void
@@ -212,10 +205,10 @@ start_application2PCIe()
   int max_tlp = wupperCard.dma_max_tlp_bytes();
   
   printf("Reading data from buffer 1...\n");
-  wupperCard.cfg_set_option("APP_MUX",1);
+  //wupperCard.cfg_set_option("APP_MUX",1);
   wupperCard.dma_to_host(0, paddr1, 1024*1024, max_tlp);
   wupperCard.dma_from_host(1, paddr2, 1024*1024, max_tlp);
-  wupperCard.cfg_set_option("APP_ENABLE",1);
+  //wupperCard.cfg_set_option("APP_ENABLE",1);
   wupperCard.dma_wait(0);
   wupperCard.dma_wait(1);
   
@@ -231,7 +224,7 @@ start_application2PCIe()
 
   //memptr = (uint64_t*)buffer1.virt_addr;
   //printf("\n%lX\n", *(memptr++) * *(memptr++));
-  wupperCard.cfg_set_option("APP_ENABLE",0);
+  //wupperCard.cfg_set_option("APP_ENABLE",0);
 }
 
 void
@@ -330,9 +323,7 @@ main(int argc, char** argv)
       case 'f':
 // Flush the FIFO's
       wupperCard.card_open(0,0);     
-      printf("Flushing the FIFO's...");
-      fifo_flush();
-
+      
       printf("DONE! \n");
       wupperCard.card_close();  
       break;

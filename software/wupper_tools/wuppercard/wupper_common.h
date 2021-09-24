@@ -47,15 +47,15 @@
 typedef struct
 {
     struct pci_dev *pciDevice;
-    u_int slot;
-    u_int baseAddressBAR0;
-    u_int sizeBAR0;
-    u_int baseAddressBAR1;
-    u_int sizeBAR1;
-    u_int baseAddressBAR2;
-    u_int sizeBAR2;
-    u_int baseAddressBAR3;
-    u_int sizeBAR3;
+    unsigned int slot;
+    unsigned long int baseAddressBAR0;
+    unsigned long int sizeBAR0;
+    unsigned long int baseAddressBAR1;
+    unsigned long int sizeBAR1;
+    unsigned long int baseAddressBAR2;
+    unsigned long int sizeBAR2;
+    unsigned long int baseAddressBAR3;
+    unsigned long int sizeBAR3;
     u_int lock_mask;          //used in the SETCARD ioctl to receive the lock bits form the user application
     u_int lock_tag;           //used to separate the locks of different WupperCard objects in the same thread
     u_int lock_error;         //used in the SETCARD ioctl to return locking related errors to the user code
