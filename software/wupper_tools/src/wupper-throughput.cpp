@@ -99,37 +99,37 @@ int main(int argc, char **argv)
     switch (opt)
     {
       case 'd':
-	device_number = atoi(optarg);
-	break;
+        device_number = atoi(optarg);
+        break;
 
       case 'b':
-	nblocks = atoi(optarg);
-	break;
+        nblocks = atoi(optarg);
+        break;
 
       case 'o':
-	maxops = atoi(optarg);
-	break;
+        maxops = atoi(optarg);
+        break;
 
       case 'D':
-	debuglevel = atoi(optarg);
+        debuglevel = atoi(optarg);
         DF::GlobalDebugSettings::setup(debuglevel, DFDB_FELIXCARD);
-	break;
+        break;
 
       case 'w':
-	wraparound = 1;
-	break;
+        wraparound = 1;
+        break;
 
       case 'h':
-	display_help();
-	exit(0);
+        display_help();
+        exit(0);
 
       case 'V':
         printf("This is version %s of %s\n", VERSION, APPLICATION_NAME);
-	exit(0);
+        exit(0);
 
       default:
-	fprintf(stderr, "Usage: %s [OPTIONS]\nTry %s -h for more information.\n", APPLICATION_NAME, APPLICATION_NAME);
-	exit(-1);
+        fprintf(stderr, "Usage: %s [OPTIONS]\nTry %s -h for more information.\n", APPLICATION_NAME, APPLICATION_NAME);
+        exit(-1);
     }
   }
 
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 
     wupperCard.dma_reset();
     wupperCard.soft_reset();
-    wupperCard.dma_fifo_flush();
+    //wupperCard.dma_fifo_flush();
 
     ret = CMEM_Open();
     bsize = BLOCKSIZE * nblocks;
@@ -174,48 +174,43 @@ int main(int argc, char **argv)
     {
       if(wraparound)
       {
-	wupperCard.irq_wait(1); // Wait for ToHost wrap-around
-	wupperCard.dma_advance_ptr(DMA_ID, paddr, bsize, bsize);
-	blocks_read += nblocks;
+        wupperCard.irq_wait(1); // Wait for ToHost wrap-around
+        wupperCard.dma_advance_ptr(DMA_ID, paddr, bsize, bsize);
+        blocks_read += nblocks;
       }
       else
       {
-	wupperCard.dma_to_host(DMA_ID, paddr, bsize, 0);
-	wupperCard.dma_wait(DMA_ID);
-	blocks_read += nblocks;
+        wupperCard.dma_to_host(DMA_ID, paddr, bsize, 0);
+        wupperCard.dma_wait(DMA_ID);
+        blocks_read += nblocks;
       }
 
       t1 = now();
       if(t1 - t0 > timedelta)
       {
-	printf("Blocks read:  %lu\n", blocks_read);
-	printf("Blocks rate:  %.3f blocks/s\n", blocks_read / (t1 - t0));
+        double delta = t1-t0;
+        t0 = t1;
+        printf("Blocks read:  %lu\n", blocks_read);
+        printf("Blocks rate:  %.3f blocks/s\n", blocks_read / (delta));
 
-        double dmaperformance =  (double)blocks_read * (double)BLOCKSIZE / ((t1 - t0) * 1024. * 1024. * 1024.);
-	printf("DMA Read:     %.3f GiB/s\n", dmaperformance);
+        double dmaperformance =  ((double)blocks_read * (double)BLOCKSIZE) / (delta * 1024. * 1024.);
+        printf("DMA Read:     %.3f MiB/s\n", dmaperformance);
 
-	printf("\n");
-	blocks_read = 0;
-	t0 = t1;
+        printf("\n");
+        blocks_read = 0;
+        
       }
 
       if(maxops)
       {
         maxops--;
-	 if(maxops == 0)
-	   cont = 0;
+         if(maxops == 0)
+           cont = 0;
       }
     }
 
     printf("Loop terminated. Cleaning up....\n");
-    printf("Blocks read:  %lu\n", blocks_read);
-    printf("Blocks rate:  %.3f blocks/s\n", blocks_read / (t1 - t0));
-    double dmaperformance =  (double)blocks_read * (double)BLOCKSIZE / ((t1 - t0) * 1024. * 1024. * 1024.);
-    printf("DMA Read:     %.3f GiB/s\n", dmaperformance);
-
-
-
-
+    
     wupperCard.irq_disable(1);                                                 // ToHost wrap-around interrupt
 
     ret = CMEM_SegmentFree(handle);

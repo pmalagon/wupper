@@ -144,7 +144,7 @@ int main(int argc, char **argv)
     exit(-1);
   }
 
-  if(strcasecmp(argv[optind], "FLUSH") == 0)            mode = FLUSH;
+  //if(strcasecmp(argv[optind], "FLUSH") == 0)            mode = FLUSH;
   if(strcasecmp(argv[optind], "RESET") == 0)            mode = RESET;
   if(strcasecmp(argv[optind], "SOFT_RESET") == 0)       mode = SOFT_RESET;
   if(strcasecmp(argv[optind], "REGISTERS_RESET") == 0)  mode = REGISTERS_RESET;
@@ -172,8 +172,8 @@ int main(int argc, char **argv)
     if(mode == RESET || mode == ALL)
       wupperCard.dma_reset();
 
-    if(mode == FLUSH || mode == ALL)
-      wupperCard.dma_fifo_flush();
+    //if(mode == FLUSH || mode == ALL)
+    //  wupperCard.dma_fifo_flush();
 
     if(mode == SOFT_RESET || mode == ALL)
       wupperCard.soft_reset();
