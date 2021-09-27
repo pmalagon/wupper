@@ -1,0 +1,167 @@
+\section{Software and Device drivers}
+The Wupper tools communicate with the Wupper core through the wupper device driver. Buffers in the host PC memory are used for bidirectional data transfers, this is done by a part of the driver called cmem\_rcc. This will reserve a chunk of contiguous memory (Up to several GB) in the host server. For the specific case of the example application, the allocated memory will be logically subdivided in two buffers. One buffer is used to store data coming from the FPGA (write buffer, buffer 1), the other to store the ones going to the FPGA (read buffer, buffer 2). The idea behind the logical split of the memory in buffers is that those buffers can be used to copy data from the write to read, and perform checks. The driver is developed for Scientific Linux CERN 6 but has been tested and used also under Ubuntu kernel version 5.11. Building and loading/unloading the driver is explained in \ref{sec:buildloadDrivers}.
+
+In this chapter we assume that the card is loaded with the latest firmware, it has been placed in a Gen3 or Gen4 compatible PCIe slot and the PC is running Linux. Optionally a Vivado hardware server can be connected to view the Debug probes of the ILA cores, as specified in the constraints file. \cite{programming}\
+
+\subsection{Building / Loading the drivers}
+\label{sec:buildloadDrivers}
+The Drivers for Wupper consist of two parts. The first part is the cmem driver, this driver allocates a contiguous block of RAM in the PC memory which can be used for the DMA transfers.
+
+The second part is the Wupper driver which allows access to the DMA descriptors and the registermap.
+\begin{lstlisting}[language=BASH, frame=single, caption=Building and Loading the driver]
+#build the driver
+cd trunk/software/driver/src
+./make
+# load the driver
+cd ../scripts
+sudo drivers_wupper_local start
+# see status of the driver
+sudo drivers_wupper_local status
+# unload the driver
+sudo drivers_wupper_local stop
+\end{lstlisting}
+\subsection{Driver functionality}
+Before any DMA actions can be performed, one or more memory buffers have to be allocated. The driver in conjunction with the wupper tools take this into account. 
+
+The application has to do two important tasks for a DMA action to occur.
+\begin{itemize}
+	\item Allocate a buffer using the cmem\_rcc driver
+	\item Create and enable the DMA descriptor.
+\end{itemize}
+
+If the buffer is for instance allocated at address 0x00000004d5c00000, initialize bits 64:0 of the descriptor with 0x00000004d5c00000, and end address (bit 127:64) 0x00000004d5c00000 plus the write size. If a \underline{DMA Write} is to be performed, initialize bits 10:0 of descriptor 0a with 0x40 (for 256 bytes per TLP, depending on the PC chipset) and bit 11 with '0' for write, then enable the corresponding descriptor enable bit at address 0x400. The TLP size of 0x40 (32 bit words) is limited by the maximum TLP that the PC can handle, in most cases this is 256 bytes, the Engine can handle bigger TLP's up to 4096 bytes.
+\begin{lstlisting}[language=BASH, frame=single, caption=Create a Write descriptor]
+#write descriptor 0
+#BAR0 offset:  Contents:
+0x0000         0x00000004d5c00000
+0x0008         0x00000004d5c00400
+#Set the length to 0x40 / Write
+0x0010         0x040
+#enable descriptor 0 to start the DMA Write
+0x0400         1
+\end{lstlisting}
+If a \underline{DMA Read} of 1024 bytes (0x100 DWords) from PC memory is to be performed at address 0x00000004d5d00000, initialize bits 64:0 of the descriptor with 0x00000004d5d00000, and bits [127:64] with 0x00000004d5d00400. Initialize bits 10:0 of descriptor 0 with 0x100 and bit 11 with '1' for read, then enable the corresponding descriptor enable bit at address 0x400. The TLP size of 0x100 is limited by the maximum TLP size of the Xilinx core, set to 1024 bytes, 0x100 words.
+\begin{lstlisting}[language=BASH, frame=single, caption=Create a Read descriptor]
+#write descriptor 1
+#BAR0 offset:  Contents:
+0x0020         0x00000004d5d00000
+0x0028         0x00000004d5d00400
+#Set the length to 0x100 / Read
+0x0030         0x0900
+#enable descriptor 1 to start the DMA Read
+0x0400         2
+\end{lstlisting}
+
+
+\subsection{Reading and Writing Registers and setting up DMA}
+
+The PCIe Engine has a register map with 128 bit address space per register, however registers can be read and written in words of 32, 64, 96 or 128 bits at a time. The addresses of the register have an offset with respect to a Base Address Register (BAR) that can be readout running: The PCIe Engine has 3 different BAR spaces all with their own memory map. 
+
+BAR0 is the memory area which contains registers that are related to DMA operations. The most important registers are the descriptors.
+
+BAR1 is the memory area which contains registers that are related to Interrupt vectors.
+
+BAR2 is the user memory area, it contains some example registers which can be implemented per the requirements for the user / application.
+
+\subsection{Wupper tools}
+The Wupper tools are a collection of tools which can be used to debug and control the Wupper core. These tools are command line programs and can only run if the device driver is loaded. A detailed list and explanation of each tool is given in the next paragraphs. Some tools are specific to the example VHDL application, some other tools are more generic and can directly be used to control the Wupper DMA core, the Wupper-dma-transfer and Wupper-chaintest had been added as features for the OpenCores' benchmark example application. As mentioned before, the purpose of those applications is to check the health of the Wupper core. 
+
+The Wupper tools can be found in the directory hostSoftware/wupper\_tools.
+
+The Wupper tools collection comes with a readme~\cite{wupperreadme}, this explains how to compile and run the tools. Most of the tools have an -h option to provide helpful information. 
+
+\begin{lstlisting}[language=BASH, frame=single, caption=Building Wupper Tools]
+cd trunk/software/wupper_tools
+mkdir build
+cd build
+cmake ..
+make
+\end{lstlisting}
+The build directory should now contain the following tools. All the tools come with a "-h" option to show a help message.
+
+\begin{center}
+	\begin{tabular}{ | l || p{10cm} |}
+		\hline
+		Tool & Description                       \\ \hline
+		
+		wupper-info
+		&  Prints information of the device. For instance device ID, PLL lock status of the internal clock and FW version.
+		\\ \hline
+		
+		wupper-reset
+		&  Resets parts of the example application core. These functions are also implemented in the Wupper-dma-transfer tool.
+		\\ \hline
+		
+		
+		wupper-config
+		& Shows the PCIe configuration registers and allows to set, store and load configuration. An example is configuring the LED's on the VC-709 board by writing a hexadecimal value to the register.
+		\\ \hline
+		wupper-irq-test
+		&  Tool to test interrupt routines
+		\\ \hline
+		
+		wupper-dma-stat &  Displays information (addresses, size) of DMA descriptors \\ \hline
+		wupper-dma-transfer &  Executes a DMA ToHost operation (-g) or a loopback operation (Both From and ToHost with internal loopback in the firmware) (-l) \\ \hline
+		wupper-throughput
+		&  The tool measures the throughput of the Wupper core.
+		\\ \hline
+		
+		
+		wupper-dump-blocks
+		&  This tools dumps a block of 1 KB. The iteration is set standard on 100. This can be changed by adding a number after the "-n".
+		\\ \hline
+		wupper-wishbone
+		&  This tool uses the wishbone registers in the register map to read and write values in the memory connected to the wishbone bus in the example.
+		\\ \hline
+		
+	\end{tabular}
+\end{center}
+
+\newpage
+\subsubsection{Operating Wupper-dma-transfer}
+
+Wupper-dma-transfer sends data to the target PC via Wupper also known as half loop test. This tool operates the benchmark application and has multiple options. A list of such options is summarized in Listing~\ref{lst:dmatoollist}.
+
+\begin{lstlisting}[frame=single, label={lst:dmatoollist}, caption=Output of Wupper-dma-transfer -h]
+Usage: wupper-dma-transfer [OPTIONS]
+
+
+Options:
+-g             Generate data from internal counter in FPGA, to PC.
+-l             Generate data from PC to PCIe and loopback to PC
+-h             Display help.
+
+\end{lstlisting}
+
+The two executions of wupper-dma-transfer shown below show different operations. With -g, the internal 64-bit counter is incremented on every clock cycle. You will notice that the value is replicated 4 times (For Gen3x8 capable devices) because the internal FIFO interface is 256 bit, and in the example firmware the counter is replicated / concatenated 4 times to the same FIFO interface. In the loopback operation (-l) the FromHost buffer in the server is first filled with a 64-bit counter, sent towards the FPGA over DMA and then immediately looped back into a second buffer. This will result into an exact copy of the memory. The application displays only the first 10 elements of the memory.
+\begin{lstlisting}[language=BASH, frame=single, label={lst:dmatoolreset},  caption=Reset Wupper before a DMA Write action]
+$ ./wupper-dma-transfer -g
+Starting DMA write
+done DMA write 
+Buffer 1 addresses:
+0: 0 
+1: 0 
+2: 0 
+3: 0 
+4: 1 
+5: 1 
+6: 1 
+7: 1 
+8: 2 
+9: 2 
+$ ./wupper-dma-transfer -l
+Fill fromHost buffer with 64b counterm send to PCIe and read back
+DONE!
+Read back first 10 values:
+0: 0 
+1: 1 
+2: 2 
+3: 3 
+4: 4 
+5: 5 
+6: 6 
+7: 7 
+8: 8 
+9: 9 
+
+\end{lstlisting}
