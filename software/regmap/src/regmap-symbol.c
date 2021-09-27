@@ -2300,6 +2300,15 @@ regmap_bitfield_t regmap_bar2_bitfields[] =
       REGMAP_REG_READ|REGMAP_REG_WRITE,
       REGMAP_ENDPOINT_0      
     },
+    { BF_WISHBONE_READ_TRIGGER,
+      "Dummy write bitfield to issue a trigger to READ_ENABLE",
+      0x02020,
+      0x0000000200000000,
+      33,
+      33,
+      REGMAP_REG_READ|REGMAP_REG_WRITE,
+      REGMAP_ENDPOINT_0      
+    },
     { BF_WISHBONE_READ_EMPTY,
       "Indicates that the Wishbone to Wupper fifo is empty",
       0x02020,

@@ -376,6 +376,7 @@ extern regmap_group_t regmap_bar2_groups[];
 #define BF_WISHBONE_WRITE_FULL                "WISHBONE_WRITE_FULL"
 #define BF_WISHBONE_WRITE_DATA                "WISHBONE_WRITE_DATA"
 #define BF_WISHBONE_READ_READ_ENABLE          "WISHBONE_READ_READ_ENABLE"
+#define BF_WISHBONE_READ_TRIGGER              "WISHBONE_READ_TRIGGER"
 #define BF_WISHBONE_READ_EMPTY                "WISHBONE_READ_EMPTY"
 #define BF_WISHBONE_READ_DATA                 "WISHBONE_READ_DATA"
 #define BF_WISHBONE_STATUS_INT                "WISHBONE_STATUS_INT"
