@@ -1,58 +1,40 @@
-\section{Core Architecture}
 Xilinx has introduced the AXI4-Stream interface\,\cite{ug761} for the PCIe EndPoint core: a simplified version of the ARM AMBA AXI bus\,\cite{arm_amba}. This interface does not contain any address lines, instead the address and other information are supplied in the header of each PCIe Transaction Layer Packet (TLP). Figure\,\ref{fig:pcie_core_structure} shows the structure of the Wupper\_core design. The Wupper\_core is divided in two parts:
 \begin{enumerate}
-\item \textbf{DMA Control:} \\This is the entity in which the Descriptors are parsed and fed to the engine, and where the Status register of every descriptor can be read back through PCIe. Depending on the address range of the descriptor, the pointer of the current address is handled by DMA Control and incremented every time a TLP completes. DMA Control also handles the circular buffer DMA if this is requested by the descriptor (See \ref{sec:endless_dma}).
-
-DMA control contains a register map, with addresses to the descriptors, status registers and external registers for the user space register map. 
-
-\item \textbf{DMA Read Write:} \\This entity contains two processes:
-\begin{itemize}
-\item \textit{ToHost\,/\,Add Header:} In the first process the descriptors are read and a header according to the descriptor is created. If the descriptor is a ToHost descriptor, the payload data is read from the FIFO and added after the header.
-\item \textit{FromHost\,/ \,Strip Header:} In the second process the header of the received data is removed and the length is checked; then the payload is shifted into the FIFO.
-\end{itemize}
-
-Both processes can fire an MSI-X type interrupt by means of the interrupt controller when finished.
+	\item \textbf{DMA Control:} \\This is the entity in which the Descriptors are parsed and fed to the engine, and where the Status register of every descriptor can be read back through PCIe. Depending on the address range of the descriptor, the pointer of the current address is handled by DMA Control and incremented every time a TLP completes. DMA Control also handles the circular buffer DMA if this is requested by the descriptor (See \ref{sec:endless_dma}).
+	
+	DMA control contains a register map, with addresses to the descriptors, status registers and external registers for the user space register map. 
+	
+	\item \textbf{DMA Read Write:} \\This entity contains two processes:
+	\begin{itemize}
+		\item \textit{ToHost\,/\,Add Header:} In the first process the descriptors are read and a header according to the descriptor is created. If the descriptor is a ToHost descriptor, the payload data is read from the FIFO and added after the header. This process also takes care of switching to the next active DMA descriptor, which is leading for selecting the MUX on the output ports of the ToHostFifo's.
+		\item \textit{FromHost\,/ \,Strip Header:} In the second process the header of the received data is removed and the length is checked; then the payload is shifted into the FIFO.
+	\end{itemize}
+	
+	Both processes can fire an MSI-X type interrupt by means of the interrupt controller when finished.
 \end{enumerate}
 
 \begin{figure}[H]
 	\centering
-\includegraphics[trim=0mm 0cm 0mm 1cm,width=0.85\textwidth, page=1]{figures/wupper_structure.pdf}
-\caption{Structure of the Felix PCIe Engine}
+	\includegraphics[trim=0mm 0cm 0mm 1cm,width=0.85\textwidth, page=1]{figures/wupper_structure.pdf}
+	\caption{Structure of the Felix PCIe Engine}
 	\label{fig:pcie_core_structure}
 \end{figure}
 
-Figure\,\ref{fig:pcie_core_structure} shows a synchronization stage for the IO and external registers, The user space registers are stored and processed in the 40\,MHz clock domain in order to relax timing closure of the design. The synchronization stage synchronizes the register map again to the clock used in the application design.
+Figure\,\ref{fig:pcie_core_structure} shows a synchronization stage for the IO and external registers, The user space registers are stored and processed in the 25\,MHz clock domain in order to relax timing closure of the design. The synchronization stage synchronizes the register map again to the clock used in the application design (sync\_clk).
 
-\begin{figure}[H]
-	\centering
-\includegraphics[trim=0mm 2cm 0mm 1cm, width=0.80\textwidth, page=3]{figures/wupper_structure.pdf}
-	\caption{Flow of a Register / Descriptor Read or Write process}
-	\label{fig:flow_dma_control}
-\end{figure}
 
-The DMA Control process (see Figure \ref{fig:flow_dma_control}) always responds to a request with a certain $req\_type$ from the server. It responds only to IO and Memory reads and writes; for all other request types it will send an unknown request reply. If the data in the payload contains more than 128~bits, the process will send a ``completion abort'' reply and go back to idle state. The maximum register size has been set to 128~bits because this is a useful maximum register size; it is also the maximum payload that fits in one 250\,MHz clock cycle of the AXI4-Stream interface.
+The DMA Control process  always responds to a request with a certain $req\_type$ from the server. It responds only to IO and Memory reads and writes; for all other request types it will send an unknown request reply. If the data in the payload contains more than 128~bits, the process will send a ``completion abort'' reply and go back to idle state. The maximum register size has been set to 128~bits because this is a useful maximum register size; it is also the maximum payload that fits in one 250\,MHz clock cycle of the AXI4-Stream interface.
 
-\begin{figure}[H]
-	\centering
-\includegraphics[trim=0mm 1cm 0mm 0cm, width=0.80\textwidth, page=4]{figures/wupper_structure.pdf}
-\caption{Flow of the DMA ToHost path, this process also handles FromHost requests}
-\label{fig:flow_dma_tohost}
-\end{figure}
 
-The DMA ToHost (see Figure \ref{fig:flow_dma_tohost}) process reads the current descriptor and requests a read or write to the server memory. If the descriptor is set to ToHost, it also initiates a FIFO read and adds the data into the payload of the PCIe TLP (Transaction Layer Packet). When the descriptor is set to FromHost this process only creates a header TLP with no payload, to request a certain amount of data from the server memory that fits in one TLP.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[trim=0mm 3cm 0mm 1cm, width=0.75\textwidth, page=5]{figures/wupper_structure.pdf}
-	\caption{Flow of the DMA From Host process}
-\label{fig:flow_dma_fromhost}
-\end{figure}
-The DMA FromHost (See Figure \ref{fig:flow_dma_fromhost}) process checks the size of the payload against the size in the TLP header, the data will be pushed into the FromHost FIFO.
+The add\_header process selects the descriptor and sets the ToHostFifo MUX accordingly. Based on the descriptor content, it requests a read or write to/from the server memory. If the descriptor is set to ToHost, it also initiates a FIFO read and adds the data into the payload of the PCIe TLP (Transaction Layer Packet). When the descriptor is set to FromHost this process only creates a header TLP with no payload, to request a certain amount of data from the server memory that fits in one TLP.
+
+The DMA FromHost process checks the size of the payload against the size in the TLP header, the data will be pushed into the FromHost FIFO.
 
 \subsection{DMA descriptors}
 \label{sec:dma_descriptors}
 Each transfer To and From Host is achieved by means of setting up descriptors on the server side, which are then processed by Wupper.
-The descriptors are set in the BAR0 section of the register map (see Appendix\,\ref{sec:register_map}). An extract of the descriptors and their registers is shown in Table\,\ref{tab:dma_descriptors_types} below.
+The descriptors are set in the BAR0 section of the register map (see Appendix\,\ref{sec:register_map}). An extract of the descriptors and their registers is shown in Table\,\ref{tab:dma_descriptors_types} below. The register map in BAR0 has space for a maximum of 8 DMA descriptors, but the actual number of descriptors that are implemented is determined by the generic NUMBER\_OF\_DESCRIPTORS. The last active descriptor is always implemented with READ\_WRITE set to 1 (read only) and the descriptors 0 to NUMBER\_OF\_DESCRIPTORS-2 are implemented as ToHost descriptors. The number of ToHost FIFOs is automatically determined by the same generic, as well as the ToHost FIFO depth. Setting NUMBER\_OF\_DESCRIPTORS to 5 (default in phase 2 FELIX) will result in 4 ToHost descriptors and FIFOs (descriptor 0..3) and a single FromHost descriptor / FIFO (descriptor 4).
 
 \begin{longtabu} to \textwidth {|X[1.5,l]|X[4,l]|X[2,l]|X[1,l]|X[4,l]|}
 	\hline
@@ -65,16 +47,16 @@ The descriptors are set in the BAR0 section of the register map (see Appendix\,\
 	\hline
 	0x0010 & \multicolumn{4}{|c|}{DMA\_DESC\_0a} \\
 	\cline{2-5}
- & RD\_POINTER & 127:64 & W & server Read Pointer \\
+	& RD\_POINTER & 127:64 & W & server Read Pointer \\
 	& WRAP\_AROUND & 12 & W & Wrap around \\
-	& READ\_WRITE & 11 & W & 1: FromHost/ 0: ToHost \\
+	& READ\_WRITE & 11 & R & 1: FromHost/ 0: ToHost \\
 	& NUM\_WORDS & 10:0 & W & Number of 32 bit words \\
 	\hline
 	\multicolumn{5}{|c|}{\ldots} \\
 	\hline
 	0x0200 & \multicolumn{4}{|c|}{DMA\_DESC\_STATUS\_0} \\
 	\cline{2-5}
- & EVEN\_PC & 66 & R & Even address cycle server \\
+	& EVEN\_PC & 66 & R & Even address cycle server \\
 	& EVEN\_DMA & 65 & R & Even address cycle DMA \\
 	& DESC\_DONE & 64 & R & Descriptor Done \\
 	& CURRENT\_ADDRESS & 63:0 & R & Current Address \\
@@ -83,15 +65,15 @@ The descriptors are set in the BAR0 section of the register map (see Appendix\,\
 	\hline
 	0x0400 & \multicolumn{1}{|c|}{DMA\_DESC\_ENABLE} & 7:0 & W & Enable descriptors 7:0. One bit per descriptor. Cleared when Descriptor is handled. \\
 	\hline
-\caption{DMA descriptors types}\label{tab:dma_descriptors_types}
+	\caption{DMA descriptors types}\label{tab:dma_descriptors_types}
 \end{longtabu}
 
 Every descriptor has a set of registers, with the following specific functions:
 \begin{itemize}\itemsep-4pt
-\item DMA\_DESC: the register containing the start ($start\_address$) and the end ($end\_address$) memory addresses of a DMA transfer; both handled by the server (software API).
-\item DMA\_DESC\_a: integrates the information above by adding (i) the status of the read pointer on the server side ($rd\_pointer$), (ii) the wrap around functionality enabling ($wrap\_around$, see Section\,\ref{sec:endless_dma} below), (iii) the FromHost (``1'') and ToHost (``0'') transfer direction bit ($read\_write$), and (iv) the number of 32 bits words to be transferred ($num\_words$)
+	\item DMA\_DESC: the register containing the start ($start\_address$) and the end ($end\_address$) memory addresses of a DMA transfer; both handled by the server (software API).
+	\item DMA\_DESC\_a: integrates the information above by adding (i) the status of the read pointer on the server side ($rd\_pointer$), (ii) the wrap around functionality enabling ($wrap\_around$, see Section\,\ref{sec:endless_dma} below), (iii) the FromHost (``1'') and ToHost (``0'') transfer direction bit ($read\_write$), and (iv) the number of 32 bits words to be transferred ($num\_words$)
 	\item DMA\_DESC\_STATUS: status of a specific descriptor including (i) wrap around information bits ($even\_pc$ and $even\_dma$), (ii) completion bit ($desc\_done$, (iii) DMA pointer current address ($current\_address$)
-	\item DMA\_DESC\_ENABLE: the descriptors enable register ($dma\_desc\_enable$), one bit per descriptor 
+	\item DMA\_DESC\_ENABLE: the descriptors enable register ($dma\_desc\_enable$), one bit per descriptor
 \end{itemize}
 
 \subsection{Endless DMA with a circular buffer and wrap around}
@@ -103,10 +85,10 @@ The server can check the status of a certain DMA transaction by looking at the $
 In order to determine whether Wupper is processing an address behind or in front of the server, Wupper keeps track of the number of wrap around occurrences. In the DMA status registers the even\_cycle bits displays the status of the wrap-around cycle. In every even cycle (starting from~0), the bits are~0, and every wrap around the status bits will toggle. The $even\_pc$ bit flags a $PC\_read\_pointer$ wrap-around, the $even\_dma$ a Wupper wrap-around. By looking at the wrap-around flags the server can also keep track of its own wrap-arounds. Note that while in the $endless\ DMA$ mode ($wrap\_around$ bit set), the $PC\_read\_pointer$ has to be maintained by the server (software API) and kept within the start and end address range for Wupper to function correctly. Figure\,\ref{fig:endless_dma_diagram_tohost} below shows a diagram of the two pointers racing each other, and the different scenarios in which they can be found with respect to each other.
 \newpage
 \begin{figure}[H]
-\centering
-\includegraphics[width=1\textwidth, page=1]{figures/Endless_DMA_diagram.pdf}
-\caption{Endless DMA buffer and pointers representation diagram in ToHost mode}
-\label{fig:endless_dma_diagram_tohost}
+	\centering
+	\includegraphics[width=1\textwidth, page=1]{figures/Endless_DMA_diagram.pdf}
+	\caption{Endless DMA buffer and pointers representation diagram in ToHost mode}
+	\label{fig:endless_dma_diagram_tohost}
 \end{figure}
 
 Looking at Figure\,\ref{fig:endless_dma_diagram_tohost} above, the following scenarios can be described:
@@ -129,8 +111,8 @@ If the DMA descriptor is set to FromHost, the comparison of the even bits is inv
 Looking at Figure\,\ref{fig:endless_dma_diagram_fromhost} above, the following scenarios can be described:
 \begin{itemize}
 	\item $A:$ start condition, both the server and the DMA have not started their operation.
-	\item $B:$ normal condition, the DMA's current\_address stays behind the PC\_read\_pointer 
-	\item $C:$ normal condition, the PC\_read\_pointer has wrapped around and has to stay behind the DMA's current\_address 
+	\item $B:$ normal condition, the DMA's current\_address stays behind the PC\_read\_pointer
+	\item $C:$ normal condition, the PC\_read\_pointer has wrapped around and has to stay behind the DMA's current\_address
 	\item $D:$ the server is writing too slow, the DMA is stalled because the server read pointer is not advancing fast enough, the DMA current\_address has to stay behind.
 \end{itemize}
 
@@ -140,59 +122,56 @@ Looking at Figure\,\ref{fig:endless_dma_diagram_fromhost} above, the following s
 
 Wupper is equipped with an interrupt controller supporting the MSI-X (Message Signaled Interrupt eXtended) as described in ``Chapter 17: Interrupt Support'' page 812 and onwards of \cite{PCIe_technology}. In particular the chapter and tables in ``MSI-X Capability Structure''.
 
-The MSI-X Interrupt table contains eight interrupts; this number can be extended by a generic parameter in the firmware. Four of the interrupts, [0..3], are dedicated to Wupper, four interrupts, [4..7], are called from the Central Router.
+The MSI-X Interrupt table contains eight interrupts; this number can be extended by a generic parameter in the firmware. All interrupts are mapped to the data\_available interrupt of the corresponding ToHost descriptor, formerly known as interrupt number 2. All the other interrupt sources have been removed since multiple ToHost descriptors were introduced.
 The interrupts are detailed in Table\,\ref{tab:dma_interrupts}.
 
 
 \begin{table}[htbp]
-  \centering
-  \caption{PCIe interrupts}
-    \begin{tabular}{cll}
-    \toprule
-    \textbf{Interrupt} & \textbf{Name} & \textbf{Description} \\
-    \midrule
-    0     &  FromHost wrap around  &  This interrupt is fired when the FromHost descriptor \\
-          &                        & ~~~~~reaches the end address, or wraps around  \\
-    1     &  ToHost wrap around    &  This interrupt is fired when the ToHost descriptor \\
-          &                        & ~~~~~reaches the end address, or wraps around  \\
-    2     &  ToHost Available      &  Fired when data becomes available in the ToHost FIFO  \\
-          &                        & ~~~~~(falling edge of ToHostFifoProgEmpty)  \\
-    3     &  FromHost Full         &  Fired when the FromHost FIFO becomes full (rising edge \\
-          &                        & ~~~~~ of FromHostAppFifoProgFull) \\
-    4     &  Test interrupt \#4  &  Fired when writing data the register INT\_TEST\_4  \\
-    5     &  reserved &  \\
-    6     &  reserved &  \\
-    7     &  reserved &  \\
-    \bottomrule
-    \end{tabular}%
-  \label{tab:dma_interrupts}%
+	\centering
+	\caption{PCIe interrupts}
+	\begin{tabular}{cll}
+		\toprule
+		\textbf{Interrupt} & \textbf{Name} & \textbf{Description} \\
+		\midrule
+		
+		0     &  ToHost 0 Available      &  Fired when data becomes available in the ToHost FIFO 0  \\
+		&                        & ~~~~~(falling edge of ToHostFifoProgEmpty)  \\
+		1     &  ToHost 1 Available      &  Fired when data becomes available in the ToHost FIFO 1 \\
+		&                        & ~~~~~(falling edge of ToHostFifoProgEmpty)  \\
+		1     &  ToHost 2 Available      &  Fired when data becomes available in the ToHost FIFO 2 \\
+		&                        & ~~~~~(falling edge of ToHostFifoProgEmpty)  \\
+		3     &  ToHost 3 Available      &  Fired when data becomes available in the ToHost FIFO 3 \\
+		&                        & ~~~~~(falling edge of ToHostFifoProgEmpty)  \\
+		4     &  reserved &   \\
+		5     &  reserved &   \\
+		6     &  reserved &   \\
+		7     &  reserved &   \\
+		\bottomrule
+	\end{tabular}%
+	\label{tab:dma_interrupts}%
 \end{table}%
 
-Interrupts 0 to 3 are used by the API when controlling the DMA controller and handling the descriptors. Interrupt 0 and 1 have the same functionality, but serve in the other direction (ToHost and FromHost). These interrupts fire when the END\_ADDRESS in the corresponding descriptor was reached. In single shot mode DMA this means that the DMA transfer has completed, at this point also the DESCRIPTOR\_DONE bit in the descriptor status register is set to 1. In circular DMA mode, interrupt 0 and 1 are also set every time the END\_ADDRESS is reached, indicating that the DMA controller wraps back to START\_ADDRESS, but continues operation.
 
-Interrupt 2 is fired when enough data has arrived in the ToHost fifo to fill at least one TLP of data.
+All Interrupts are fired when enough data has arrived in the ToHost fifo to fill at least one TLP of data. Once an interrupt has fired, it will not produce an additional interrupt until the SW\_POINTER has been updated by the software. 
 
-Interrupt 3 is fired when the FromHost fifo reaches the prog full state, this is a usual thing to happen as the threshold of this fifo is set at a low level. The API does not need to take any action on this interrupt as the Wupper core will regulate itself.
-
-Interrupt 4 is a special test interrupt that can be fired by writing the interrupt test register in the register map.
-
-A description of how the software is initializing and handling the interrupts is described in Section~\ref{sec:controlling_interrupts}.
-
+All the interrupts can also be fired from the register INT\_TEST, by setting the bitfield IRQ to the desired interrupt number. This write action will fire a single interrupt. 
+\subsection{Sorting memory}
+In a \href{https://opencores.org/projects/virtex7_pcie_dma/issues/7}{bug report}, it was made clear that some users (depending on the server hardware) experienced out of order FromHost memory transfers. For this reason a sorting memory has been added to the dma\_read\_write part of the Wupper core. This memory sorts pages of 4KB into the correct order before they are passed to the FromHostFifo.
 
 \newpage
 \subsection{Wishbone}
 \begin{flushleft}
-The Wishbone protocol is a design method to connect IP cores with a common interface.
-The Wishbone can be used for soft, firm core or hard core IP and can be used with the VHDL language. The main purpose is to make an interconnection between IP cores and make it more compatible with each other. \newline
-The Wishbone bus is added because of a needed connection between the register map of the Wupper core and an external SLAVE. In this connection a Wishbone crossbar is added so that multiple SLAVEs can be attached. As a SLAVE example a 32 bits block memory was added. The memory has a data input to receive and a data output to send the data back to the crossbar. \newline
-The wupper\_to\_wb.vhd makes Wupper data Wishbone compatible. Also, two FIFOs are added to synchronize the Wupper clock  with an external clock. One FIFO is to send data from Wupper to the crossbar. And one FIFO is to receive  data from the crossbar to the Wupper. \newline
-The system controller makes the external clock and the external reset Wishbone compatible.
-\begin{figure}[H]
-	\centering
-	\input{figures/wupper_to_wishbone.tex}
-	\caption{Block diagram of Wupper to Wishbone}
-	\label{fig:wupper_to_wishbone}
-\end{figure}
+	The Wishbone protocol is a design method to connect IP cores with a common interface.
+	The Wishbone can be used for soft, firm core or hard core IP and can be used with the VHDL language. The main purpose is to make an interconnection between IP cores and make it more compatible with each other. \newline
+	The Wishbone bus is added because of a needed connection between the register map of the Wupper core and an external SLAVE. In this connection a Wishbone crossbar is added so that multiple SLAVEs can be attached. As a SLAVE example a 32 bits block memory was added. The memory has a data input to receive and a data output to send the data back to the crossbar. \newline
+	The wupper\_to\_wb.vhd makes Wupper data Wishbone compatible. Also, two FIFOs are added to synchronize the Wupper clock  with an external clock. One FIFO is to send data from Wupper to the crossbar. And one FIFO is to receive  data from the crossbar to the Wupper. \newline
+	The system controller makes the external clock and the external reset Wishbone compatible.
+	\begin{figure}[H]
+		\centering
+		\input{figures/wupper_to_wishbone.tex}
+		\caption{Block diagram of Wupper to Wishbone}
+		\label{fig:wupper_to_wishbone}
+	\end{figure}
 \end{flushleft}
 
 \newpage
