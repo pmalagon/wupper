@@ -1,6 +1,6 @@
 ## Block Diagram
 
-![Wupper_structure](documentation/figures/dma_core_structure.png)
+![Wupper_structure](documentation/figures/wupper_structure.png)
 
 ## Description
 
