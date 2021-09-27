@@ -24,8 +24,8 @@ target_link_libraries (wupper-config Wupper)
 add_executable(wupper-dma-transfer src/wupper-dma-transfer.cpp)
 target_link_libraries (wupper-dma-transfer Wupper)
 
-add_executable(wupper-chaintest src/wupper-chaintest.cpp)
-target_link_libraries (wupper-chaintest Wupper)
+add_executable(wupper-dump-blocks src/wupper-dump-blocks.cpp)
+target_link_libraries (wupper-dump-blocks Wupper)
 
 add_executable(wupper-throughput src/wupper-throughput.cpp)
 target_link_libraries (wupper-throughput Wupper)

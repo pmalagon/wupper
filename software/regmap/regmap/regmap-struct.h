@@ -94,6 +94,7 @@ typedef struct
 {
   volatile u_long DATA                     : 32;  /* bits  31: 0 */
   volatile u_long EMPTY                    :  1;  /* bits  32:32 */
+  volatile u_long TRIGGER                  :  1;  /* bits  33:33 */
 } wuppercard_wishbone_read_t;
 
 typedef struct

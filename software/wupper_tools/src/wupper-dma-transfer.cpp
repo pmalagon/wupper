@@ -88,163 +88,69 @@ display_help()
   printf("\nUsage: %s [OPTIONS]\n"
 	 "\n\n"
 	 
-	 "This application has a sequence: \n"
-	 " 1 -Start with dma reset(-d)\n" 
-	 " 2 -Flush the FIFO's(-f)\n"
-	 " 3 -Then reset the application (-r)\n"  
-
-	 "\n\n"
-  
 	 "Options:\n"
-	 "  -l             Load pre-programmed seed.\n"
-	 "  -q             Load and generate an unique seed.\n"
-	 "  -g             Generate data from PCIe to PC.\n"
-	 "  -b             Generate data from PC to PCIe.\n"
-	 "  -s             Show application register.\n"
-	 "  -r             Reset the application.\n"
-	 "  -f             Flush the FIFO's.\n"
-	 "  -d             Disable and reset the DMA controller.\n"
+	 "  -g             Generate data from internal counter in FPGA, to PC.\n"
+	 "  -l             Generate data from PC to PCIe and loopback to PC\n"
 	 "  -h             Display help.\n\n",
 	 APPLICATION_NAME);
 }
 
-void
-application_reset()
-{
-  // Disable DMA controller
-  wupperCard.soft_reset();
- }
- 
- 
- 
- void
-dma_reset()
-{
-  // Disable DMA controller
-  wupperCard.dma_stop(DMA_ID);
-  wupperCard.dma_reset();
-}
-
- 
-void
-load_stdseed(uint64_t seed0, uint64_t seed1, uint64_t seed2, uint64_t seed3)
-{
-    printf("Writing seed to application register...");
-    //set seed
-    wupperCard.cfg_set_option("LFSR_SEED_0",seed0);
-    wupperCard.cfg_set_option("LFSR_SEED_1",seed1);
-    wupperCard.cfg_set_option("LFSR_SEED_2",seed2);
-    wupperCard.cfg_set_option("LFSR_SEED_3",seed3);
-    
-  // reset LFSR with seed value
-  wupperCard.cfg_set_option("LFSR_LOAD_SEED",1);
-
-  printf("DONE! \n");
-    
-}
-
-void
-load_unqseed()
-{
-	
-	//generate seed using rand()
-	printf("generating new seed...");
-	srand (time(NULL));
-    uint64_t r0, r1, r2, r3;
-    r0 = (uint64_t)rand()|((uint64_t)rand())<<32;
-    r1 = (uint64_t)rand()|((uint64_t)rand())<<32;
-    r2 = (uint64_t)rand()|((uint64_t)rand())<<32;
-    r3 = (uint64_t)rand()|((uint64_t)rand())<<32;
-    printf("DONE! \n");
-    
-    //set seed
-    printf("Writing seed to application register...");
-    wupperCard.cfg_set_option("LFSR_SEED_0",r0);
-    wupperCard.cfg_set_option("LFSR_SEED_1",r1);
-    wupperCard.cfg_set_option("LFSR_SEED_2",r2);
-    wupperCard.cfg_set_option("LFSR_SEED_3",r3);
-    
-  // reset LFSR with seed value
-  wupperCard.cfg_set_option("LFSR_LOAD_SEED",1);
-   
-  printf("DONE! \n");
-
-}
 
 void
 start_application2pc()
 {  
   uint64_t *memptr;
   
-  //select app mux 0 for LFSR
-  //wupperCard.cfg_set_option("APP_MUX",0);
-  //wupperCard.cfg_set_option("APP_ENABLE",1);
-
-  //int max_tlp = wupperCard.dma_max_tlp_bytes();
+  wupperCard.cfg_set_option(BF_LOOPBACK,0);
+  wupperCard.soft_reset();
+  
   printf("Starting DMA write\n");
   wupperCard.dma_to_host(DMA_ID, paddr1, 1024*1024, 0);
-    wupperCard.dma_wait(DMA_ID);
+  wupperCard.dma_wait(DMA_ID);
   printf("done DMA write \n");
   
   printf("Buffer 1 addresses:\n");
   memptr = (uint64_t*)vaddr1;
   int i;
   for(i=0; i<10;i++){
-	  printf("%i: %lX \n",i, *(memptr++));
-	  }  
-	  
+    printf("%i: %lX \n",i, *(memptr++));
+  }  
+
   //wupperCard.cfg_set_option("APP_ENABLE",0);
 }
 
 void
-start_application2PCIe()
+start_loopback()
 {  
   uint64_t *memptr;
+  int i;
+  memptr = (uint64_t*)vaddr2;
+  wupperCard.cfg_set_option(BF_LOOPBACK,1);
+  wupperCard.soft_reset();
+  for(i=0; i<1024*128;i++){
+    *memptr = (uint64_t) i;
+    memptr++;
+  }
+  printf("Fill fromHost buffer with 64b counterm send to PCIe and read back\n");
   
-  //select app mux 1 for application in the firmware. 
-  int max_tlp = wupperCard.dma_max_tlp_bytes();
-  
-  printf("Reading data from buffer 1...\n");
   //wupperCard.cfg_set_option("APP_MUX",1);
-  wupperCard.dma_to_host(0, paddr1, 1024*1024, max_tlp);
-  wupperCard.dma_from_host(1, paddr2, 1024*1024, max_tlp);
+  wupperCard.dma_to_host(0, paddr1, 1024*1024, 0);
+  wupperCard.dma_from_host(1, paddr2, 1024*1024, 0);
   //wupperCard.cfg_set_option("APP_ENABLE",1);
   wupperCard.dma_wait(0);
   wupperCard.dma_wait(1);
   
   printf("DONE!\n");
     
-  printf("Buffer 2 addresses:\n");
-  memptr = (uint64_t*)vaddr2;
-  int i;
+  printf("Read back first 10 values:\n");
+  memptr = (uint64_t*)vaddr1;
   for(i=0; i<10;i++){
-	  printf("%i: %lX \n",i, *(memptr++));
-	}
+    printf("%i: %lX \n",i, *(memptr++));
+  }
 
 
-  //memptr = (uint64_t*)buffer1.virt_addr;
-  //printf("\n%lX\n", *(memptr++) * *(memptr++));
-  //wupperCard.cfg_set_option("APP_ENABLE",0);
+
 }
-
-void
-show_appreg()
-{
-  printf("\nStatus application registers\n");
-  printf("----------------------------\n");
-  
-  
-  printf("LFSR_SEED_0:         %lX \n",wupperCard.cfg_get_option("LFSR_SEED_0"));
-  printf("LFSR_SEED_1:         %lX \n",wupperCard.cfg_get_option("LFSR_SEED_1"));
-  printf("LFSR_SEED_2:         %lX \n",wupperCard.cfg_get_option("LFSR_SEED_2"));
-  printf("LFSR_SEED_3:         %lX \n",wupperCard.cfg_get_option("LFSR_SEED_3"));
-  
-  printf("APP_MUX:             %lX \n",wupperCard.cfg_get_option("APP_MUX"));
-  printf("LFSR_LOAD_SEED:      %lX \n",wupperCard.cfg_get_option("LFSR_LOAD_SEED"));
-  printf("APP_ENABLE:          %lX \n",wupperCard.cfg_get_option("APP_ENABLE"));
-  printf("\n");
-  
- }
 
 int
 main(int argc, char** argv)
@@ -280,60 +186,18 @@ main(int argc, char** argv)
   }
 
 
-  while ((opt = getopt(argc, argv,"lgbqhsrfd")) != -1) {
+  while ((opt = getopt(argc, argv,"glh")) != -1) {
     switch (opt) {
-    case 'l':
-// load pre-seed
-      wupperCard.card_open(0,0);
-      load_stdseed(0xDEADBEEFABCD0123, 0x87613472FEDCABCD, 0xDEADFACEABCD0123, 0x12313472FEDCFFFF);
-      wupperCard.card_close();  
-      break;
-    case 'q':
-// load unique seed
-      wupperCard.card_open(0,0);
-      load_unqseed();
-      wupperCard.card_close();  
-      break;
     case 'g':
 // generate data from PCIe->PC
       wupperCard.card_open(0,0);
       start_application2pc();
       wupperCard.card_close();  
       break;
-    case 'b':
-// read data from PC memory, multiplies the data and write back to PC memory.
+    case 'l':
+// read data from PC memory, and loop back.
       wupperCard.card_open(0,0);
-      start_application2PCIe();
-      wupperCard.card_close();  
-      break;
-    case 's':
-// show app registers
-      wupperCard.card_open(0,0);     
-      show_appreg();
-      wupperCard.card_close();  
-      break;
-    case 'r':
-// Reset the application
-      wupperCard.card_open(0,0);     
-      printf("resetting application...");
-      application_reset();
-      printf("DONE! \n");
-      wupperCard.card_close();  
-      break;
-      case 'f':
-// Flush the FIFO's
-      wupperCard.card_open(0,0);     
-      
-      printf("DONE! \n");
-      wupperCard.card_close();  
-      break;
-      case 'd':
-// Disable and reset the DMA controller
-      wupperCard.card_open(0,0);     
-      printf("Resetting the DMA controller...");
-      dma_reset();
-
-      printf("DONE! \n");
+      start_loopback();
       wupperCard.card_close();  
       break;
     case 'h':  

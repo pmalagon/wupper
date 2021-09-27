@@ -113,7 +113,7 @@ main(int argc, char** argv)
       }
     }while(empty==1);
     uint64_t read_data;
-    wupperCard.cfg_set_option("WISHBONE_READ_READ_ENABLE",1);
+    wupperCard.cfg_set_option("WISHBONE_READ_TRIGGER",1); //Issue a trigger action to the READ_ENABLE bitfield
     read_data = wupperCard.cfg_get_option("WISHBONE_READ_DATA");
     printf("%lX\n", read_data);
   }

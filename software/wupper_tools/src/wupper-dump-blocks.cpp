@@ -25,13 +25,6 @@
 #define BUFSIZE             1024
 #define APPLICATION_NAME    "wupper-dump-blocks"
 
-// Register map 3.x compatibility
-#ifndef BF_GBT_EMU_ENA_TOHO
-#define BF_GBT_EMU_ENA_TOHO BF_GBT_EMU_ENA_TOHOST
-#endif
-#ifndef BF_GBT_EMU_ENA_TOFE
-#define BF_GBT_EMU_ENA_TOFE BF_GBT_EMU_ENA_TOFRONTEND
-#endif
 
 //Globals
 WupperCard wupperCard;
@@ -46,7 +39,7 @@ void display_help()
   printf("  -D level       Configure debug output at API level. 0=disabled, 5, 10, 20 progressively more verbose output. Default: 0.\n");
   printf("  -n NUMBER      Dump NUMBER blocks. Default: 100.\n");
   printf("  -f FILENAME    Dump blocks into the given file. Default: 'out.blocks'.\n");
-  printf("  -F             Enable To-Frontend GBT emulator\n");
+  printf("  -L             Use internal loopback - Send data from the server back into FIFO towards server\n");
   printf("  -h             Display help.\n");
   printf("  -V             Display the version number\n");
 }
@@ -56,9 +49,9 @@ void display_help()
 int main(int argc, char **argv)
 /*****************************/
 {
-  int loop, ret, debuglevel, max_tlp, bsize, handle, opt, device_number = 0, emu_to_frontend = 0;
+  int ret, debuglevel, bsize, handle, opt, device_number = 0, loopback = 0;
   u_int nblocks = 100;
-  u_long vaddr, paddr, opt_emu_ena_to_host, opt_emu_ena_to_frontend;
+  u_long vaddr, paddr, opt_ena_loopback ;
   const char *filename = "out.blocks";
 
   while((opt = getopt(argc, argv, "hd:f:n:D:FV")) != -1)
@@ -86,8 +79,8 @@ int main(int argc, char **argv)
 	display_help();
 	exit(0);
 
-      case 'F':
-        emu_to_frontend = 1;
+      case 'L':
+        loopback = 1;
         break;
 
       case 'V':
@@ -105,25 +98,23 @@ int main(int argc, char **argv)
     wupperCard.card_open(device_number,0);
 
     // save current state 
-    opt_emu_ena_to_host     = wupperCard.cfg_get_option(BF_GBT_EMU_ENA_TOHO);
-    opt_emu_ena_to_frontend = wupperCard.cfg_get_option(BF_GBT_EMU_ENA_TOFE);
+    opt_ena_loopback     = wupperCard.cfg_get_option(BF_LOOPBACK);
+    
+    
 
-    wupperCard.cfg_set_option(BF_GBT_EMU_ENA_TOHO, 1);
-
-    if(emu_to_frontend)
+    if(loopback)
     {
-      wupperCard.cfg_set_option(BF_GBT_EMU_ENA_TOFE, 1);
+      wupperCard.cfg_set_option(BF_LOOPBACK, 1);
+    }
+    else
+    {
+      wupperCard.cfg_set_option(BF_LOOPBACK, 0);
     }
 
-    for(loop = 0; loop < 8; loop++)
-      wupperCard.dma_wait(loop);
 
     wupperCard.dma_reset();
     wupperCard.soft_reset();
-    wupperCard.dma_fifo_flush();
-    //wupperCard.cfg_set_option(BF_GBT_EMU_ENA_TOFE, 0);
-    //wupperCard.cfg_set_option(BF_GBT_EMU_ENA_TOHO, 1);
-
+    
     ret = CMEM_Open();
     bsize = BUFSIZE * nblocks;
     if (!ret)
@@ -148,9 +139,8 @@ int main(int argc, char **argv)
       exit(-1);
     }
 
-    max_tlp = wupperCard.dma_max_tlp_bytes();
-
-    wupperCard.dma_to_host(DMA_ID, paddr, BUFSIZE * nblocks, max_tlp, 0);
+    
+    wupperCard.dma_to_host(DMA_ID, paddr, BUFSIZE * nblocks, 0);
     wupperCard.dma_wait(DMA_ID);
 
     if(nblocks != fwrite((void*)(vaddr), 1024, nblocks, f))
@@ -162,8 +152,8 @@ int main(int argc, char **argv)
     fclose(f);
 
     // reset to initial state
-    wupperCard.cfg_set_option(BF_GBT_EMU_ENA_TOHO, opt_emu_ena_to_host);
-    wupperCard.cfg_set_option(BF_GBT_EMU_ENA_TOFE, opt_emu_ena_to_frontend);
+    wupperCard.cfg_set_option(BF_LOOPBACK, opt_ena_loopback);
+    
 
     ret = CMEM_SegmentFree(handle);
     if (!ret)
@@ -173,7 +163,7 @@ int main(int argc, char **argv)
 
     wupperCard.card_close();
   }
-  catch(WupperException ex)
+  catch(WupperException &ex)
   {
     std::cout << "ERROR. Exception thrown: " << ex.what() << std:: endl;
     exit(-1);

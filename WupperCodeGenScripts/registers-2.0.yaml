@@ -509,6 +509,10 @@ Wishbone:
           value: 1
           name: READ_ENABLE
           desc: Any write to this register triggers a read from the Wishbone to Wupper fifo
+        - range: 33
+          name: TRIGGER
+          type: W
+          desc: Dummy write bitfield to issue a trigger to READ_ENABLE
         - range: 32
           name: EMPTY
           type: R
