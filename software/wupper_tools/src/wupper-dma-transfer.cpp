@@ -68,6 +68,7 @@
 
 #include "cmem_rcc/cmem_rcc.h"
 #include "rcc_error/rcc_error.h"
+#include "DFDebug/DFDebug.h"
 #include "wuppercard/WupperCard.h"
 #include "wuppercard/WupperException.h"
 
@@ -91,6 +92,7 @@ display_help()
 	 "Options:\n"
 	 "  -g             Generate data from internal counter in FPGA, to PC.\n"
 	 "  -l             Generate data from PC to PCIe and loopback to PC\n"
+	 "  -D level       Configure debug output at API level. 0=disabled, 5, 10, 20 progressively more verbose output. Default: 0.\n"
 	 "  -h             Display help.\n\n",
 	 APPLICATION_NAME);
 }
@@ -112,7 +114,7 @@ start_application2pc()
   printf("Buffer 1 addresses:\n");
   memptr = (uint64_t*)vaddr1;
   int i;
-  for(i=0; i<10;i++){
+  for(i=0; i<100;i++){
     printf("%i: %lX \n",i, *(memptr++));
   }  
 
@@ -122,8 +124,9 @@ start_application2pc()
 void
 start_loopback()
 {  
-  uint64_t *memptr;
+  uint64_t *memptr, *memptr2;
   int i;
+  bool Match = true;
   memptr = (uint64_t*)vaddr2;
   wupperCard.cfg_set_option(BF_LOOPBACK,1);
   wupperCard.soft_reset();
@@ -133,23 +136,36 @@ start_loopback()
   }
   printf("Fill fromHost buffer with 64b counterm send to PCIe and read back\n");
   
-  //wupperCard.cfg_set_option("APP_MUX",1);
   wupperCard.dma_to_host(0, paddr1, 1024*1024, 0);
   wupperCard.dma_from_host(1, paddr2, 1024*1024, 0);
-  //wupperCard.cfg_set_option("APP_ENABLE",1);
+  printf("Waiting for toHost DMA to complete\n");
   wupperCard.dma_wait(0);
+  printf("Waiting for fromHost DMA to complete\n");
   wupperCard.dma_wait(1);
   
   printf("DONE!\n");
     
   printf("Read back first 10 values:\n");
   memptr = (uint64_t*)vaddr1;
-  for(i=0; i<10;i++){
-    printf("%i: %lX \n",i, *(memptr++));
+  memptr2 = (uint64_t*)vaddr2;
+  for(i=0; i<100;i++){
+    printf("%i: %lX %lX \n",i, *(memptr2++), *(memptr++));
   }
-
-
-
+  memptr = (uint64_t*)vaddr1;
+  memptr2 = (uint64_t*)vaddr2;
+  printf("Comparing all %i counter values in both memory buffers to each other...\n", 1024*128);
+  for(i=0; i<1024*128; i++){
+    if(*(memptr2) != *(memptr))
+    {
+      printf("Mismatch at counter value %i: Expected %lX, Received %lX\n", i, *memptr2 ,*memptr);
+      memptr2++;
+      memptr++;
+      Match = false;
+      break;
+    }
+  }
+  if(Match)
+    printf("Comparing buffers OK.\n");
 }
 
 int
@@ -157,6 +173,7 @@ main(int argc, char** argv)
 {
   u_int ret;
   int opt;
+  int debuglevel;
   
   
   ret = CMEM_Open();
@@ -186,7 +203,7 @@ main(int argc, char** argv)
   }
 
 
-  while ((opt = getopt(argc, argv,"glh")) != -1) {
+  while ((opt = getopt(argc, argv,"glD:h")) != -1) {
     switch (opt) {
     case 'g':
 // generate data from PCIe->PC
@@ -199,6 +216,10 @@ main(int argc, char** argv)
       wupperCard.card_open(0,0);
       start_loopback();
       wupperCard.card_close();  
+      break;
+    case 'D':
+      debuglevel = atoi(optarg);
+      DF::GlobalDebugSettings::setup(debuglevel, DFDB_FELIXCARD);
       break;
     case 'h':  
       display_help();

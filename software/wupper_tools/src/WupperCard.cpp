@@ -303,8 +303,8 @@ void WupperCard::card_open( int device_nr, u_int lock_mask, bool ignore_version 
           // ...and exit
           LOG5( "WupperCard::card_open: FW Regmap = " << regmap_version_fw_major
                 << " but SW Regmap = " << regmap_version_sw_major);
-          THROW_WUPPER_EXCEPTION(HW, "Regmap versions of HW (" << regmap_version_fw_major
-                              << ") and SW (" << regmap_version_sw_major << ") do not match");
+          //THROW_WUPPER_EXCEPTION(HW, "Regmap versions of HW (" << regmap_version_fw_major
+          //                    << ") and SW (" << regmap_version_sw_major << ") do not match");
         }
       else
         {
@@ -636,7 +636,7 @@ void WupperCard::dma_from_host( u_int dma_id, u_long src, size_t size, u_int fla
       THROW_WUPPER_EXCEPTION(PARAM, "size is not a multiple of 32 bytes");
     }
 
-  /*
+  
   u_int best_tlp = m_maxTlpBytes;
   LOG20( "WupperCard::dma_from_host: first best_tlp = " << best_tlp);
   while(size % best_tlp)
@@ -645,7 +645,6 @@ void WupperCard::dma_from_host( u_int dma_id, u_long src, size_t size, u_int fla
       LOG20( "WupperCard::dma_from_host: new best_tlp = " << best_tlp);
     }
   LOG20( "WupperCard::dma_from_host: size " << size << " best_tlp = " << best_tlp);
-  */
 
   volatile dma_descriptor_t *pdma = &m_bar0->DMA_DESC[dma_id];
   // To make sure each GBT-SCA command (fits in 32 bytes) is sent without delay
@@ -663,11 +662,7 @@ void WupperCard::dma_from_host( u_int dma_id, u_long src, size_t size, u_int fla
     }
   else
     {
-      // Default FromHost TLP setting
-      //if( (flags & WUPPER_DMA_WRAPAROUND) != 0 )
-      pdma->tlp = 32/4;
-      //else
-      //  pdma->tlp = best_tlp/4;
+      pdma->tlp = best_tlp/4;
     }
   pdma->start_address = src;
   pdma->end_address   = src + size;

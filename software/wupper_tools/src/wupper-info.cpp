@@ -808,7 +808,7 @@ int main(int argc, char **argv)
   if(card_model != WUPPER_712 && card_model != WUPPER_711 && card_model != WUPPER_710 && card_model != WUPPER_709 && card_model != WUPPER_128)
   {
     fprintf(stderr, APPLICATION_NAME " error: Card model not recognized\n");
-    exit(-1);
+    //exit(-1);
   }
 
   if(common_info)
