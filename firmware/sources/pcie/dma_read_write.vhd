@@ -131,12 +131,12 @@ architecture rtl of dma_read_write is
   --signal current_address: std_logic_vector(63 downto 0);
   
   signal mem_doutb : std_logic_vector(DATA_WIDTH-1 downto 0);
-  signal mem_addra : std_logic_vector(6 downto 0);
-  signal mem_addrb : std_logic_vector(6 downto 0);
+  signal mem_addra : std_logic_vector(14-f_log2(DATA_WIDTH) downto 0);
+  signal mem_addrb : std_logic_vector(14-f_log2(DATA_WIDTH) downto 0);
   signal mem_dina  : std_logic_vector(DATA_WIDTH-1 downto 0);
   signal mem_wea   : std_logic_vector(0 downto 0);
-  signal mem_full  : std_logic_vector(127 downto 0);
-  signal mem_full_p1  : std_logic_vector(127 downto 0);
+  signal mem_full  : std_logic_vector((32768/DATA_WIDTH)-1 downto 0);
+  signal mem_full_p1  : std_logic_vector((32768/DATA_WIDTH)-1 downto 0);
   signal reading_mem : std_logic;
   --signal fromHostFifo_we_p0 : std_logic;
   signal clear_wait_for_4k_boundary : std_logic;
@@ -493,7 +493,8 @@ begin
             if(s_axis_rc.tvalid = '1') then
               mem_dina_pipe <= s_axis_rc.tdata(DATA_WIDTH-1 downto 96); --pipeline 160 bits of data
               receive_word_count <= s_axis_rc.tdata(42 downto 32);
-              mem_addra <= s_axis_rc.tdata(11 downto 5);
+              
+              mem_addra <= s_axis_rc.tdata(11 downto f_log2(DATA_WIDTH)-3);
               
               strip_state <= PUSH_DATA;
             end if;
@@ -534,7 +535,7 @@ begin
             end if;
         else
             if(mem_full_p1(to_integer(unsigned(mem_addrb))) = '1') then
-                if(mem_addrb /= "1111111") then
+                if(mem_addrb /= (mem_addrb'range => '1')) then
                     mem_addrb <= mem_addrb + 1;
                 else
                     reading_mem <= '0';
@@ -562,8 +563,8 @@ begin
 
    rc_interface_mem : xpm_memory_sdpram
    generic map ( -- @suppress "Generic map uses default values. Missing optional actuals: USE_EMBEDDED_CONSTRAINT, CASCADE_HEIGHT, SIM_ASSERT_CHK, RST_MODE_A, RST_MODE_B" -- @suppress "Generic map uses default values. Missing optional actuals: USE_MEM_INIT_MMI, USE_EMBEDDED_CONSTRAINT, CASCADE_HEIGHT, SIM_ASSERT_CHK, WRITE_PROTECT, RST_MODE_A, RST_MODE_B"
-      ADDR_WIDTH_A => 7,
-      ADDR_WIDTH_B => 7,
+      ADDR_WIDTH_A => 15-f_log2(DATA_WIDTH),
+      ADDR_WIDTH_B => 15-f_log2(DATA_WIDTH),
       AUTO_SLEEP_TIME => 0,
       BYTE_WRITE_WIDTH_A => DATA_WIDTH,
       --CASCADE_HEIGHT => 0,
@@ -573,7 +574,7 @@ begin
       MEMORY_INIT_PARAM => "0",
       MEMORY_OPTIMIZATION => "true",
       MEMORY_PRIMITIVE => "auto",
-      MEMORY_SIZE => 128*DATA_WIDTH,
+      MEMORY_SIZE => 32768,
       MESSAGE_CONTROL => 0,
       READ_DATA_WIDTH_B => DATA_WIDTH,
       READ_LATENCY_B => 1,
