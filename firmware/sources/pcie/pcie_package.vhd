@@ -82,6 +82,7 @@ package pcie_package is
 
   function to_sl( A: std_logic_vector) return std_logic ;
   function or_reduce(slv : in std_logic_vector) return std_logic ;
+  function f_log2 (constant x : positive) return natural;
   --
   -- PCIe DMA core: AXI-4 Stream interface
   type axis_type is record
@@ -522,6 +523,16 @@ package body pcie_package is
         res_v := res_v or slv(i);
       end loop;
       return res_v;
+    end function;
+    
+    function f_log2 (constant x : positive) return natural is
+        variable i : natural;
+    begin
+        i := 0;
+        while (2**i < x) and i < 31 loop
+            i := i + 1;
+        end loop;
+        return i;
     end function;
     
 end pcie_package;

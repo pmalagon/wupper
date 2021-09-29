@@ -46,15 +46,7 @@ end entity WupperFifos;
 
 
 architecture rtl of WupperFifos is
-    function f_log2 (constant x : positive) return natural is
-        variable i : natural;
-    begin
-        i := 0;
-        while (2**i < x) and i < 31 loop
-            i := i + 1;
-        end loop;
-        return i;
-    end function;
+
 
   signal toHostFifoIndex_p1           : integer range 0 to NUMBER_OF_DESCRIPTORS-2;
   signal toHostFifo_dout_array        : slv_array(0 to NUMBER_OF_DESCRIPTORS-2);
