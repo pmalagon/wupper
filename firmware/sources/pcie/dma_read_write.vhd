@@ -503,7 +503,7 @@ begin
             strip_state <= PUSH_DATA;
             if((s_axis_rc.tvalid='1' or s_axis_rc_tlast_pipe = '1')) then
               mem_wea <= "1";
-              mem_full(to_integer(unsigned(mem_addra))) <= '1';
+              
               if mem_wea = "1" then
                 mem_addra <= mem_addra+1;
               end if;
@@ -521,7 +521,9 @@ begin
             end if;
         end case;
         
-        
+        if mem_wea = "1" then
+            mem_full(to_integer(unsigned(mem_addra))) <= '1';
+        end if;
         --! Read out memory and write into fromHostFifo
         clear_wait_for_4k_boundary <= '0';
         fromHostFifo_we <= '0';

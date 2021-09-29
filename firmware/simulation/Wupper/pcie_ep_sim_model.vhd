@@ -122,7 +122,7 @@ architecture sim of pcie_ep_sim_model is
     signal switch_off_tohost: std_logic;
     signal do_finish_fromhost: boolean := false;
     constant TLP_SIZE_TOHOST : integer := 512;
-    constant TLP_SIZE_FROMHOST : integer := 32;
+    constant TLP_SIZE_FROMHOST : integer := 128;
     signal responding : std_logic;
 begin
     user_clk_proc: process
@@ -378,7 +378,7 @@ begin
             report "current address for desc "&to_string(NUMBER_OF_DESCRIPTORS-1)&": "&to_hstring(RegData);
             if(RegData = pc_pointer_FromHost_msb&pc_pointer_FromHost) then
                 last_pc_pointer_FromHost := pc_pointer_FromHost;
-                pc_pointer_FromHost := pc_pointer_FromHost+32;
+                pc_pointer_FromHost := pc_pointer_FromHost+TLP_SIZE_FROMHOST;
                 report "Incrementing FromHost PC pointer to "&to_hstring(pc_pointer_FromHost);
                 w(REG_DESCRIPTOR_0a+8+(NUMBER_OF_DESCRIPTORS-1)*32,   BAR0, pc_pointer_FromHost_msb&pc_pointer_FromHost); --Wrap ToHost pc_pointer
                 if pc_pointer_FromHost = x"000" then
