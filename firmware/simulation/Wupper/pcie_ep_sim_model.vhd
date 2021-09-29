@@ -422,7 +422,7 @@ begin
         end generate;
     end generate;
 
-    response_proc: process(user_clk)
+    response_proc: process(user_clk, sys_rst_n)
         variable ToHost_tlp_busy: std_logic := '0';
         variable address: std_logic_vector(63 downto 0);
         variable dword_count: std_logic_vector(10 downto 0);
