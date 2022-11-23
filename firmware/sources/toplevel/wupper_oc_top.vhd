@@ -294,8 +294,8 @@ begin
                 end if;
             end if;
           end process;
-          toHostFifo_wr_en(descr) <= (not toHostFifo_prog_full(descr)) when LOOPBACK_250(i) = '0' else fromHostFifo_dvalid;
-          toHostFifo_din(descr) <= out_data when LOOPBACK_250(i) = '0' else fromHostFifo_dout;
+          toHostFifo_wr_en(descr) <= (not toHostFifo_prog_full(descr)) when LOOPBACK_250(descr) = '0' else fromHostFifo_dvalid;
+          toHostFifo_din(descr) <= out_data when LOOPBACK_250(descr) = '0' else fromHostFifo_dout;
           
           end generate;
           
