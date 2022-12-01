@@ -44,6 +44,17 @@ For portability reasons, no Xilinx project files will be supplied with Wupper.
 Instead, a bundle of _TCL scripts_ has been supplied to create a project and import all necessary files, as well as to do the synthesis and implementation.
 These scripts are be described in details in the [/documentation/wupper.pdf](documentation/wupper.pdf) distributed with Wupper.
 
+The Wupper has been tested on a VCU128 FPGA on a Gigabyte X570 AORUS PRO motherboard. There are 4 conditions to test the device:
+* Bifurcation enabled in BIOS with x8x8 configuration.
+* IOMMU disabled in BIOS
+* VCU128 in PCIEX16 slot.
+* No card on PCIEX8 slot.
+
+Two devices populate in the PCIe bus for the VCU128. The wupper driver creates two files, /dev/wupper0 and /dev/wupper1. 
+Each of them correspond to a PCIe device, connected in the FPGA to a pair of 512b-width FIFO (one for RX and one for TX), 
+making a total of 1024b communication path at 250MHz for a theretical maximum burst of 256Gbps, 
+greater than the 252Gbps theoretical maximum of PCIe Gen4 x16.
+
 ## Feedback
 
 
